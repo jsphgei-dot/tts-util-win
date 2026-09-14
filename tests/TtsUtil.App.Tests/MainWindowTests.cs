@@ -1,7 +1,10 @@
 using System.IO;
+using System.Text.Json;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
+using System.Windows.Media;
+using System.Windows.Media.Imaging;
 using TtsUtil.Core.Settings;
 using Xunit;
 
@@ -123,6 +126,81 @@ public sealed class MainWindowTests : IDisposable
         Click(window.RescanButton);
 
         _wpf.Invoke(() => Assert.Single(window.Voices));
+    }
+
+    [Fact]
+    public void TheWindowRendersItsVisualTree()
+    {
+        var window = CreateWindow();
+
+        _wpf.Invoke(() =>
+        {
+            var root = (FrameworkElement)window.Content;
+            root.Measure(new Size(940, 660));
+            root.Arrange(new Rect(0, 0, 940, 660));
+            root.UpdateLayout();
+
+            var bitmap = new RenderTargetBitmap(940, 660, 96, 96, PixelFormats.Pbgra32);
+            bitmap.Render(root);
+
+            Assert.Equal(940, bitmap.PixelWidth);
+        });
+    }
+
+    [Fact]
+    public void EveryTabRealisesAndRenders()
+    {
+        var window = CreateWindow();
+
+        _wpf.Invoke(() =>
+        {
+            var root = (FrameworkElement)window.Content;
+            root.Measure(new Size(940, 660));
+            root.Arrange(new Rect(0, 0, 940, 660));
+
+            for (var index = 0; index < window.Tabs.Items.Count; index++)
+            {
+                window.Tabs.SelectedIndex = index;
+                root.UpdateLayout();
+
+                var bitmap = new RenderTargetBitmap(940, 660, 96, 96, PixelFormats.Pbgra32);
+                bitmap.Render(root);
+
+                var tab = (TabItem)window.Tabs.Items[index];
+                Assert.True(tab.IsSelected, $"Tab {tab.Header} did not become selected.");
+                Assert.NotNull(tab.Content);
+            }
+        });
+    }
+
+    [Fact]
+    public void TheProcessIsNotInGlobalizationInvariantMode()
+    {
+        var invariant = AppContext.TryGetSwitch("System.Globalization.Invariant", out var enabled) && enabled;
+
+        Assert.False(invariant);
+    }
+
+    [Fact]
+    public void TheShippingAppIsNotBuiltInGlobalizationInvariantMode()
+    {
+        var configPath = Path.ChangeExtension(typeof(MainWindow).Assembly.Location, ".runtimeconfig.json");
+        Assert.True(File.Exists(configPath), $"Expected the app runtime config at {configPath}.");
+
+        using var document = JsonDocument.Parse(File.ReadAllText(configPath));
+        var properties = document.RootElement
+            .GetProperty("runtimeOptions")
+            .TryGetProperty("configProperties", out var element)
+            ? element
+            : default;
+
+        if (properties.ValueKind != JsonValueKind.Object) return;
+
+        // WPF resolves en-US (LCID 1033) while formatting text; invariant mode throws there.
+        var invariant = properties.TryGetProperty("System.Globalization.Invariant", out var value) &&
+                        value.ValueKind == JsonValueKind.True;
+
+        Assert.False(invariant, "TtsUtilWin is built with InvariantGlobalization, which breaks WPF text rendering.");
     }
 
     // --- Speaker selection ---

@@ -7,6 +7,5 @@
     <Authors>TTS Util Win contributors</Authors>
     <Product>TTS Util Win</Product>
     <Copyright>Copyright (C) 2026</Copyright>
-    <InvariantGlobalization>true</InvariantGlobalization>
   </PropertyGroup>
 </Project>
