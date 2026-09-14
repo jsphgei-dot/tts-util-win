@@ -1,0 +1,10 @@
+bin/
+obj/
+*.user
+.vs/
+publish/
+dist/
+
+# Voice models are large and are downloaded by scripts/FetchVoices.ps1.
+voices/*
+!voices/README.md
