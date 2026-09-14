@@ -25,6 +25,8 @@ public partial class MainWindow : Window
     private CancellationTokenSource? _cancellation;
     private CancellationTokenSource? _typingCancellation;
     private AudioPlayerSink? _player;
+    private readonly SemaphoreSlim _typingTurnstile = new(1, 1);
+    private int _queuedSnippets;
     private bool _initialising = true;
     private bool _busy;
 
@@ -36,11 +38,15 @@ public partial class MainWindow : Window
     {
         _settings = settings;
         _loadVoiceOnSelection = loadVoiceOnSelection;
+        SpeakSnippet = snippet => _ = SpeakSnippetAsync(snippet);
         InitializeComponent();
         LoadSettingsIntoUi();
         _initialising = false;
         RefreshVoices();
     }
+
+    /// <summary>Speaks one completed word during playback on input mode.</summary>
+    internal Action<string> SpeakSnippet { get; set; }
 
     /// <summary>Reports an error as (message, title). Defaults to a modal dialog.</summary>
     internal Action<string, string> ErrorReporter { get; set; } = (message, title) =>
@@ -418,38 +424,52 @@ public partial class MainWindow : Window
         var snippet = TypingReader.TextToRead(InputText.Text, change.Offset, change.AddedLength, change.RemovedLength);
         if (string.IsNullOrWhiteSpace(snippet)) return;
 
-        _ = SpeakSnippetAsync(snippet!);
+        SpeakSnippet(snippet!);
     }
 
+    /// <summary>Queues one word and speaks it after any words already waiting.</summary>
     private async Task SpeakSnippetAsync(string snippet)
     {
         var engine = _engine;
         if (engine is null) return;
 
-        CancelTypingPlayback();
-        var cancellation = new CancellationTokenSource();
-        _typingCancellation = cancellation;
-        var token = cancellation.Token;
+        // Drop words once the backlog is long enough to be useless.
+        if (Interlocked.Increment(ref _queuedSnippets) > MaxQueuedSnippets)
+        {
+            Interlocked.Decrement(ref _queuedSnippets);
+            return;
+        }
+
+        var token = (_typingCancellation ??= new CancellationTokenSource()).Token;
         var speakerId = Math.Max(0, SpeakerBox.SelectedIndex);
         var speed = (float)SpeedSlider.Value;
 
         try
         {
-            await Task.Run(() =>
+            await _typingTurnstile.WaitAsync(token);
+
+            try
             {
-                using var player = new AudioPlayerSink(engine.SampleRate, token);
-                engine.Synthesize(snippet, speakerId, speed, samples =>
+                await Task.Run(() =>
                 {
-                    if (token.IsCancellationRequested) return false;
-                    player.WriteSamples(samples.Span);
-                    return true;
+                    using var player = new AudioPlayerSink(engine.SampleRate, token);
+                    engine.Synthesize(snippet, speakerId, speed, samples =>
+                    {
+                        if (token.IsCancellationRequested) return false;
+                        player.WriteSamples(samples.Span);
+                        return true;
+                    }, token);
+                    player.WaitUntilDrained();
                 }, token);
-                player.WaitUntilDrained();
-            }, token);
+            }
+            finally
+            {
+                _typingTurnstile.Release();
+            }
         }
         catch (OperationCanceledException)
         {
-            // A newer keystroke replaced this one.
+            // Stop, or a full read, cleared the queue.
         }
         catch (Exception ex)
         {
@@ -457,21 +477,15 @@ public partial class MainWindow : Window
         }
         finally
         {
-            if (ReferenceEquals(_typingCancellation, cancellation)) _typingCancellation = null;
-            cancellation.Dispose();
+            Interlocked.Decrement(ref _queuedSnippets);
         }
     }
 
     private void CancelTypingPlayback()
     {
-        try
-        {
-            _typingCancellation?.Cancel();
-        }
-        catch (ObjectDisposedException)
-        {
-            // Already finished.
-        }
+        var cancellation = _typingCancellation;
+        _typingCancellation = null;
+        cancellation?.Cancel();
     }
 
     private void OnWindowClosing(object sender, System.ComponentModel.CancelEventArgs e)
@@ -540,6 +554,8 @@ public partial class MainWindow : Window
             return string.Empty;
         }
     }
+
+    private const int MaxQueuedSnippets = 8;
 
     private static int ParseInt(string text, int fallback) =>
         int.TryParse(text.Trim(), out var value) ? value : fallback;

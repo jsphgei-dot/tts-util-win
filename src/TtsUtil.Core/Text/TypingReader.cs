@@ -18,35 +18,37 @@ public static class TypingReader
         if (changeOffset < 0 || changeOffset + addedLength > text.Length) return null;
 
         var inserted = text.Substring(changeOffset, addedLength);
-        var startChar = inserted[0];
-        var startsWithDelimiter = IsDelimiter(startChar);
 
-        // Rule one: a single ordinary character is read on its own.
-        if (addedLength == 1 && !startsWithDelimiter) return inserted;
-
-        // Rules two and three: a delimiter reads back the word just spelt out.
-        if (addedLength == 1 && startsWithDelimiter)
+        // A typed delimiter completes the word before it; ordinary characters say nothing.
+        if (addedLength == 1)
         {
-            var builder = new StringBuilder();
-            builder.Append(startChar);
-            for (var i = changeOffset - 1; i >= 0; i--)
-            {
-                var c = text[i];
-                if (IsDelimiter(c)) break;
-                builder.Append(c);
-            }
-
-            if (builder.Length <= 1) return null;
-
-            var chars = builder.ToString().ToCharArray();
-            Array.Reverse(chars);
-            return new string(chars);
+            return IsDelimiter(inserted[0]) ? WordEndingAt(text, changeOffset) : null;
         }
 
-        // Rule four: a wholesale replacement is read from start to end.
+        // A wholesale replacement, such as a paste, is read from start to end.
         if (changeOffset == 0 && addedLength >= removedLength) return inserted;
 
         return null;
+    }
+
+    /// <summary>Returns the word immediately before the delimiter, including it.</summary>
+    private static string? WordEndingAt(string text, int delimiterIndex)
+    {
+        var builder = new StringBuilder();
+        builder.Append(text[delimiterIndex]);
+
+        for (var i = delimiterIndex - 1; i >= 0; i--)
+        {
+            var c = text[i];
+            if (IsDelimiter(c)) break;
+            builder.Append(c);
+        }
+
+        if (builder.Length <= 1) return null;
+
+        var chars = builder.ToString().ToCharArray();
+        Array.Reverse(chars);
+        return new string(chars);
     }
 
     /// <summary>Whitespace and sentence punctuation, including fullwidth forms.</summary>

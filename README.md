@@ -10,7 +10,7 @@ portable executable: no installer, no system speech engine, no network access at
 * Write the same input to a wave file.
 * Insert custom silence for line endings, sentences, questions, and exclamations.
 * Omit hash characters, web links, and mailto links from the audio.
-* Read letters and words back as you type them.
+* Read each word back as you finish typing it.
 * Pick a voice, a speaker within a multi speaker voice, and a speech rate.
 
 ## Quick start

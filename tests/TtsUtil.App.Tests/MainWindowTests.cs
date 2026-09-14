@@ -318,6 +318,76 @@ public sealed class MainWindowTests : IDisposable
     }
 
     [Fact]
+    public void TypingAWordSpeaksItOnlyOnceTheWordIsFinished()
+    {
+        var window = CreateWindow();
+        var spoken = new List<string>();
+
+        _wpf.Invoke(() =>
+        {
+            window.SpeakSnippet = snippet => spoken.Add(snippet);
+            window.ReadAsYouTypeBox.IsChecked = true;
+
+            TypeCharacters(window, "cat");
+            Assert.Empty(spoken);
+
+            TypeCharacters(window, " ");
+            Assert.Equal(new[] { "cat " }, spoken);
+        });
+    }
+
+    [Fact]
+    public void TypingSeveralWordsSpeaksEachOneInTurn()
+    {
+        var window = CreateWindow();
+        var spoken = new List<string>();
+
+        _wpf.Invoke(() =>
+        {
+            window.SpeakSnippet = snippet => spoken.Add(snippet);
+            window.ReadAsYouTypeBox.IsChecked = true;
+
+            TypeCharacters(window, "the cat sat.");
+
+            Assert.Equal(new[] { "the ", "cat ", "sat." }, spoken);
+        });
+    }
+
+    [Fact]
+    public void RepeatedSpacesDoNotRepeatTheWord()
+    {
+        var window = CreateWindow();
+        var spoken = new List<string>();
+
+        _wpf.Invoke(() =>
+        {
+            window.SpeakSnippet = snippet => spoken.Add(snippet);
+            window.ReadAsYouTypeBox.IsChecked = true;
+
+            TypeCharacters(window, "cat   ");
+
+            Assert.Equal(new[] { "cat " }, spoken);
+        });
+    }
+
+    [Fact]
+    public void TypingSpeaksNothingWhileReadAsYouTypeIsOff()
+    {
+        var window = CreateWindow();
+        var spoken = new List<string>();
+
+        _wpf.Invoke(() =>
+        {
+            window.SpeakSnippet = snippet => spoken.Add(snippet);
+            window.ReadAsYouTypeBox.IsChecked = false;
+
+            TypeCharacters(window, "cat dog ");
+
+            Assert.Empty(spoken);
+        });
+    }
+
+    [Fact]
     public void ReadAsYouTypeCheckboxIsStoredInSettings()
     {
         var window = CreateWindow();
@@ -544,6 +614,12 @@ public sealed class MainWindowTests : IDisposable
 
         _windows.Add(window);
         return window;
+    }
+
+    /// <summary>Appends one character at a time, the way a text box reports keystrokes.</summary>
+    private static void TypeCharacters(MainWindow window, string text)
+    {
+        foreach (var c in text) window.InputText.AppendText(c.ToString());
     }
 
     private void Click(Button button) =>
