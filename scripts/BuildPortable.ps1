@@ -18,7 +18,8 @@ param(
     [string]$Configuration = 'Release',
     [string]$Runtime = 'win-x64',
     [string]$OutputDirectory,
-    [switch]$IncludeVoices
+    [switch]$IncludeVoices,
+    [switch]$SkipTests
 )
 
 $ErrorActionPreference = 'Stop'
@@ -30,13 +31,22 @@ if (-not $OutputDirectory) {
     $OutputDirectory = Join-Path $root 'dist\TtsUtilWin'
 }
 
+if (-not $SkipTests) {
+    $tests = Join-Path $root 'tests\TtsUtil.Core.Tests\TtsUtil.Core.Tests.csproj'
+    Write-Host 'Running unit tests' -ForegroundColor Cyan
+    dotnet test $tests -c $Configuration --nologo -v q
+    if ($LASTEXITCODE -ne 0) { throw 'Unit tests failed; nothing was published.' }
+}
+
 Write-Host "Publishing $Configuration/$Runtime to $OutputDirectory" -ForegroundColor Cyan
 
 if (Test-Path $OutputDirectory) { Remove-Item -Recurse -Force $OutputDirectory }
 
+# The tests already ran above; SkipTests stops the csproj target repeating them.
 dotnet publish $project `
     -c $Configuration `
     -r $Runtime `
+    -p:SkipTests=true `
     --self-contained true `
     -p:PublishSingleFile=true `
     -p:IncludeNativeLibrariesForSelfExtract=true `

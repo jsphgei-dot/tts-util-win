@@ -22,4 +22,16 @@
     <ProjectReference Include="..\TtsUtil.Core\TtsUtil.Core.csproj" />
   </ItemGroup>
 
+  <PropertyGroup>
+    <CoreTestProject>$(MSBuildThisFileDirectory)../../tests/TtsUtil.Core.Tests/TtsUtil.Core.Tests.csproj</CoreTestProject>
+  </PropertyGroup>
+
+  <!-- Gate the build on the Core tests. Skip with -p:SkipTests=true. -->
+  <Target Name="RunCoreTestsBeforeBuild" BeforeTargets="BeforeBuild"
+          Condition="'$(SkipTests)' != 'true' AND '$(DesignTimeBuild)' != 'true'">
+    <Message Importance="high" Text="Running TtsUtil.Core tests before build..." />
+    <Exec Command="dotnet test &quot;$(CoreTestProject)&quot; -c $(Configuration) --nologo -v q"
+          IgnoreStandardErrorWarningFormat="true" />
+  </Target>
+
 </Project>

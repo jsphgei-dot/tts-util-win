@@ -75,6 +75,17 @@ dotnet test tests\TtsUtil.Core.Tests
 `TtsUtil.Core` targets plain `net6.0` and holds the text and audio logic, so it is testable
 without a UI. `TtsUtil.App` is the WPF front end.
 
+**The unit tests gate every build of the app.** A `BeforeTargets="BeforeBuild"` target in
+`TtsUtil.App.csproj` runs `dotnet test` first and fails the build if any test fails, so a
+broken pipeline can never reach a published executable. `BuildPortable.ps1` runs the tests
+once up front and refuses to publish on a failure. To bypass the gate during a fast edit
+loop:
+
+```powershell
+dotnet build src\TtsUtil.App -p:SkipTests=true
+.\scripts\BuildPortable.ps1 -SkipTests
+```
+
 ## Licence
 
 Apache 2.0, the same licence as the original TTS Util by Dane Finlay and as sherpa-onnx.
