@@ -93,6 +93,15 @@ dotnet build src\TtsUtil.App -p:SkipTests=true
 .\scripts\BuildPortable.ps1 -SkipTests
 ```
 
+## Versioning
+
+Two numbers, the same split the Android original uses: a semantic **version name**
+(`0.1.0-alpha`) and a monotonic **version code** (`1`) that increases on every release and is
+never reused. Both live in `Directory.Build.props`, both are compiled into the executable,
+and the About tab shows them. Git tags match the version name, prefixed with `v`.
+
+See `DECISIONS.md` for the rules and for the open questions about cross platform support.
+
 ## Licence
 
 Apache 2.0, the same licence as the original TTS Util by Dane Finlay and as sherpa-onnx.

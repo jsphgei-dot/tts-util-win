@@ -8,6 +8,7 @@ using System.IO;
 using System.Windows;
 using System.Windows.Controls;
 using Microsoft.Win32;
+using TtsUtil.Core;
 using TtsUtil.Core.Settings;
 using TtsUtil.Core.Text;
 using TtsUtil.Core.Tts;
@@ -79,6 +80,7 @@ public partial class MainWindow : Window
         SpeedSlider.Value = Math.Clamp(_settings.Speed, 0.5, 2.0);
         SpeedText.Text = $"{_settings.Speed:0.00}x";
         SettingsPathText.Text = $"Settings file: {AppSettings.SettingsPath}";
+        VersionText.Text = $"Version {AppVersion.Display}";
     }
 
     private void ApplySettingsFromUi()

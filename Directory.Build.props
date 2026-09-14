@@ -3,9 +3,21 @@
     <LangVersion>10</LangVersion>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
-    <Version>0.1.0</Version>
     <Authors>TTS Util Win contributors</Authors>
     <Product>TTS Util Win</Product>
     <Copyright>Copyright (C) 2026</Copyright>
   </PropertyGroup>
+
+  <!-- Version name is semantic; version code is a monotonic integer, one per release. -->
+  <PropertyGroup>
+    <VersionPrefix>0.1.0</VersionPrefix>
+    <VersionSuffix>alpha</VersionSuffix>
+    <VersionCode>1</VersionCode>
+    <AssemblyVersion>0.1.0.0</AssemblyVersion>
+    <FileVersion>0.1.0.$(VersionCode)</FileVersion>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <AssemblyMetadata Include="VersionCode" Value="$(VersionCode)" />
+  </ItemGroup>
 </Project>

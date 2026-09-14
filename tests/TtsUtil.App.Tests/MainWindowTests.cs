@@ -117,6 +117,18 @@ public sealed class MainWindowTests : IDisposable
     }
 
     [Fact]
+    public void TheAboutTabShowsTheVersion()
+    {
+        var window = CreateWindow();
+
+        _wpf.Invoke(() =>
+        {
+            Assert.Contains(TtsUtil.Core.AppVersion.Name, window.VersionText.Text);
+            Assert.Contains("build", window.VersionText.Text);
+        });
+    }
+
+    [Fact]
     public void RescanPicksUpAVoiceAddedAfterStartup()
     {
         var window = CreateWindow();
