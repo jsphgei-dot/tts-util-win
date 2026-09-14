@@ -70,16 +70,23 @@ folder; the About tab displays it for the selected voice.
 ```powershell
 dotnet build TtsUtilWin.sln
 dotnet test tests\TtsUtil.Core.Tests
+dotnet test tests\TtsUtil.App.Tests -p:SkipTests=true
 ```
 
 `TtsUtil.Core` targets plain `net6.0` and holds the text and audio logic, so it is testable
 without a UI. `TtsUtil.App` is the WPF front end.
 
-**The unit tests gate every build of the app.** A `BeforeTargets="BeforeBuild"` target in
-`TtsUtil.App.csproj` runs `dotnet test` first and fails the build if any test fails, so a
-broken pipeline can never reach a published executable. `BuildPortable.ps1` runs the tests
-once up front and refuses to publish on a failure. To bypass the gate during a fast edit
-loop:
+There are two test projects: `TtsUtil.Core.Tests` for the platform neutral half, and
+`TtsUtil.App.Tests`, which builds the real `MainWindow` on an STA dispatcher thread and
+raises Click events on its actual buttons. The UI tests need no display and no voice model,
+and the whole suite runs in under a second.
+
+**The tests gate every build of the app.** A `BeforeTargets="BeforeBuild"` target in
+`TtsUtil.App.csproj` runs the core tests first and fails the build if any test fails, so a
+broken pipeline can never reach a published executable. `BuildPortable.ps1` runs both
+suites up front and refuses to publish on a failure. The UI tests are deliberately not in
+the csproj target, since building the app under test from inside its own build would
+collide. To bypass the gate during a fast edit loop:
 
 ```powershell
 dotnet build src\TtsUtil.App -p:SkipTests=true

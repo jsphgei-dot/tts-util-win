@@ -32,10 +32,14 @@ if (-not $OutputDirectory) {
 }
 
 if (-not $SkipTests) {
-    $tests = Join-Path $root 'tests\TtsUtil.Core.Tests\TtsUtil.Core.Tests.csproj'
-    Write-Host 'Running unit tests' -ForegroundColor Cyan
-    dotnet test $tests -c $Configuration --nologo -v q
-    if ($LASTEXITCODE -ne 0) { throw 'Unit tests failed; nothing was published.' }
+    Write-Host 'Running core unit tests' -ForegroundColor Cyan
+    dotnet test (Join-Path $root 'tests\TtsUtil.Core.Tests\TtsUtil.Core.Tests.csproj') -c $Configuration --nologo -v q
+    if ($LASTEXITCODE -ne 0) { throw 'Core tests failed; nothing was published.' }
+
+    # SkipTests stops the app csproj target repeating the core tests here.
+    Write-Host 'Running user interface tests' -ForegroundColor Cyan
+    dotnet test (Join-Path $root 'tests\TtsUtil.App.Tests\TtsUtil.App.Tests.csproj') -c $Configuration --nologo -v q -p:SkipTests=true
+    if ($LASTEXITCODE -ne 0) { throw 'UI tests failed; nothing was published.' }
 }
 
 Write-Host "Publishing $Configuration/$Runtime to $OutputDirectory" -ForegroundColor Cyan

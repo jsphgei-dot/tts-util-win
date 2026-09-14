@@ -82,25 +82,35 @@ public sealed class AppSettings
         }
     }
 
-    public static AppSettings Load()
+    /// <summary>Where this instance was loaded from, and where Save writes back to.</summary>
+    [JsonIgnore]
+    public string? SourcePath { get; set; }
+
+    public static AppSettings Load() => LoadFrom(SettingsPath);
+
+    public static AppSettings LoadFrom(string path)
     {
         try
         {
-            var path = SettingsPath;
-            if (!File.Exists(path)) return new AppSettings();
-            return JsonSerializer.Deserialize<AppSettings>(File.ReadAllText(path), JsonOptions) ?? new AppSettings();
+            var settings = File.Exists(path)
+                ? JsonSerializer.Deserialize<AppSettings>(File.ReadAllText(path), JsonOptions) ?? new AppSettings()
+                : new AppSettings();
+            settings.SourcePath = path;
+            return settings;
         }
         catch (Exception)
         {
-            return new AppSettings();
+            return new AppSettings { SourcePath = path };
         }
     }
 
-    public void Save()
+    public void Save() => SaveTo(SourcePath ?? SettingsPath);
+
+    public void SaveTo(string path)
     {
         try
         {
-            File.WriteAllText(SettingsPath, JsonSerializer.Serialize(this, JsonOptions));
+            File.WriteAllText(path, JsonSerializer.Serialize(this, JsonOptions));
         }
         catch (Exception)
         {

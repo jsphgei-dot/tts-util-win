@@ -16,7 +16,8 @@ namespace TtsUtil.App;
 
 public partial class MainWindow : Window
 {
-    private readonly AppSettings _settings = AppSettings.Load();
+    private readonly AppSettings _settings;
+    private readonly bool _loadVoiceOnSelection;
 
     private IReadOnlyList<VoiceDescriptor> _voices = Array.Empty<VoiceDescriptor>();
     private ITtsEngine? _engine;
@@ -27,13 +28,27 @@ public partial class MainWindow : Window
     private bool _initialising = true;
     private bool _busy;
 
-    public MainWindow()
+    public MainWindow() : this(AppSettings.Load())
     {
+    }
+
+    internal MainWindow(AppSettings settings, bool loadVoiceOnSelection = true)
+    {
+        _settings = settings;
+        _loadVoiceOnSelection = loadVoiceOnSelection;
         InitializeComponent();
         LoadSettingsIntoUi();
         _initialising = false;
         RefreshVoices();
     }
+
+    /// <summary>Reports an error as (message, title). Defaults to a modal dialog.</summary>
+    internal Action<string, string> ErrorReporter { get; set; } = (message, title) =>
+        MessageBox.Show(message, title, MessageBoxButton.OK, MessageBoxImage.Error);
+
+    internal AppSettings Settings => _settings;
+
+    internal IReadOnlyList<VoiceDescriptor> Voices => _voices;
 
     private VoiceDescriptor? SelectedVoice =>
         VoiceBox.SelectedIndex >= 0 && VoiceBox.SelectedIndex < _voices.Count
@@ -144,12 +159,12 @@ public partial class MainWindow : Window
         catch (Exception ex)
         {
             SetStatus($"Could not load {voice.Name}: {ex.Message}");
-            MessageBox.Show(ex.Message, "Voice failed to load", MessageBoxButton.OK, MessageBoxImage.Warning);
+            ErrorReporter(ex.Message, "Voice failed to load");
             return null;
         }
     }
 
-    private void PopulateSpeakers(int count)
+    internal void PopulateSpeakers(int count)
     {
         _initialising = true;
         SpeakerBox.Items.Clear();
@@ -230,7 +245,7 @@ public partial class MainWindow : Window
         catch (Exception ex)
         {
             SetStatus($"Error: {ex.Message}");
-            MessageBox.Show(ex.Message, "Synthesis failed", MessageBoxButton.OK, MessageBoxImage.Error);
+            ErrorReporter(ex.Message, "Synthesis failed");
         }
         finally
         {
@@ -370,7 +385,7 @@ public partial class MainWindow : Window
         LicenseText.Text = ReadLicenseSummary(voice);
 
         DisposeEngine();
-        await EnsureEngineAsync();
+        if (_loadVoiceOnSelection) await EnsureEngineAsync();
     }
 
     private void OnSpeakerChanged(object sender, SelectionChangedEventArgs e)
