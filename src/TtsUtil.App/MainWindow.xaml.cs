@@ -523,6 +523,9 @@ public partial class MainWindow : Window
 
     private void OnShowLinesChanged(object sender, RoutedEventArgs e)
     {
+        // IsChecked in XAML fires this while the tree is still being built.
+        if (LinePanel is null || LineSplitter is null || LineListColumn is null) return;
+
         var show = ShowLinesBox.IsChecked == true;
         LinePanel.Visibility = show ? Visibility.Visible : Visibility.Collapsed;
         LineSplitter.Visibility = LinePanel.Visibility;
