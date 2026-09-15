@@ -200,7 +200,8 @@ public partial class MainWindow : Window
         SpeakerLabel.Visibility = visibility;
     }
 
-    private async Task RunSynthesisAsync(Func<TextReader> readerFactory, long totalCharacters, string? outputPath)
+    private async Task RunSynthesisAsync(Func<TextReader> readerFactory, string? outputPath,
+        long? knownCharacters = null)
     {
         if (_busy)
         {
@@ -232,6 +233,8 @@ public partial class MainWindow : Window
         {
             var filtered = await Task.Run(() =>
             {
+                // Counting beats a byte length, which overstates the total on non ASCII text.
+                var totalCharacters = knownCharacters ?? TextMeasure.CountCharacters(readerFactory);
                 using var reader = readerFactory();
                 var runner = new SynthesisRunner(engine, options) { SpeakerId = speakerId, Speed = speed };
 
@@ -288,7 +291,7 @@ public partial class MainWindow : Window
             return;
         }
 
-        _ = RunSynthesisAsync(() => new StringReader(text), text.Length, null);
+        _ = RunSynthesisAsync(() => new StringReader(text), null, text.Length);
     }
 
     private void OnSaveTextToWave(object sender, RoutedEventArgs e)
@@ -303,7 +306,7 @@ public partial class MainWindow : Window
         var path = AskForWavePath("tts_output.wav");
         if (path is null) return;
 
-        _ = RunSynthesisAsync(() => new StringReader(text), text.Length, path);
+        _ = RunSynthesisAsync(() => new StringReader(text), path, text.Length);
     }
 
     private void OnReadFile(object sender, RoutedEventArgs e)
@@ -315,8 +318,7 @@ public partial class MainWindow : Window
             return;
         }
 
-        var length = new FileInfo(path).Length;
-        _ = RunSynthesisAsync(() => OpenTextFile(path), length, null);
+        _ = RunSynthesisAsync(() => OpenTextFile(path), null);
     }
 
     private void OnSaveFileToWave(object sender, RoutedEventArgs e)
@@ -331,8 +333,7 @@ public partial class MainWindow : Window
         var outputPath = AskForWavePath(Path.GetFileNameWithoutExtension(path) + ".wav");
         if (outputPath is null) return;
 
-        var length = new FileInfo(path).Length;
-        _ = RunSynthesisAsync(() => OpenTextFile(path), length, outputPath);
+        _ = RunSynthesisAsync(() => OpenTextFile(path), outputPath);
     }
 
     private void OnStop(object sender, RoutedEventArgs e)
