@@ -240,6 +240,13 @@ the files in any editor, or drop one in from elsewhere and it appears in the lis
 Characters Windows will not accept in a file name become spaces in the file name, so
 `Chapter 1: the beginning` is stored as `Chapter 1 the beginning.txt`.
 
+## The status bar
+
+The bar along the bottom shows one message at a time, which used to mean a finished run, a
+filtered count, or an error vanished as soon as the next message arrived. **History** opens a
+list of the last 50 messages, newest first. Repeats are collapsed, so a progress figure that
+updates many times a second does not crowd out everything else.
+
 ## Pause, resume and moving about
 
 Pause holds the audio device and Resume carries on from the same place. Synthesis keeps a few

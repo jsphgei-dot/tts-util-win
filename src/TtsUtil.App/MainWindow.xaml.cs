@@ -1284,11 +1284,47 @@ public partial class MainWindow : Window
         Cursor = busy ? System.Windows.Input.Cursors.AppStarting : null;
     }
 
+    /// <summary>How many past messages the history keeps before the oldest falls off.</summary>
+    internal const int StatusHistoryLimit = 50;
+
+    private readonly List<string> _statusHistory = new();
+
+    internal IReadOnlyList<string> StatusHistory => _statusHistory;
+
     private void SetStatus(string message)
     {
         StatusText.Inlines.Clear();
         StatusText.Text = message;
+        RecordStatus(message);
     }
+
+    /// <summary>Keeps the last messages, since the bar shows one and loses the rest.</summary>
+    private void RecordStatus(string message)
+    {
+        if (string.IsNullOrWhiteSpace(message)) return;
+
+        // Progress overwrites itself many times a second, and none of it is worth keeping.
+        if (_statusHistory.Count > 0 && _statusHistory[^1] == message) return;
+
+        _statusHistory.Add(message);
+        if (_statusHistory.Count > StatusHistoryLimit) _statusHistory.RemoveAt(0);
+    }
+
+    private void OnShowStatusHistory(object sender, RoutedEventArgs e)
+    {
+        StatusHistoryList.Items.Clear();
+
+        for (var i = _statusHistory.Count - 1; i >= 0; i--) StatusHistoryList.Items.Add(_statusHistory[i]);
+
+        if (StatusHistoryList.Items.Count == 0) StatusHistoryList.Items.Add("Nothing yet.");
+
+        StatusHistoryPopup.IsOpen = true;
+    }
+
+    private void OnHideStatusHistory(object sender, RoutedEventArgs e) => StatusHistoryPopup.IsOpen = false;
+
+    /// <summary>Clicking away closes the popup, and the button must not stay pressed.</summary>
+    private void OnStatusHistoryClosed(object? sender, EventArgs e) => StatusHistoryButton.IsChecked = false;
 
     /// <summary>Says what was written and makes the folder a link, since a path alone is not.</summary>
     private void SetStatusWithFileLink(string message, string path)
@@ -1307,6 +1343,7 @@ public partial class MainWindow : Window
         StatusText.Inlines.Clear();
         StatusText.Inlines.Add(new Run(message));
         StatusText.Inlines.Add(link);
+        RecordStatus(message + folder);
     }
 
     private void OpenFolder(string folder)
