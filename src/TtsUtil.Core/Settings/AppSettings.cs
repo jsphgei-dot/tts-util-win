@@ -52,10 +52,12 @@ public sealed class AppSettings
     public int MaxChunkLength { get; set; } = 2000;
 
     [JsonIgnore]
-    public string ResolvedVoicesDirectory =>
-        string.IsNullOrWhiteSpace(VoicesDirectory)
-            ? FindDefaultVoicesDirectory()
-            : VoicesDirectory!;
+    public string ResolvedVoicesDirectory => InstallPaths.ResolveVoicesDirectory(
+        VoicesDirectory,
+        Environment.GetEnvironmentVariable(InstallPaths.VoicesEnvironmentVariable),
+        Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+        AppDirectory,
+        InstallPaths.HasVoices);
 
     [JsonIgnore]
     public string ResolvedOutputDirectory =>
@@ -67,18 +69,21 @@ public sealed class AppSettings
     public static string AppDirectory =>
         Path.GetDirectoryName(Environment.ProcessPath) ?? AppContext.BaseDirectory;
 
+    /// <summary>True when the program is running from a portable folder.</summary>
+    public static bool IsPortable => InstallPaths.IsPortable(AppDirectory, File.Exists);
+
     public static string SettingsPath
     {
         get
         {
-            var portable = Path.Combine(AppDirectory, "settings.json");
-            if (File.Exists(portable) || IsWritable(AppDirectory)) return portable;
-
-            var roaming = Path.Combine(
+            var path = InstallPaths.ResolveSettingsPath(
+                AppDirectory,
                 Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
-                "TtsUtilWin");
-            Directory.CreateDirectory(roaming);
-            return Path.Combine(roaming, "settings.json");
+                File.Exists);
+
+            var directory = Path.GetDirectoryName(path);
+            if (directory is not null) Directory.CreateDirectory(directory);
+            return path;
         }
     }
 
@@ -137,48 +142,4 @@ public sealed class AppSettings
             FilterMailToLinks = FilterMailToLinks,
         },
     };
-
-    /// <summary>Prefers voices beside the exe, then the nearest voices folder up the tree.</summary>
-    private static string FindDefaultVoicesDirectory()
-    {
-        var beside = Path.Combine(AppDirectory, "voices");
-        if (HasVoices(beside)) return beside;
-
-        var current = new DirectoryInfo(AppDirectory);
-        for (var depth = 0; depth < 6 && current?.Parent is not null; depth++)
-        {
-            current = current.Parent;
-            var candidate = Path.Combine(current.FullName, "voices");
-            if (HasVoices(candidate)) return candidate;
-        }
-
-        return beside;
-    }
-
-    private static bool HasVoices(string directory)
-    {
-        try
-        {
-            return Directory.Exists(directory) && Directory.EnumerateDirectories(directory).Any();
-        }
-        catch (IOException)
-        {
-            return false;
-        }
-    }
-
-    private static bool IsWritable(string directory)
-    {
-        try
-        {
-            var probe = Path.Combine(directory, $".write-probe-{Guid.NewGuid():N}");
-            using (File.Create(probe)) { }
-            File.Delete(probe);
-            return true;
-        }
-        catch (Exception)
-        {
-            return false;
-        }
-    }
 }

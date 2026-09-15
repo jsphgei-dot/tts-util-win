@@ -30,6 +30,26 @@ portable executable: no installer, no system speech engine, no network access at
 `BuildPortable.ps1 -IncludeVoices` copies the models into the output folder so the whole
 directory can be zipped and handed to someone else.
 
+## Installing, or not
+
+Two ways to run it, from one build:
+
+* **Installer.** `scripts\BuildPortable.ps1 -Installer` produces
+  `dist\TtsUtilWin-<version>-setup.exe`. Its first page asks whether to install for all
+  users (needs administrator) or just for you (recommended, no prompt), then adds a Start
+  menu entry, an optional desktop shortcut, and an entry in Settings, Apps. Settings go to
+  `%APPDATA%\TtsUtilWin` and voices to `%LOCALAPPDATA%\TtsUtilWin\voices`.
+* **Portable.** Copy `dist\TtsUtilWin` anywhere. The `portable.txt` file beside the
+  executable keeps settings and voices inside that folder, so nothing touches the profile.
+
+The voices directory is resolved in this order, first hit wins:
+
+1. `--voices <path>` on the command line
+2. the `TTSUTIL_VOICES` environment variable
+3. the Settings tab, stored in `settings.json`
+4. `%LOCALAPPDATA%\TtsUtilWin\voices`
+5. a `voices` folder beside the executable
+
 ## Layout of a portable install
 
 ```

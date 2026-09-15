@@ -16,6 +16,41 @@ public partial class App : System.Windows.Application
         DispatcherUnhandledException += OnUnhandledException;
     }
 
+    /// <summary>Voices directory given as --voices on the command line, if any.</summary>
+    internal static string? VoicesDirectoryOverride { get; private set; }
+
+    protected override void OnStartup(StartupEventArgs e)
+    {
+        VoicesDirectoryOverride = ReadVoicesArgument(e.Args);
+        base.OnStartup(e);
+    }
+
+    internal static string? ReadVoicesArgument(IReadOnlyList<string> args)
+    {
+        for (var i = 0; i < args.Count; i++)
+        {
+            var arg = args[i];
+
+            if (arg.StartsWith("--voices=", StringComparison.OrdinalIgnoreCase))
+            {
+                return Trim(arg["--voices=".Length..]);
+            }
+
+            if (string.Equals(arg, "--voices", StringComparison.OrdinalIgnoreCase) && i + 1 < args.Count)
+            {
+                return Trim(args[i + 1]);
+            }
+        }
+
+        return null;
+    }
+
+    private static string? Trim(string value)
+    {
+        var trimmed = value.Trim().Trim('"');
+        return trimmed.Length == 0 ? null : trimmed;
+    }
+
     private void OnUnhandledException(object sender, DispatcherUnhandledExceptionEventArgs e)
     {
         MessageBox.Show(e.Exception.Message, "TTS Util Win", MessageBoxButton.OK, MessageBoxImage.Error);

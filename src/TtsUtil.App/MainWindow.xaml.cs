@@ -31,8 +31,16 @@ public partial class MainWindow : Window
     private bool _initialising = true;
     private bool _busy;
 
-    public MainWindow() : this(AppSettings.Load())
+    public MainWindow() : this(LoadSettingsWithOverrides())
     {
+    }
+
+    private static AppSettings LoadSettingsWithOverrides()
+    {
+        var settings = AppSettings.Load();
+        var overridden = App.VoicesDirectoryOverride;
+        if (!string.IsNullOrWhiteSpace(overridden)) settings.VoicesDirectory = overridden;
+        return settings;
     }
 
     internal MainWindow(AppSettings settings, bool loadVoiceOnSelection = true)
