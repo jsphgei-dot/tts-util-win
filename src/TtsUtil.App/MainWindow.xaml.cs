@@ -61,6 +61,10 @@ public partial class MainWindow : Window
         RefreshVoiceCatalogue();
     }
 
+    /// <summary>Builds the PDF reader. Tests replace it so no OCR engine is needed.</summary>
+    internal Func<PdfTextExtractor> PdfExtractorFactory { get; set; } =
+        () => new PdfTextExtractor(WindowsPageOcr.IsAvailable ? new WindowsPageOcr() : null);
+
     /// <summary>Builds the installer used by the Voices tab. Tests replace it with a fake.</summary>
     internal Func<VoiceInstaller> VoiceInstallerFactory { get; set; } =
         () => new VoiceInstaller(new HttpVoiceDownloader(), new TarArchiveExtractor());
@@ -399,32 +403,147 @@ public partial class MainWindow : Window
         _ = RunSynthesisAsync(() => new StringReader(text), path, text.Length);
     }
 
-    private void OnReadFile(object sender, RoutedEventArgs e)
-    {
-        var path = FilePathBox.Text.Trim();
-        if (!File.Exists(path))
-        {
-            SetStatus("Choose an existing text file first.");
-            return;
-        }
-
-        _ = RunSynthesisAsync(() => OpenTextFile(path), null);
-    }
+    private void OnReadFile(object sender, RoutedEventArgs e) => _ = ReadOrConvertFileAsync(null);
 
     private void OnSaveFileToWave(object sender, RoutedEventArgs e)
     {
         var path = FilePathBox.Text.Trim();
         if (!File.Exists(path))
         {
-            SetStatus("Choose an existing text file first.");
+            SetStatus("Choose an existing file first.");
             return;
         }
 
         var outputPath = AskForWavePath(Path.GetFileNameWithoutExtension(path) + ".wav");
         if (outputPath is null) return;
 
-        _ = RunSynthesisAsync(() => OpenTextFile(path), outputPath);
+        _ = ReadOrConvertFileAsync(outputPath);
     }
+
+    private async Task ReadOrConvertFileAsync(string? outputPath)
+    {
+        var path = FilePathBox.Text.Trim();
+        if (!File.Exists(path))
+        {
+            SetStatus("Choose an existing file first.");
+            return;
+        }
+
+        if (!IsPdf(path))
+        {
+            await RunSynthesisAsync(() => OpenTextFile(path), outputPath);
+            return;
+        }
+
+        var text = await ExtractPdfAsync(path);
+        if (text is null) return;
+
+        await RunSynthesisAsync(() => new StringReader(text), outputPath, text.Length);
+    }
+
+    private void OnImportFileToTextTab(object sender, RoutedEventArgs e) =>
+        PendingWork = ImportFileToTextTabAsync();
+
+    /// <summary>The last background task a click started, so tests can await it.</summary>
+    internal Task PendingWork { get; private set; } = Task.CompletedTask;
+
+    private async Task ImportFileToTextTabAsync()
+    {
+        var path = FilePathBox.Text.Trim();
+        if (!File.Exists(path))
+        {
+            SetStatus("Choose an existing file first.");
+            return;
+        }
+
+        string? text;
+        if (IsPdf(path))
+        {
+            text = await ExtractPdfAsync(path);
+            if (text is null) return;
+        }
+        else
+        {
+            using var reader = OpenTextFile(path);
+            text = await reader.ReadToEndAsync();
+        }
+
+        InputText.Text = text;
+        Tabs.SelectedIndex = 0;
+        SetStatus($"Imported {text.Length:N0} character(s) from {Path.GetFileName(path)}.");
+    }
+
+    /// <summary>Extracts a PDF on a worker thread, reporting pages. Null means it failed.</summary>
+    private async Task<string?> ExtractPdfAsync(string path)
+    {
+        if (_busy)
+        {
+            SetStatus("Already working. Press Stop first.");
+            return null;
+        }
+
+        var cancellation = new CancellationTokenSource();
+        _cancellation = cancellation;
+        var progress = new Progress<string>(SetStatus);
+
+        SetBusy(true);
+
+        try
+        {
+            var extractor = PdfExtractorFactory();
+            var result = await Task.Run(
+                () => extractor.ExtractAsync(path, progress, cancellation.Token), cancellation.Token);
+
+            var text = result.Text;
+            if (text.Trim().Length == 0)
+            {
+                SetStatus(result.ScannedPages.Count > 0
+                    ? "This PDF holds no text layer and nothing could be read from its images. It may be a scan of a kind the Windows reader cannot handle."
+                    : "This PDF holds no text.");
+                return null;
+            }
+
+            FileInfoText.Text = DescribeExtraction(path, result);
+            return text;
+        }
+        catch (OperationCanceledException)
+        {
+            SetStatus("Stopped.");
+            return null;
+        }
+        catch (Exception ex)
+        {
+            SetStatus($"Could not read {Path.GetFileName(path)}: {ex.Message}");
+            ErrorReporter(ex.Message, "PDF could not be read");
+            return null;
+        }
+        finally
+        {
+            SetBusy(false);
+            _cancellation = null;
+        }
+    }
+
+    private static string DescribeExtraction(string path, PdfExtractionResult result)
+    {
+        var name = Path.GetFileName(path);
+        var note = $"{name}: {result.Pages.Count} page(s), {result.Text.Length:N0} characters.";
+
+        if (result.ScannedPages.Count > 0)
+        {
+            note += $" {result.ScannedPages.Count} page(s) had no text layer and were read as images.";
+        }
+
+        if (result.EmptyPages.Count > 0)
+        {
+            note += $" Nothing was read from page(s): {string.Join(", ", result.EmptyPages)}.";
+        }
+
+        return note;
+    }
+
+    private static bool IsPdf(string path) =>
+        PdfTextExtractor.HasPdfExtension(path) || PdfTextExtractor.LooksLikePdf(path);
 
     private void OnStop(object sender, RoutedEventArgs e)
     {
@@ -452,8 +571,10 @@ public partial class MainWindow : Window
     {
         var dialog = new OpenFileDialog
         {
-            Title = "Choose a text file",
-            Filter = "Text files (*.txt;*.md;*.csv;*.log)|*.txt;*.md;*.csv;*.log|All files (*.*)|*.*",
+            Title = "Choose a text file or a PDF",
+            Filter = "Readable files (*.txt;*.md;*.csv;*.log;*.pdf)|*.txt;*.md;*.csv;*.log;*.pdf|" +
+                     "PDF documents (*.pdf)|*.pdf|Text files (*.txt;*.md;*.csv;*.log)|*.txt;*.md;*.csv;*.log|" +
+                     "All files (*.*)|*.*",
         };
 
         if (dialog.ShowDialog(this) != true) return;

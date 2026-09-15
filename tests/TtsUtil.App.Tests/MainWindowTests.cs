@@ -437,7 +437,7 @@ public sealed class MainWindowTests : IDisposable
         _wpf.Invoke(() => window.FilePathBox.Text = Path.Combine(_root, "does-not-exist.txt"));
         Click(window.ReadFileButton);
 
-        _wpf.Invoke(() => Assert.Equal("Choose an existing text file first.", window.StatusText.Text));
+        _wpf.Invoke(() => Assert.Equal("Choose an existing file first.", window.StatusText.Text));
     }
 
     [Fact]
@@ -448,7 +448,7 @@ public sealed class MainWindowTests : IDisposable
         _wpf.Invoke(() => window.FilePathBox.Text = string.Empty);
         Click(window.ConvertFileButton);
 
-        _wpf.Invoke(() => Assert.Equal("Choose an existing text file first.", window.StatusText.Text));
+        _wpf.Invoke(() => Assert.Equal("Choose an existing file first.", window.StatusText.Text));
     }
 
     [Fact]

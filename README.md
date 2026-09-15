@@ -12,6 +12,7 @@ engine, no network access at run time, and your choice of an installer or a port
 * Omit hash characters, web links, and mailto links from the audio.
 * Read only letters and digits aloud by default, so symbols are never voiced as their names.
 * Read each word back as you finish typing it.
+* Import a PDF, including a scanned one, which is read with the OCR built into Windows.
 * Pick a voice, a speaker within a multi speaker voice, and a speech rate.
 * Search a long speaker list by name or number, and star the speakers you keep coming back to.
 
@@ -208,9 +209,26 @@ at the top of the list. Both the chosen speaker and its starred speakers are rem
 voice, so switching voices and back returns you to where you were. Favourites shows only
 the starred speakers, and shows everything again when pressed a second time.
 
+## PDFs
+
+The File tab takes a PDF as well as a text file. **Import to Text tab** puts the extracted
+text in the Text tab so you can read it over and edit it before listening; **Read file** and
+**Convert to WAV** go straight through.
+
+Text comes from the PDF's own text layer, read with PdfPig, which covers anything produced
+by a word processor or a typesetter. A page with no text layer is a scan, and its images are
+passed to the OCR engine built into Windows, so nothing is downloaded and nothing leaves the
+machine. A file is judged by its header rather than its extension, so a text file named
+`.pdf` is still read as text.
+
+The status line reports how many pages had no text layer and which pages yielded nothing, so
+a partial read is visible rather than silent. If Windows has no OCR language pack installed,
+scanned pages are reported as unreadable instead of failing.
+
 ## Requirements
 
-* Windows 10 or 11, x64.
+* Windows 10 or 11, x64. OCR of scanned PDFs uses the Windows OCR engine, which needs a
+  language pack Windows installs with its display languages.
 * .NET 6 SDK to build, plus Inno Setup 6 for the installer. The published executable is
   self contained and needs no runtime on the machine that runs it.
 

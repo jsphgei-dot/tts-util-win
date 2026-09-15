@@ -88,7 +88,7 @@
 
             <TabItem Header="File">
                 <StackPanel Margin="10">
-                    <TextBlock Text="Plain text file" Margin="0,0,0,6" />
+                    <TextBlock Text="Text file or PDF" Margin="0,0,0,6" />
                     <Grid Margin="0,0,0,12">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*" />
@@ -101,6 +101,8 @@
                         <Button x:Name="ReadFileButton" Content="Read file" Click="OnReadFile" />
                         <Button x:Name="StopFileButton" Content="Stop" Click="OnStop" />
                         <Button x:Name="ConvertFileButton" Content="Convert to WAV" Width="130" Click="OnSaveFileToWave" />
+                        <Button x:Name="ImportTextButton" Content="Import to Text tab" Width="140"
+                                Click="OnImportFileToTextTab" />
                     </StackPanel>
                     <TextBlock x:Name="FileInfoText" Margin="0,14,0,0" Foreground="#555" TextWrapping="Wrap" />
                 </StackPanel>
