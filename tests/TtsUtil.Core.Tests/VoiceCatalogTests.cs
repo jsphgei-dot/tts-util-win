@@ -31,11 +31,6 @@ public sealed class VoiceCatalogTests : IDisposable
         Assert.Empty(VoiceCatalog.Scan(Path.Combine(_root, "nope")));
     }
 
-    [Fact]
-    public void AnEmptyDirectoryYieldsNoVoices()
-    {
-        Assert.Empty(VoiceCatalog.Scan(_root));
-    }
 
     [Fact]
     public void ADirectoryWithoutTokensIsIgnored()

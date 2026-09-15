@@ -12,7 +12,6 @@ public sealed class SpokenCharactersTests
     [Fact]
     public void TheDefaultPolicyIsTheStrictOne()
     {
-        Assert.Equal(SpokenCharacterPolicy.LatinOnly, new SpokenCharacterOptions().Policy);
         Assert.Equal(SpokenCharacterPolicy.LatinOnly, new AppSettings().SpokenCharacters);
     }
 

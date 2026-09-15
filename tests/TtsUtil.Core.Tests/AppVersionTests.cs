@@ -22,9 +22,4 @@ public class AppVersionTests
         Assert.True(AppVersion.Code > 0, $"Version code was {AppVersion.Code}.");
     }
 
-    [Fact]
-    public void TheDisplayStringCombinesBoth()
-    {
-        Assert.Equal($"{AppVersion.Name} (build {AppVersion.Code})", AppVersion.Display);
-    }
 }

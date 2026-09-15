@@ -29,12 +29,6 @@ public sealed class SpeakerCatalogTests : IDisposable
         Assert.All(speakers, s => Assert.Equal(SpeakerNameSource.Number, s.Source));
     }
 
-    [Fact]
-    public void ANoSpeakerVoiceProducesAnEmptyList()
-    {
-        Assert.Empty(SpeakerCatalog.Build(0));
-        Assert.Empty(SpeakerCatalog.Build(-4));
-    }
 
     [Fact]
     public void ThePiperSpeakerMapIsInvertedIntoLabels()

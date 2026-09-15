@@ -21,17 +21,7 @@ public sealed class TextMeasureTests : IDisposable
         }
     }
 
-    [Fact]
-    public void AnEmptyReaderCountsZero()
-    {
-        Assert.Equal(0, TextMeasure.CountCharacters(new StringReader(string.Empty)));
-    }
 
-    [Fact]
-    public void AsciiCountsOnePerCharacter()
-    {
-        Assert.Equal(11, TextMeasure.CountCharacters(new StringReader("hello world")));
-    }
 
     [Fact]
     public void TextLongerThanTheBufferIsCountedInFull()

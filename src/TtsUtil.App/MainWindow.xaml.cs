@@ -268,9 +268,6 @@ public partial class MainWindow : Window
             : SpokenCharacterPolicy.LatinOnly;
     }
 
-    /// <summary>Fills the picker with numbered speakers, used where no voice folder is at hand.</summary>
-    internal void PopulateSpeakers(int count) => PopulateSpeakers(null, count);
-
     /// <summary>Reads the voice's speaker names, then fills the picker and restores the choice.</summary>
     internal void PopulateSpeakers(VoiceDescriptor? voice, int count)
     {
@@ -627,6 +624,7 @@ public partial class MainWindow : Window
         }
 
         InputText.Text = text;
+        RebuildLineList();
         Tabs.SelectedIndex = 0;
         SetStatus($"Imported {text.Length:N0} character(s) from {Path.GetFileName(path)}.");
     }

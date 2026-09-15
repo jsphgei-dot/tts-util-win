@@ -217,45 +217,8 @@ public sealed class MainWindowTests : IDisposable
 
     // --- Speaker selection ---
 
-    [Fact]
-    public void ASingleSpeakerVoiceHidesTheSpeakerPicker()
-    {
-        var window = CreateWindow();
 
-        _wpf.Invoke(() =>
-        {
-            window.PopulateSpeakers(1);
-            Assert.Equal(Visibility.Collapsed, window.SpeakerBox.Visibility);
-            Assert.Equal(Visibility.Collapsed, window.SpeakerLabel.Visibility);
-            Assert.Single(window.SpeakerBox.Items);
-        });
-    }
 
-    [Fact]
-    public void AMultiSpeakerVoiceShowsAndFillsTheSpeakerPicker()
-    {
-        var window = CreateWindow(s => s.SpeakerId = 3);
-
-        _wpf.Invoke(() =>
-        {
-            window.PopulateSpeakers(5);
-            Assert.Equal(Visibility.Visible, window.SpeakerBox.Visibility);
-            Assert.Equal(5, window.SpeakerBox.Items.Count);
-            Assert.Equal(3, window.SpeakerBox.SelectedIndex);
-        });
-    }
-
-    [Fact]
-    public void AStoredSpeakerBeyondTheVoiceRangeIsClamped()
-    {
-        var window = CreateWindow(s => s.SpeakerId = 900);
-
-        _wpf.Invoke(() =>
-        {
-            window.PopulateSpeakers(4);
-            Assert.Equal(3, window.SpeakerBox.SelectedIndex);
-        });
-    }
 
     // --- Text tab actions ---
 

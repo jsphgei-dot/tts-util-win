@@ -143,11 +143,7 @@ public sealed class LineListTests : IDisposable
         });
         work.GetAwaiter().GetResult();
 
-        _wpf.Invoke(() =>
-        {
-            window.RebuildLineList();
-            Assert.Equal(3, window.LineList.Items.Count);
-        });
+        _wpf.Invoke(() => Assert.Equal(3, window.LineList.Items.Count));
     }
 
     private void Click(ButtonBase button) =>
