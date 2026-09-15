@@ -10,11 +10,11 @@
 
   <!-- Version name is semantic; version code is a monotonic integer, one per release. -->
   <PropertyGroup>
-    <VersionPrefix>0.1.0</VersionPrefix>
+    <VersionPrefix>0.1.1</VersionPrefix>
     <VersionSuffix>alpha</VersionSuffix>
-    <VersionCode>1</VersionCode>
-    <AssemblyVersion>0.1.0.0</AssemblyVersion>
-    <FileVersion>0.1.0.$(VersionCode)</FileVersion>
+    <VersionCode>2</VersionCode>
+    <AssemblyVersion>0.1.1.0</AssemblyVersion>
+    <FileVersion>0.1.1.$(VersionCode)</FileVersion>
   </PropertyGroup>
 
   <ItemGroup>
