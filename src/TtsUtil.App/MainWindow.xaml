@@ -89,6 +89,43 @@
                 </StackPanel>
             </TabItem>
 
+            <TabItem Header="Voices">
+                <DockPanel Margin="12">
+                    <TextBlock DockPanel.Dock="Top" TextWrapping="Wrap" Foreground="#555" Margin="0,0,0,8"
+                               Text="Voices are downloaded from the sherpa-onnx release page and unpacked into the voices directory. The licence shown here is a summary; the authoritative text ships inside each model folder." />
+
+                    <StackPanel DockPanel.Dock="Bottom" Margin="0,8,0,0">
+                        <StackPanel Orientation="Horizontal">
+                            <Button x:Name="InstallVoiceButton" Content="Install" Width="110"
+                                    Click="OnInstallVoice" />
+                            <Button x:Name="RemoveVoiceButton" Content="Remove" Width="110"
+                                    Click="OnRemoveVoice" />
+                            <Button x:Name="CancelVoiceButton" Content="Cancel" Width="110" IsEnabled="False"
+                                    Click="OnCancelVoiceInstall" />
+                            <Button x:Name="RescanVoicesButton" Content="Rescan" Width="110"
+                                    Click="OnRescanVoices" />
+                        </StackPanel>
+                        <ProgressBar x:Name="VoiceProgress" Height="16" Margin="0,8,0,0" Minimum="0" Maximum="100" />
+                        <TextBlock x:Name="VoiceInstallStatus" Margin="0,6,0,0" Foreground="#555"
+                                   TextWrapping="Wrap" />
+                        <TextBlock x:Name="VoiceTargetText" Margin="0,4,0,0" Foreground="#777"
+                                   TextTrimming="CharacterEllipsis" />
+                    </StackPanel>
+
+                    <ListView x:Name="VoiceCatalogueList" SelectionMode="Single">
+                        <ListView.View>
+                            <GridView>
+                                <GridViewColumn Header="Voice" Width="250" DisplayMemberBinding="{Binding Id}" />
+                                <GridViewColumn Header="Language" Width="190" DisplayMemberBinding="{Binding Language}" />
+                                <GridViewColumn Header="Size" Width="70" DisplayMemberBinding="{Binding Size}" />
+                                <GridViewColumn Header="Status" Width="90" DisplayMemberBinding="{Binding Status}" />
+                                <GridViewColumn Header="Licence" Width="230" DisplayMemberBinding="{Binding Licence}" />
+                            </GridView>
+                        </ListView.View>
+                    </ListView>
+                </DockPanel>
+            </TabItem>
+
             <TabItem Header="Settings">
                 <ScrollViewer VerticalScrollBarVisibility="Auto">
                     <Grid Margin="12">

@@ -57,7 +57,7 @@ public sealed class MainWindowTests : IDisposable
         {
             Assert.Equal("TTS Util Win", window.Title);
             var headers = window.Tabs.Items.Cast<TabItem>().Select(t => t.Header.ToString()).ToList();
-            Assert.Equal(new[] { "Text", "File", "Settings", "About" }, headers);
+            Assert.Equal(new[] { "Text", "File", "Voices", "Settings", "About" }, headers);
         });
     }
 
@@ -71,7 +71,7 @@ public sealed class MainWindowTests : IDisposable
             Assert.Empty(window.Voices);
             Assert.Empty(window.VoiceBox.Items);
             Assert.Contains("No voices found", window.StatusText.Text);
-            Assert.Contains("FetchVoices.ps1", window.StatusText.Text);
+            Assert.Contains("Voices tab", window.StatusText.Text);
         });
     }
 

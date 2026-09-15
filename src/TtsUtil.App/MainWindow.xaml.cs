@@ -29,6 +29,9 @@ public partial class MainWindow : Window
     private int _queuedSnippets;
     private bool _initialising = true;
     private bool _busy;
+    private readonly List<VoiceCatalogueRow> _catalogueRows = new();
+    private CancellationTokenSource? _installCancellation;
+    private bool _installing;
 
     public MainWindow() : this(LoadSettingsWithOverrides())
     {
@@ -51,7 +54,12 @@ public partial class MainWindow : Window
         LoadSettingsIntoUi();
         _initialising = false;
         RefreshVoices();
+        RefreshVoiceCatalogue();
     }
+
+    /// <summary>Builds the installer used by the Voices tab. Tests replace it with a fake.</summary>
+    internal Func<VoiceInstaller> VoiceInstallerFactory { get; set; } =
+        () => new VoiceInstaller(new HttpVoiceDownloader(), new TarArchiveExtractor());
 
     /// <summary>Speaks one completed word during playback on input mode.</summary>
     internal Action<string> SpeakSnippet { get; set; }
@@ -130,7 +138,7 @@ public partial class MainWindow : Window
 
         if (_voices.Count == 0)
         {
-            SetStatus($"No voices found in {directory}. Run scripts\\FetchVoices.ps1 to download one.");
+            SetStatus($"No voices found in {directory}. Install one from the Voices tab.");
             SpeakerBox.Items.Clear();
             LicenseText.Text = string.Empty;
             return;
@@ -386,6 +394,154 @@ public partial class MainWindow : Window
     {
         DisposeEngine();
         RefreshVoices();
+    }
+
+    private void RefreshVoiceCatalogue()
+    {
+        if (_catalogueRows.Count == 0)
+        {
+            foreach (var voice in DownloadableVoices.All) _catalogueRows.Add(new VoiceCatalogueRow(voice));
+            VoiceCatalogueList.ItemsSource = _catalogueRows;
+        }
+
+        var directory = VoiceInstallDirectory;
+        foreach (var row in _catalogueRows)
+        {
+            row.Status = VoiceInstaller.IsInstalled(row.Voice, directory) ? "Installed" : "Not installed";
+        }
+
+        VoiceTargetText.Text = $"Installing into {directory}";
+    }
+
+    /// <summary>Where a downloaded voice goes: the configured folder, or the profile when it is read only.</summary>
+    internal string VoiceInstallDirectory => VoiceInstaller.ChooseTargetDirectory(
+        _settings.ResolvedVoicesDirectory,
+        Path.Combine(
+            Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+            InstallPaths.ApplicationFolderName,
+            InstallPaths.VoicesFolderName),
+        VoiceInstaller.CanWrite);
+
+    private VoiceCatalogueRow? SelectedCatalogueRow => VoiceCatalogueList.SelectedItem as VoiceCatalogueRow;
+
+    private async void OnInstallVoice(object sender, RoutedEventArgs e)
+    {
+        var row = SelectedCatalogueRow;
+
+        if (row is null)
+        {
+            VoiceInstallStatus.Text = "Select a voice to install.";
+            return;
+        }
+
+        if (_installing)
+        {
+            VoiceInstallStatus.Text = "Already installing. Press Cancel first.";
+            return;
+        }
+
+        var directory = VoiceInstallDirectory;
+
+        if (VoiceInstaller.IsInstalled(row.Voice, directory))
+        {
+            VoiceInstallStatus.Text = $"{row.Id} is already installed. Remove it first to download it again.";
+            return;
+        }
+
+        _installing = true;
+        _installCancellation = new CancellationTokenSource();
+        InstallVoiceButton.IsEnabled = false;
+        RemoveVoiceButton.IsEnabled = false;
+        CancelVoiceButton.IsEnabled = true;
+        VoiceProgress.Value = 0;
+        row.Status = "Installing";
+
+        // Reports are posted, so late ones would overwrite the message the awaiting code leaves.
+        var progress = new Progress<VoiceInstallProgress>(report =>
+        {
+            if (!_installing) return;
+
+            switch (report.Phase)
+            {
+                case VoiceInstallPhase.Downloading:
+                    VoiceProgress.Value = report.Percent;
+                    VoiceInstallStatus.Text = $"Downloading {row.Id}: {report.Percent}% of {row.Voice.SizeMb} MB";
+                    break;
+
+                case VoiceInstallPhase.Extracting:
+                    VoiceProgress.Value = 100;
+                    VoiceInstallStatus.Text = $"Unpacking {row.Id}...";
+                    break;
+            }
+        });
+
+        try
+        {
+            await VoiceInstallerFactory().InstallAsync(row.Voice, directory, progress, _installCancellation.Token);
+
+            VoiceProgress.Value = 100;
+            VoiceInstallStatus.Text = $"{row.Id} installed. Licence: {row.Licence}";
+            DisposeEngine();
+            RefreshVoices();
+        }
+        catch (OperationCanceledException)
+        {
+            VoiceProgress.Value = 0;
+            VoiceInstallStatus.Text = $"{row.Id} cancelled; nothing was kept.";
+        }
+        catch (Exception ex)
+        {
+            VoiceProgress.Value = 0;
+            VoiceInstallStatus.Text = $"{row.Id} failed: {ex.Message}";
+        }
+        finally
+        {
+            _installCancellation?.Dispose();
+            _installCancellation = null;
+            _installing = false;
+            InstallVoiceButton.IsEnabled = true;
+            RemoveVoiceButton.IsEnabled = true;
+            CancelVoiceButton.IsEnabled = false;
+            RefreshVoiceCatalogue();
+        }
+    }
+
+    private void OnRemoveVoice(object sender, RoutedEventArgs e)
+    {
+        var row = SelectedCatalogueRow;
+
+        if (row is null)
+        {
+            VoiceInstallStatus.Text = "Select a voice to remove.";
+            return;
+        }
+
+        var directory = VoiceInstallDirectory;
+
+        if (!VoiceInstaller.IsInstalled(row.Voice, directory))
+        {
+            VoiceInstallStatus.Text = $"{row.Id} is not installed.";
+            return;
+        }
+
+        if (string.Equals(_loadedVoiceName, row.Id, StringComparison.OrdinalIgnoreCase)) DisposeEngine();
+
+        VoiceInstaller.Remove(row.Voice, directory);
+        VoiceInstallStatus.Text = $"{row.Id} removed.";
+        RefreshVoices();
+        RefreshVoiceCatalogue();
+    }
+
+    private void OnCancelVoiceInstall(object sender, RoutedEventArgs e)
+    {
+        if (!_installing)
+        {
+            VoiceInstallStatus.Text = "Nothing is installing.";
+            return;
+        }
+
+        _installCancellation?.Cancel();
+        VoiceInstallStatus.Text = "Cancelling...";
     }
 
     private async void OnVoiceChanged(object sender, SelectionChangedEventArgs e)

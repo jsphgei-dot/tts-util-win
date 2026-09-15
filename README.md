@@ -134,8 +134,16 @@ adding a model.
 
 ## Voices
 
-`scripts\FetchVoices.ps1` pulls models published by the sherpa-onnx project. The three
-defaults were chosen for clear, free licences:
+**From the program.** The **Voices** tab lists the curated models with their size, licence
+and whether they are installed. Select one and press **Install**: it is downloaded, checked
+and unpacked into the voices directory, with a progress bar and a Cancel button. **Remove**
+deletes one again. A cancelled or failed install leaves nothing behind. When the configured
+voices directory cannot be written, which happens for an all users installation under
+Program Files, the download goes to `%LOCALAPPDATA%\TtsUtilWin\voices` instead, and the tab
+says where it is writing.
+
+**From a script.** `scripts\FetchVoices.ps1` does the same job for a portable copy or an
+unattended setup. The three defaults were chosen for clear, free licences:
 
 | Model | Voice | Licence |
 | --- | --- | --- |
