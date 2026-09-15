@@ -10,6 +10,8 @@
 
 #endif
 
+#define AppIdGuid "{8F3C21D6-5A74-4E9B-B0C8-2D1E7A6F4B39}"
+
 #define AppName "TTS Util Win"
 #define AppExeName "TtsUtilWin.exe"
 
@@ -19,7 +21,7 @@
 #define VoiceBaseUrl "https://github.com/k2-fsa/sherpa-onnx/releases/download/tts-models/"
 
 [Setup]
-AppId={{8F3C21D6-5A74-4E9B-B0C8-2D1E7A6F4B39}
+AppId={{#AppIdGuid}
 AppName={#AppName}
 AppVersion={#AppVersion}
 AppVerName={#AppName} {#AppVersion}
@@ -37,6 +39,18 @@ DefaultDirName={autopf}\{#AppName}
 DefaultGroupName={#AppName}
 DisableProgramGroupPage=yes
 AllowNoIcons=yes
+
+; Reinstalling reuses the previous folder, group and choices without asking again.
+DisableDirPage=auto
+UsePreviousAppDir=yes
+UsePreviousGroup=yes
+UsePreviousTasks=yes
+UsePreviousSetupType=yes
+
+; Restart Manager closes a running copy instead of failing on a locked file.
+CloseApplications=yes
+CloseApplicationsFilter=*.exe,*.dll
+RestartApplications=no
 
 LicenseFile=..\LICENSE
 OutputDir=..\dist
@@ -95,10 +109,84 @@ Type: dirifempty; Name: "{app}\scripts"
 Type: dirifempty; Name: "{app}"
 
 [Code]
+const
+  UninstallKey = 'Software\Microsoft\Windows\CurrentVersion\Uninstall\{#AppIdGuid}_is1';
+
 var
   DownloadPage: TDownloadWizardPage;
   VoiceComponents: TArrayOfString;
   VoiceIds: TArrayOfString;
+  PreviousVersion: String;
+  InstallAction: String;
+
+function InstalledVersion: String;
+begin
+  if not RegQueryStringValue(HKA, UninstallKey, 'DisplayVersion', Result) then
+    Result := '';
+end;
+
+#include "Version.iss"
+
+function InitializeSetup: Boolean;
+var
+  Comparison: Integer;
+begin
+  Result := True;
+  PreviousVersion := InstalledVersion;
+  InstallAction := 'install';
+
+  if PreviousVersion = '' then
+    Exit;
+
+  Comparison := CompareVersions(PreviousVersion, '{#AppVersion}');
+
+  if Comparison < 0 then
+    InstallAction := 'upgrade'
+  else if Comparison = 0 then
+  begin
+    InstallAction := 'repair';
+
+    if SuppressibleMsgBox(
+         '{#AppName} ' + PreviousVersion + ' is already installed.' + #13#10 + #13#10 +
+         'Setup will repair it: program files are replaced, any voice you tick and do not ' +
+         'already have is downloaded, and your settings are kept.' + #13#10 + #13#10 +
+         'Continue?',
+         mbConfirmation, MB_YESNO, IDYES) = IDNO then
+      Result := False;
+  end
+  else
+  begin
+    InstallAction := 'downgrade';
+
+    if SuppressibleMsgBox(
+         '{#AppName} ' + PreviousVersion + ' is installed, which is newer than this ' +
+         'setup (' + '{#AppVersion}' + ').' + #13#10 + #13#10 +
+         'Installing anyway replaces it with the older version. Continue?',
+         mbConfirmation, MB_YESNO, IDNO) = IDNO then
+      Result := False;
+  end;
+end;
+
+function UpdateReadyMemo(const Space, NewLine, MemoUserInfoInfo, MemoDirInfo, MemoTypeInfo,
+  MemoComponentsInfo, MemoGroupInfo, MemoTasksInfo: String): String;
+var
+  Headline: String;
+begin
+  if InstallAction = 'upgrade' then
+    Headline := 'Upgrading from ' + PreviousVersion + ' to {#AppVersion}. Settings and ' +
+                'installed voices are kept.'
+  else if InstallAction = 'repair' then
+    Headline := 'Repairing {#AppVersion}. Program files are replaced; settings and ' +
+                'installed voices are kept.'
+  else if InstallAction = 'downgrade' then
+    Headline := 'Replacing ' + PreviousVersion + ' with the older {#AppVersion}.'
+  else
+    Headline := 'Installing {#AppVersion}.';
+
+  Result := Headline + NewLine + NewLine + MemoDirInfo + NewLine + NewLine +
+            MemoTypeInfo + NewLine + NewLine + MemoComponentsInfo + NewLine + NewLine +
+            MemoTasksInfo;
+end;
 
 procedure BuildVoiceTable;
 begin

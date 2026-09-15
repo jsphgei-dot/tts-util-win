@@ -101,6 +101,12 @@ if ($Installer) {
     }
     if (-not $iscc) { throw 'Inno Setup was not found. Install it with: winget install JRSoftware.InnoSetup' }
 
+    if (-not $SkipTests) {
+        Write-Host 'Running installer version tests' -ForegroundColor Cyan
+        & (Join-Path $PSScriptRoot 'TestInstaller.ps1') -InnoSetupPath $iscc
+        if ($LASTEXITCODE -ne 0) { throw 'Installer version tests failed; no installer was built.' }
+    }
+
     $props = [xml](Get-Content (Join-Path $root 'Directory.Build.props'))
     $prefix = ($props.Project.PropertyGroup.VersionPrefix | Where-Object { $_ }) -join ''
     $suffix = ($props.Project.PropertyGroup.VersionSuffix | Where-Object { $_ }) -join ''

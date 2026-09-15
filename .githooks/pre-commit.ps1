@@ -61,6 +61,24 @@ else
     Write-Pass 'no build output staged'
 }
 
+$installerStaged = @($staged | Where-Object { $_ -match '\.iss$' })
+
+if ($installerStaged.Count -gt 0)
+{
+    Write-Step 'installer version tests'
+    $installerTests = & (Join-Path $RepoRoot 'scripts\TestInstaller.ps1') 2>&1
+
+    if ($LASTEXITCODE -ne 0)
+    {
+        $installerTests | Select-Object -Last 20 | ForEach-Object { Write-Host "        $_" -ForegroundColor DarkRed }
+        Add-Failure 'Installer version tests failed.'
+    }
+    else
+    {
+        Write-Pass 'installer version tests pass'
+    }
+}
+
 if ($codeStaged.Count -eq 0)
 {
     Write-Host '  (no code staged, skipping format, build and tests)' -ForegroundColor DarkGray

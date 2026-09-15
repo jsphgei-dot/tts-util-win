@@ -98,6 +98,14 @@ Two ways to run it, from one build:
   beside the program, skipping any model already present. A failed download warns and lets
   the installation finish; run `FetchVoices.ps1` afterwards for whatever is missing.
   Uninstalling removes the voices it installed.
+* **Reinstalling and upgrading.** Setup recognises an existing installation by its
+  application id and acts on the version it finds. A newer setup upgrades in place, keeping
+  the folder, shortcuts, settings and the voices already downloaded, and the ready page says
+  so. The same version offers a repair, which replaces the program files and fetches any
+  ticked voice that is missing. An older setup warns that it would downgrade and asks for
+  confirmation. A running copy is closed through the Restart Manager rather than failing on
+  a locked file, and the folder page is skipped when a previous install is found. There is
+  no need to uninstall first.
 * **Portable.** Copy `dist\TtsUtilWin` anywhere. The `portable.txt` file beside the
   executable keeps settings and voices inside that folder, so nothing touches the profile.
 
@@ -194,6 +202,11 @@ rather than stranded in `.git\hooks`. Each is a small shell shim over a PowerShe
 | `pre-commit` | trailing whitespace and conflict markers in the staged diff, staged files over 5 MB, staged build output, `dotnet format --verify-no-changes`, a `-warnaserror` build, the core tests | about 8 s, and it skips the last four when no code is staged |
 | `commit-msg` | Conventional Commits subject in lowercase with no trailing period, 72 character subject, blank line before the body, body of 200 words or fewer, no tool attribution line | instant |
 | `pre-push` | the whole suite, user interface tests included | about 15 s |
+
+`pre-commit` also runs `scripts\TestInstaller.ps1` when an `.iss` file is staged. That
+compiles `installer\VersionTests.iss`, which includes the same `installer\Version.iss` the
+real installer uses, runs it silently and checks 14 version comparison cases, so the
+upgrade, repair and downgrade decisions are tested rather than assumed.
 
 The heavy UI tests sit on push rather than commit so that committing stays quick. Bypass a
 single run with `git commit --no-verify` or `git push --no-verify`, and a whole session with
