@@ -113,6 +113,50 @@
                 </DockPanel>
             </TabItem>
 
+            <TabItem Header="Scripts">
+                <Grid Margin="10">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="300" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+
+                    <DockPanel Grid.Column="0" Margin="0,0,12,0">
+                        <TextBlock DockPanel.Dock="Top" Margin="0,0,0,4" Foreground="#555" TextWrapping="Wrap"
+                                   Text="Saved scripts are plain text files, so you can edit them outside the program too." />
+                        <ListBox x:Name="ScriptList" SelectionChanged="OnScriptSelected" />
+                    </DockPanel>
+
+                    <DockPanel Grid.Column="1">
+                        <Grid DockPanel.Dock="Top" Margin="0,0,0,8">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Grid.Column="0" Text="Title" VerticalAlignment="Center" Margin="0,0,8,0" />
+                            <TextBox x:Name="ScriptTitleBox" Grid.Column="1" Padding="4,4"
+                                     VerticalContentAlignment="Center" />
+                        </Grid>
+
+                        <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Margin="0,0,0,8">
+                            <Button x:Name="SaveScriptButton" Content="Save from Text tab" Width="150"
+                                    Click="OnSaveScript" />
+                            <Button x:Name="OpenScriptButton" Content="Open in Text tab" Width="150"
+                                    Click="OnOpenScript" />
+                            <Button x:Name="RenameScriptButton" Content="Rename" Width="90" Click="OnRenameScript" />
+                            <Button x:Name="DeleteScriptButton" Content="Delete" Width="90" Click="OnDeleteScript" />
+                            <Button x:Name="ScriptFolderButton" Content="Open folder" Width="110"
+                                    Click="OnOpenScriptFolder" />
+                        </StackPanel>
+
+                        <TextBlock x:Name="ScriptFolderText" DockPanel.Dock="Bottom" Foreground="#555"
+                                   TextWrapping="Wrap" Margin="0,8,0,0" />
+
+                        <TextBox x:Name="ScriptPreview" IsReadOnly="True" TextWrapping="Wrap"
+                                 VerticalScrollBarVisibility="Auto" Padding="6" Background="#FAFAFA" />
+                    </DockPanel>
+                </Grid>
+            </TabItem>
+
             <TabItem Header="File">
                 <StackPanel Margin="10">
                     <TextBlock Text="Text file or PDF" Margin="0,0,0,6" />

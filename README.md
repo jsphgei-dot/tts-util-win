@@ -14,6 +14,7 @@ engine, no network access at run time, and your choice of an installer or a port
 * Read each word back as you finish typing it.
 * Import a PDF, including a scanned one, which is read with the OCR built into Windows.
 * Start reading from any line, and watch the line list follow along as it reads.
+* Keep named scripts and reopen them, stored as ordinary text files.
 * Pick a voice, a speaker within a multi speaker voice, and a speech rate.
 * Search a long speaker list by name or number, and star the speakers you keep coming back to.
 
@@ -209,6 +210,20 @@ The search box filters by name or by leading digits of the number, and Star keep
 at the top of the list. Both the chosen speaker and its starred speakers are remembered per
 voice, so switching voices and back returns you to where you were. Favourites shows only
 the starred speakers, and shows everything again when pressed a second time.
+
+## Saved scripts
+
+The Scripts tab keeps named texts you can come back to. Type a title, press **Save from Text
+tab**, and the text is written as a `.txt` file; **Open in Text tab** loads one back, ready to
+read. Rename and Delete do what they say, and Delete asks first.
+
+Scripts are plain UTF-8 text files, one per script, named after the title. They live in
+`%APPDATA%\TtsUtilWin\scripts`, or in a `scripts` folder beside the executable on a portable
+copy. **Open folder** opens that location. Nothing is trapped in an application format: edit
+the files in any editor, or drop one in from elsewhere and it appears in the list.
+
+Characters Windows will not accept in a file name become spaces in the file name, so
+`Chapter 1: the beginning` is stored as `Chapter 1 the beginning.txt`.
 
 ## Reading from a line
 

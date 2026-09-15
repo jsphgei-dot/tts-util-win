@@ -4,6 +4,7 @@
  * Licensed under the Apache License, Version 2.0.
  */
 
+using System.Diagnostics;
 using System.IO;
 using System.Windows;
 using System.Windows.Controls;
@@ -66,7 +67,18 @@ public partial class MainWindow : Window
         RefreshVoices();
         RefreshVoiceCatalogue();
         RebuildLineList();
+        RefreshScripts();
     }
+
+    /// <summary>Where saved scripts live. Tests point it at a temporary folder.</summary>
+    internal ScriptLibrary Scripts { get; set; } = new(ScriptLibrary.ResolveDirectory(
+        AppSettings.AppDirectory,
+        Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
+        File.Exists));
+
+    /// <summary>Opens a folder in Explorer. Tests replace it so nothing is launched.</summary>
+    internal Action<string> FolderOpener { get; set; } = folder =>
+        Process.Start(new ProcessStartInfo(folder) { UseShellExecute = true });
 
     /// <summary>Builds the PDF reader. Tests replace it so no OCR engine is needed.</summary>
     internal Func<PdfTextExtractor> PdfExtractorFactory { get; set; } =
@@ -82,6 +94,12 @@ public partial class MainWindow : Window
     /// <summary>Reports an error as (message, title). Defaults to a modal dialog.</summary>
     internal Action<string, string> ErrorReporter { get; set; } = (message, title) =>
         MessageBox.Show(message, title, MessageBoxButton.OK, MessageBoxImage.Error);
+
+    /// <summary>Asks a yes or no question. Tests answer it without a dialog.</summary>
+    internal Func<string, string, bool> Confirmer { get; set; } = (message, title) =>
+        MessageBox.Show(message, title, MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes;
+
+    private bool Confirm(string message, string title) => Confirmer(message, title);
 
     internal AppSettings Settings => _settings;
 
@@ -649,6 +667,160 @@ public partial class MainWindow : Window
 
     private static bool IsPdf(string path) =>
         PdfTextExtractor.HasPdfExtension(path) || PdfTextExtractor.LooksLikePdf(path);
+
+    // --- Saved scripts ---
+
+    /// <summary>Reloads the script list, keeping the selected title where it still exists.</summary>
+    internal void RefreshScripts()
+    {
+        var selected = (ScriptList.SelectedItem as SavedScript)?.Title;
+
+        ScriptList.Items.Clear();
+        foreach (var script in Scripts.List()) ScriptList.Items.Add(script);
+
+        ScriptFolderText.Text = $"Scripts folder: {Scripts.Directory}";
+
+        if (selected is null) return;
+
+        var found = ScriptList.Items.Cast<SavedScript>()
+            .FirstOrDefault(s => string.Equals(s.Title, selected, StringComparison.OrdinalIgnoreCase));
+        if (found is not null) ScriptList.SelectedItem = found;
+    }
+
+    private void OnScriptSelected(object sender, SelectionChangedEventArgs e)
+    {
+        if (ScriptList.SelectedItem is not SavedScript script) return;
+
+        ScriptTitleBox.Text = script.Title;
+
+        try
+        {
+            ScriptPreview.Text = Scripts.Load(script.Title);
+        }
+        catch (IOException ex)
+        {
+            ScriptPreview.Text = string.Empty;
+            SetStatus($"Could not read {script.Title}: {ex.Message}");
+        }
+    }
+
+    private void OnSaveScript(object sender, RoutedEventArgs e)
+    {
+        var text = InputText.Text;
+        if (string.IsNullOrWhiteSpace(text))
+        {
+            SetStatus("The Text tab is empty, so there is nothing to save.");
+            return;
+        }
+
+        var title = ScriptLibrary.ToFileName(ScriptTitleBox.Text);
+        if (title is null)
+        {
+            SetStatus("Give the script a title first.");
+            return;
+        }
+
+        try
+        {
+            var existed = Scripts.Exists(title);
+            var saved = Scripts.Save(title, text);
+            RefreshScripts();
+            ScriptList.SelectedItem = ScriptList.Items.Cast<SavedScript>()
+                .FirstOrDefault(s => s.Title == saved.Title);
+
+            SetStatus(existed ? $"Replaced {saved.Title}." : $"Saved {saved.Title}.");
+        }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
+        {
+            SetStatus($"Could not save {title}: {ex.Message}");
+            ErrorReporter(ex.Message, "Script could not be saved");
+        }
+    }
+
+    private void OnOpenScript(object sender, RoutedEventArgs e)
+    {
+        if (ScriptList.SelectedItem is not SavedScript script)
+        {
+            SetStatus("Select a script first.");
+            return;
+        }
+
+        try
+        {
+            InputText.Text = Scripts.Load(script.Title);
+            RebuildLineList();
+            Tabs.SelectedIndex = 0;
+            SetStatus($"Opened {script.Title}.");
+        }
+        catch (IOException ex)
+        {
+            SetStatus($"Could not open {script.Title}: {ex.Message}");
+        }
+    }
+
+    private void OnRenameScript(object sender, RoutedEventArgs e)
+    {
+        if (ScriptList.SelectedItem is not SavedScript script)
+        {
+            SetStatus("Select a script first.");
+            return;
+        }
+
+        var title = ScriptLibrary.ToFileName(ScriptTitleBox.Text);
+        if (title is null)
+        {
+            SetStatus("Type the new title in the Title box first.");
+            return;
+        }
+
+        if (!Scripts.Rename(script.Title, title))
+        {
+            SetStatus($"There is already a script called {title}.");
+            return;
+        }
+
+        RefreshScripts();
+        SetStatus($"Renamed to {title}.");
+    }
+
+    private void OnDeleteScript(object sender, RoutedEventArgs e)
+    {
+        if (ScriptList.SelectedItem is not SavedScript script)
+        {
+            SetStatus("Select a script first.");
+            return;
+        }
+
+        if (!Confirm($"Delete the script \"{script.Title}\"? The file is removed from disk.", "Delete script"))
+        {
+            return;
+        }
+
+        try
+        {
+            Scripts.Delete(script.Title);
+            ScriptPreview.Clear();
+            RefreshScripts();
+            SetStatus($"Deleted {script.Title}.");
+        }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
+        {
+            SetStatus($"Could not delete {script.Title}: {ex.Message}");
+        }
+    }
+
+    private void OnOpenScriptFolder(object sender, RoutedEventArgs e)
+    {
+        try
+        {
+            Directory.CreateDirectory(Scripts.Directory);
+            FolderOpener(Scripts.Directory);
+        }
+        catch (Exception ex)
+        {
+            SetStatus($"Could not open the scripts folder: {ex.Message}");
+        }
+    }
 
     private void OnStop(object sender, RoutedEventArgs e)
     {

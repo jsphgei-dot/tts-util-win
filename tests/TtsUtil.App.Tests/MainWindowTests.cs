@@ -57,7 +57,7 @@ public sealed class MainWindowTests : IDisposable
         {
             Assert.Equal("TTS Util Win", window.Title);
             var headers = window.Tabs.Items.Cast<TabItem>().Select(t => t.Header.ToString()).ToList();
-            Assert.Equal(new[] { "Text", "File", "Voices", "Settings", "About" }, headers);
+            Assert.Equal(new[] { "Text", "Scripts", "File", "Voices", "Settings", "About" }, headers);
         });
     }
 
