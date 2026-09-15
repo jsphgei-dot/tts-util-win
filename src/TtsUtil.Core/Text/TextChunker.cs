@@ -43,6 +43,8 @@ public sealed class ChunkerOptions
 
     public TextFilterOptions Filters { get; set; } = new();
 
+    public SpokenCharacterOptions Spoken { get; set; } = new();
+
     /// <summary>Divides silence durations by the speech rate when true.</summary>
     public bool ScaleSilenceToRate { get; set; }
 
@@ -164,6 +166,8 @@ public sealed class TextChunker
         {
             CharactersFiltered += TextFilters.Apply(buffer, _options.Filters);
         }
+
+        CharactersFiltered += SpokenCharacters.Apply(buffer, _options.Spoken);
 
         var builder = new StringBuilder(buffer.Count);
         foreach (var c in buffer) builder.Append(c);

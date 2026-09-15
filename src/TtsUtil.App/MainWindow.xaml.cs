@@ -91,6 +91,8 @@ public partial class MainWindow : Window
         FilterHashBox.IsChecked = _settings.FilterHashes;
         FilterWebBox.IsChecked = _settings.FilterWebLinks;
         FilterMailBox.IsChecked = _settings.FilterMailToLinks;
+        PopulateSpokenCharacterChoices();
+        AllowedExtraBox.Text = _settings.AllowedExtraCharacters;
         VoicesDirBox.Text = _settings.ResolvedVoicesDirectory;
         OutputDirBox.Text = _settings.ResolvedOutputDirectory;
         ThreadsBox.Text = _settings.NumThreads.ToString();
@@ -112,6 +114,8 @@ public partial class MainWindow : Window
         _settings.FilterHashes = FilterHashBox.IsChecked == true;
         _settings.FilterWebLinks = FilterWebBox.IsChecked == true;
         _settings.FilterMailToLinks = FilterMailBox.IsChecked == true;
+        _settings.SpokenCharacters = SelectedSpokenCharacterPolicy();
+        _settings.AllowedExtraCharacters = AllowedExtraBox.Text ?? string.Empty;
         _settings.NumThreads = Math.Clamp(ParseInt(ThreadsBox.Text, _settings.NumThreads), 1, 16);
         _settings.MaxChunkLength = Math.Clamp(ParseInt(ChunkLengthBox.Text, _settings.MaxChunkLength), 64, 20000);
         _settings.ReadAsYouType = ReadAsYouTypeBox.IsChecked == true;
@@ -189,6 +193,33 @@ public partial class MainWindow : Window
             ErrorReporter(ex.Message, "Voice failed to load");
             return null;
         }
+    }
+
+    /// <summary>The policies the Settings tab offers, in the order they are shown.</summary>
+    private static readonly (SpokenCharacterPolicy Policy, string Label)[] SpokenChoices =
+    {
+        (SpokenCharacterPolicy.LatinOnly, "Letters and digits only (a-z, A-Z, 0-9)"),
+        (SpokenCharacterPolicy.AnyLetter, "Any letter or digit, including accents and other scripts"),
+        (SpokenCharacterPolicy.Off, "Everything, including punctuation and symbols"),
+    };
+
+    private void PopulateSpokenCharacterChoices()
+    {
+        if (SpokenCharactersBox.Items.Count == 0)
+        {
+            foreach (var choice in SpokenChoices) SpokenCharactersBox.Items.Add(choice.Label);
+        }
+
+        var index = Array.FindIndex(SpokenChoices, choice => choice.Policy == _settings.SpokenCharacters);
+        SpokenCharactersBox.SelectedIndex = index < 0 ? 0 : index;
+    }
+
+    private SpokenCharacterPolicy SelectedSpokenCharacterPolicy()
+    {
+        var index = SpokenCharactersBox.SelectedIndex;
+        return index >= 0 && index < SpokenChoices.Length
+            ? SpokenChoices[index].Policy
+            : SpokenCharacterPolicy.LatinOnly;
     }
 
     /// <summary>Fills the picker with numbered speakers, used where no voice folder is at hand.</summary>
@@ -280,7 +311,7 @@ public partial class MainWindow : Window
 
         try
         {
-            var filtered = await Task.Run(() =>
+            var result = await Task.Run(() =>
             {
                 // Counting beats a byte length, which overstates the total on non ASCII text.
                 var totalCharacters = knownCharacters ?? TextMeasure.CountCharacters(readerFactory);
@@ -307,8 +338,18 @@ public partial class MainWindow : Window
                     runner.Run(reader, totalCharacters, sink, progress, token);
                 }
 
-                return runner.CharactersFiltered;
+                return (runner.CharactersFiltered, runner.UtterancesSpoken, totalCharacters);
             }, token);
+
+            var (filtered, spoken, total) = result;
+
+            // Everything filtered away is silent failure, and the usual cause is the policy.
+            if (spoken == 0 && total > 0)
+            {
+                SetStatus("Nothing was left to read: every character was filtered. " +
+                          "Check \"Characters read aloud\" in Settings.");
+                return;
+            }
 
             var note = filtered > 0 ? $" {filtered} character(s) filtered." : string.Empty;
             SetStatus(outputPath is null ? $"Finished reading.{note}" : $"Wrote {outputPath}.{note}");

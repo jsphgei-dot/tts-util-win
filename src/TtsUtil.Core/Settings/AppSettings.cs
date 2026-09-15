@@ -17,6 +17,7 @@ public sealed class AppSettings
     {
         WriteIndented = true,
         DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
+        Converters = { new JsonStringEnumConverter() },
     };
 
     public string? VoicesDirectory { get; set; }
@@ -51,6 +52,12 @@ public sealed class AppSettings
     public bool FilterWebLinks { get; set; }
 
     public bool FilterMailToLinks { get; set; }
+
+    /// <summary>Which characters are allowed to be voiced. Punctuation still becomes silence.</summary>
+    public SpokenCharacterPolicy SpokenCharacters { get; set; } = SpokenCharacterPolicy.LatinOnly;
+
+    /// <summary>Extra characters allowed through on top of the policy.</summary>
+    public string AllowedExtraCharacters { get; set; } = string.Empty;
 
     public bool ReadAsYouType { get; set; }
 
@@ -202,6 +209,11 @@ public sealed class AppSettings
             FilterHashes = FilterHashes,
             FilterWebLinks = FilterWebLinks,
             FilterMailToLinks = FilterMailToLinks,
+        },
+        Spoken = new SpokenCharacterOptions
+        {
+            Policy = SpokenCharacters,
+            AllowedExtra = AllowedExtraCharacters ?? string.Empty,
         },
     };
 }

@@ -165,6 +165,8 @@
                             <RowDefinition Height="Auto" />
                             <RowDefinition Height="Auto" />
                             <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
                         </Grid.RowDefinitions>
 
                         <TextBlock Grid.Row="0" Grid.Column="0" Text="Silence after line endings (ms)"
@@ -197,31 +199,45 @@
                         <CheckBox x:Name="FilterMailBox" Grid.Row="7" Grid.Column="1"
                                   Content="Omit mailto links" Margin="0,0,0,12" />
 
-                        <TextBlock Grid.Row="8" Grid.Column="0" Text="Voices directory"
+                        <TextBlock Grid.Row="8" Grid.Column="0" Text="Characters read aloud"
                                    Style="{StaticResource SettingLabel}" />
-                        <TextBox x:Name="VoicesDirBox" Grid.Row="8" Grid.Column="1"
+                        <ComboBox x:Name="SpokenCharactersBox" Grid.Row="8" Grid.Column="1"
+                                  Margin="0,0,0,8" VerticalAlignment="Center" />
+                        <TextBlock Grid.Row="8" Grid.Column="2" Margin="8,0,0,8" Foreground="#555"
+                                   VerticalAlignment="Center"
+                                   Text="Punctuation still becomes a pause" />
+
+                        <TextBlock Grid.Row="9" Grid.Column="0" Text="Also read these characters"
+                                   Style="{StaticResource SettingLabel}" />
+                        <TextBox x:Name="AllowedExtraBox" Grid.Row="9" Grid.Column="1"
+                                 Style="{StaticResource SettingBox}"
+                                 ToolTip="Characters allowed through on top of the setting above" />
+
+                        <TextBlock Grid.Row="10" Grid.Column="0" Text="Voices directory"
+                                   Style="{StaticResource SettingLabel}" />
+                        <TextBox x:Name="VoicesDirBox" Grid.Row="10" Grid.Column="1"
                                  Style="{StaticResource SettingBox}" />
-                        <Button Grid.Row="8" Grid.Column="2" Content="Browse" Margin="8,0,0,8"
+                        <Button Grid.Row="10" Grid.Column="2" Content="Browse" Margin="8,0,0,8"
                                 Click="OnBrowseVoicesDir" />
 
-                        <TextBlock Grid.Row="9" Grid.Column="0" Text="Default output directory"
+                        <TextBlock Grid.Row="11" Grid.Column="0" Text="Default output directory"
                                    Style="{StaticResource SettingLabel}" />
-                        <TextBox x:Name="OutputDirBox" Grid.Row="9" Grid.Column="1"
+                        <TextBox x:Name="OutputDirBox" Grid.Row="11" Grid.Column="1"
                                  Style="{StaticResource SettingBox}" />
-                        <Button Grid.Row="9" Grid.Column="2" Content="Browse" Margin="8,0,0,8"
+                        <Button Grid.Row="11" Grid.Column="2" Content="Browse" Margin="8,0,0,8"
                                 Click="OnBrowseOutputDir" />
 
-                        <TextBlock Grid.Row="10" Grid.Column="0" Text="Synthesis threads"
+                        <TextBlock Grid.Row="12" Grid.Column="0" Text="Synthesis threads"
                                    Style="{StaticResource SettingLabel}" />
-                        <TextBox x:Name="ThreadsBox" Grid.Row="10" Grid.Column="1"
+                        <TextBox x:Name="ThreadsBox" Grid.Row="12" Grid.Column="1"
                                  Style="{StaticResource SettingBox}" />
 
-                        <TextBlock Grid.Row="11" Grid.Column="0" Text="Maximum characters per chunk"
+                        <TextBlock Grid.Row="13" Grid.Column="0" Text="Maximum characters per chunk"
                                    Style="{StaticResource SettingLabel}" />
-                        <TextBox x:Name="ChunkLengthBox" Grid.Row="11" Grid.Column="1"
+                        <TextBox x:Name="ChunkLengthBox" Grid.Row="13" Grid.Column="1"
                                  Style="{StaticResource SettingBox}" />
 
-                        <StackPanel Grid.Row="12" Grid.Column="1" Orientation="Horizontal" Margin="0,8,0,0">
+                        <StackPanel Grid.Row="14" Grid.Column="1" Orientation="Horizontal" Margin="0,8,0,0">
                             <Button x:Name="ApplySettingsButton" Content="Apply" Click="OnApplySettings" />
                             <TextBlock x:Name="SettingsPathText" VerticalAlignment="Center" Foreground="#555"
                                        TextTrimming="CharacterEllipsis" />

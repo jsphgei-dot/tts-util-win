@@ -10,6 +10,7 @@ engine, no network access at run time, and your choice of an installer or a port
 * Write the same input to a wave file.
 * Insert custom silence for line endings, sentences, questions, and exclamations.
 * Omit hash characters, web links, and mailto links from the audio.
+* Read only letters and digits aloud by default, so symbols are never voiced as their names.
 * Read each word back as you finish typing it.
 * Pick a voice, a speaker within a multi speaker voice, and a speech rate.
 * Search a long speaker list by name or number, and star the speakers you keep coming back to.
@@ -160,6 +161,30 @@ On an all users installation the program folder is under Program Files, so runni
 script there needs an elevated PowerShell, or a `-Destination` you can write to.
 The authoritative licence for a model is the `LICENSE` or `MODEL_CARD` file inside its
 folder; the About tab displays it for the selected voice.
+
+### What gets read aloud
+
+By default only letters, digits and the punctuation that phrases speech reach the engine.
+Everything else is dropped, because a text to speech engine happily says "dollar",
+"percent" and "hash" out loud where a reader would say nothing.
+
+* **Kept and voiced:** `a-z`, `A-Z`, `0-9`. Accented Latin letters are folded to their base
+  letter, so `café` is read as `cafe` rather than broken into `caf`.
+* **Kept as phrasing:** `. , ; : ? !` and their fullwidth forms. The engine pauses on these
+  rather than naming them, which is exactly the behaviour asked for.
+* **Dropped:** everything else. A symbol between two words leaves a gap so the words do not
+  run together, while an apostrophe inside a word simply vanishes, so `don't` stays one
+  word. Sentence ending punctuation already became silence in the chunker before this runs.
+
+Settings has two controls for it. **Characters read aloud** chooses between the strict set
+above, any Unicode letter or digit, or no filtering at all. **Also read these characters**
+takes a list of extra characters to let through, for example `%$` if you want prices and
+percentages spoken.
+
+One consequence worth knowing: the strict default removes non Latin scripts entirely, so a
+Chinese or Japanese voice reads nothing under it. Switch to "Any letter or digit" for
+those. If a run ends up with nothing to say, the status bar says so and points at the
+setting rather than finishing silently.
 
 ### Speakers
 

@@ -48,7 +48,8 @@ public class TextChunkerTests
         Assert.Equal(2, chunks.Count);
         Assert.Equal("One", chunks[0].Text);
         Assert.Equal(500, chunks[0].SilenceMs);
-        Assert.Equal(" Two", chunks[1].Text);
+        // The character policy trims the leading space the split leaves behind.
+        Assert.Equal("Two", chunks[1].Text);
     }
 
     [Fact]

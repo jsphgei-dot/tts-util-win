@@ -62,6 +62,9 @@ public sealed class SynthesisRunner
     /// <summary>Number of characters removed by the text filters during the last run.</summary>
     public long CharactersFiltered { get; private set; }
 
+    /// <summary>How many utterances actually reached the engine during the last run.</summary>
+    public long UtterancesSpoken { get; private set; }
+
     public void Run(
         TextReader input,
         long totalCharacters,
@@ -72,6 +75,7 @@ public sealed class SynthesisRunner
         var chunker = new TextChunker(_options);
         var speed = Speed <= 0 ? 1.0f : Speed;
         CharactersFiltered = 0;
+        UtterancesSpoken = 0;
 
         progress?.Report(new SynthesisProgress(0, 0, totalCharacters));
 
@@ -81,6 +85,7 @@ public sealed class SynthesisRunner
 
             if (utterance.Text.Trim().Length > 0)
             {
+                UtterancesSpoken++;
                 _engine.Synthesize(utterance.Text, SpeakerId, speed, samples =>
                 {
                     if (cancellationToken.IsCancellationRequested) return false;
