@@ -7,6 +7,8 @@
 using System.IO;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Input;
+using System.Windows.Threading;
 using TtsUtil.Core;
 using TtsUtil.Core.Settings;
 using TtsUtil.Core.Text;
@@ -32,6 +34,10 @@ public partial class MainWindow : Window
     private readonly List<VoiceCatalogueRow> _catalogueRows = new();
     private CancellationTokenSource? _installCancellation;
     private bool _installing;
+    private LineMap _lineMap = LineMap.Build(string.Empty);
+    private DispatcherTimer? _lineRebuildTimer;
+    private long _runStartOffset;
+    private int _spokenLine = -1;
     private IReadOnlyList<SpeakerInfo> _speakers = Array.Empty<SpeakerInfo>();
     private string? _speakerVoiceName;
     private int _speakerId;
@@ -59,6 +65,7 @@ public partial class MainWindow : Window
         _initialising = false;
         RefreshVoices();
         RefreshVoiceCatalogue();
+        RebuildLineList();
     }
 
     /// <summary>Builds the PDF reader. Tests replace it so no OCR engine is needed.</summary>
@@ -285,7 +292,7 @@ public partial class MainWindow : Window
         _speakers.FirstOrDefault(speaker => speaker.Id == _speakerId)?.Label ?? _speakerId.ToString();
 
     private async Task RunSynthesisAsync(Func<TextReader> readerFactory, string? outputPath,
-        long? knownCharacters = null)
+        long? knownCharacters = null, long startOffset = 0)
     {
         if (_busy)
         {
@@ -305,10 +312,14 @@ public partial class MainWindow : Window
         var options = _settings.ToChunkerOptions();
         var speakerId = _speakerId;
         var speed = (float)SpeedSlider.Value;
+        _runStartOffset = startOffset;
+        _spokenLine = -1;
+
         var progress = new Progress<SynthesisProgress>(p =>
         {
             Progress.Value = p.Percent;
             if (p.TotalCharacters > 0) SetStatus($"{p.Percent}% ({p.CharactersRead} of {p.TotalCharacters} characters)");
+            HighlightSpokenLine(p.CharactersRead);
         });
 
         SetBusy(true);
@@ -376,7 +387,26 @@ public partial class MainWindow : Window
         }
     }
 
-    private void OnReadText(object sender, RoutedEventArgs e)
+    private void OnReadText(object sender, RoutedEventArgs e) => ReadFrom(0);
+
+    private void OnReadFromHere(object sender, RoutedEventArgs e) => ReadFrom(ChosenStartOffset());
+
+    private void OnLineListDoubleClick(object sender, MouseButtonEventArgs e)
+    {
+        if (LineList.SelectedItem is not ScriptLineRow row) return;
+        ReadFrom(row.Start);
+    }
+
+    /// <summary>The line the user picked in the list, or failing that the caret's line.</summary>
+    private int ChosenStartOffset()
+    {
+        if (LineList.SelectedItem is ScriptLineRow row) return row.Start;
+
+        RebuildLineList();
+        return _lineMap.StartOf(_lineMap.LineAt(InputText.CaretIndex));
+    }
+
+    private void ReadFrom(int startOffset)
     {
         var text = InputText.Text;
         if (string.IsNullOrWhiteSpace(text))
@@ -385,7 +415,82 @@ public partial class MainWindow : Window
             return;
         }
 
-        _ = RunSynthesisAsync(() => new StringReader(text), null, text.Length);
+        var offset = Math.Clamp(startOffset, 0, text.Length);
+        var remainder = text[offset..];
+
+        if (string.IsNullOrWhiteSpace(remainder))
+        {
+            SetStatus("There is nothing left to read from there.");
+            return;
+        }
+
+        LastReadStartOffset = offset;
+        _ = RunSynthesisAsync(() => new StringReader(remainder), null, remainder.Length, offset);
+    }
+
+    /// <summary>Where the last Read started, which is what "read from here" actually decides.</summary>
+    internal int LastReadStartOffset { get; private set; } = -1;
+
+    // --- The line list ---
+
+    /// <summary>Rebuilds the list from the editor, keeping the selected line where it can.</summary>
+    internal void RebuildLineList()
+    {
+        _lineMap = LineMap.Build(InputText.Text);
+
+        if (LinePanel.Visibility != Visibility.Visible)
+        {
+            LineList.Items.Clear();
+            return;
+        }
+
+        var selected = (LineList.SelectedItem as ScriptLineRow)?.Index ?? -1;
+
+        LineList.Items.Clear();
+        foreach (var line in _lineMap.Lines) LineList.Items.Add(new ScriptLineRow(line));
+
+        if (selected >= 0 && selected < LineList.Items.Count) LineList.SelectedIndex = selected;
+    }
+
+    /// <summary>Waits for typing to settle, so a long script is not rebuilt on every key.</summary>
+    private void ScheduleLineRebuild()
+    {
+        _lineRebuildTimer ??= CreateLineRebuildTimer();
+        _lineRebuildTimer.Stop();
+        _lineRebuildTimer.Start();
+    }
+
+    private DispatcherTimer CreateLineRebuildTimer()
+    {
+        var timer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(300) };
+        timer.Tick += (_, _) =>
+        {
+            timer.Stop();
+            RebuildLineList();
+        };
+        return timer;
+    }
+
+    private void OnShowLinesChanged(object sender, RoutedEventArgs e)
+    {
+        var show = ShowLinesBox.IsChecked == true;
+        LinePanel.Visibility = show ? Visibility.Visible : Visibility.Collapsed;
+        LineSplitter.Visibility = LinePanel.Visibility;
+        LineListColumn.Width = show ? new GridLength(300) : new GridLength(0);
+        RebuildLineList();
+    }
+
+    /// <summary>Follows the run down the list, so the spoken line is visible.</summary>
+    private void HighlightSpokenLine(long charactersRead)
+    {
+        if (LinePanel.Visibility != Visibility.Visible || LineList.Items.Count == 0) return;
+
+        var line = _lineMap.LineAt(_runStartOffset + charactersRead);
+        if (line == _spokenLine || line >= LineList.Items.Count) return;
+
+        _spokenLine = line;
+        LineList.SelectedIndex = line;
+        LineList.ScrollIntoView(LineList.Items[line]);
     }
 
     private void OnSaveTextToWave(object sender, RoutedEventArgs e)
@@ -832,6 +937,8 @@ public partial class MainWindow : Window
 
     private void OnInputTextChanged(object sender, TextChangedEventArgs e)
     {
+        ScheduleLineRebuild();
+
         if (_initialising || _busy || ReadAsYouTypeBox.IsChecked != true) return;
 
         var change = e.Changes.FirstOrDefault();

@@ -105,11 +105,9 @@ public sealed class PdfTextExtractorTests : IDisposable
     {
         var path = WritePdf(("One.", false), ("Two.", false), ("Three.", false));
         using var cancellation = new CancellationTokenSource();
-        var reported = 0;
-        var progress = new Progress<string>(_ =>
-        {
-            if (Interlocked.Increment(ref reported) >= 2) cancellation.Cancel();
-        });
+
+        // Reporting inline on the extraction thread, so the cancel lands mid document.
+        var progress = new InlineProgress(_ => cancellation.Cancel());
 
         await Assert.ThrowsAnyAsync<OperationCanceledException>(
             () => new PdfTextExtractor().ExtractAsync(path, progress, cancellation.Token));
@@ -143,6 +141,15 @@ public sealed class PdfTextExtractorTests : IDisposable
         var path = Path.Combine(_root, Guid.NewGuid().ToString("N") + ".pdf");
         File.WriteAllBytes(path, builder.Build());
         return path;
+    }
+
+    private sealed class InlineProgress : IProgress<string>
+    {
+        private readonly Action<string> _report;
+
+        public InlineProgress(Action<string> report) => _report = report;
+
+        public void Report(string value) => _report(value);
     }
 
     private sealed class FakeOcr : IPageImageOcr
