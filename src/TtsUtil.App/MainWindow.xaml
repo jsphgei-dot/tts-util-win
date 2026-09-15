@@ -8,33 +8,50 @@
 
         <Border DockPanel.Dock="Top" Padding="0,0,0,10">
             <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto" />
                     <ColumnDefinition Width="*" />
-                    <ColumnDefinition Width="Auto" />
-                    <ColumnDefinition Width="Auto" />
                     <ColumnDefinition Width="Auto" />
                     <ColumnDefinition Width="140" />
                     <ColumnDefinition Width="Auto" />
                     <ColumnDefinition Width="Auto" />
                 </Grid.ColumnDefinitions>
 
-                <Label Grid.Column="0" Content="Voice" />
-                <ComboBox x:Name="VoiceBox" Grid.Column="1" Margin="4,0,12,0" MinWidth="220"
+                <Label Grid.Row="0" Grid.Column="0" Content="Voice" />
+                <ComboBox x:Name="VoiceBox" Grid.Row="0" Grid.Column="1" Margin="4,0,12,0" MinWidth="220"
                           VerticalAlignment="Center" SelectionChanged="OnVoiceChanged" />
 
-                <Label Grid.Column="2" x:Name="SpeakerLabel" Content="Speaker" />
-                <ComboBox x:Name="SpeakerBox" Grid.Column="3" Margin="4,0,12,0" MinWidth="80"
-                          VerticalAlignment="Center" SelectionChanged="OnSpeakerChanged" />
-
-                <Label Grid.Column="4" Content="Speed" />
-                <Slider x:Name="SpeedSlider" Grid.Column="5" Minimum="0.5" Maximum="2.0" Value="1.0"
+                <Label Grid.Row="0" Grid.Column="2" Content="Speed" />
+                <Slider x:Name="SpeedSlider" Grid.Row="0" Grid.Column="3" Minimum="0.5" Maximum="2.0" Value="1.0"
                         TickFrequency="0.05" IsSnapToTickEnabled="True" VerticalAlignment="Center"
                         Margin="4,0,8,0" ValueChanged="OnSpeedChanged" />
-                <TextBlock x:Name="SpeedText" Grid.Column="6" Text="1.00x" VerticalAlignment="Center"
+                <TextBlock x:Name="SpeedText" Grid.Row="0" Grid.Column="4" Text="1.00x" VerticalAlignment="Center"
                            Margin="0,0,12,0" MinWidth="44" />
 
-                <Button x:Name="RescanButton" Grid.Column="7" Content="Rescan" Click="OnRescanVoices" Margin="0" />
+                <Button x:Name="RescanButton" Grid.Row="0" Grid.Column="5" Content="Rescan"
+                        Click="OnRescanVoices" Margin="0" />
+
+                <StackPanel x:Name="SpeakerPanel" Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="6"
+                            Orientation="Horizontal" Margin="0,6,0,0">
+                    <Label x:Name="SpeakerLabel" Content="Speaker" VerticalAlignment="Center" />
+                    <TextBox x:Name="SpeakerSearchBox" Width="150" Margin="4,0,6,0" Padding="3,2"
+                             VerticalAlignment="Center" ToolTip="Filter speakers by name or number"
+                             TextChanged="OnSpeakerSearchChanged" />
+                    <ComboBox x:Name="SpeakerBox" MinWidth="200" MaxDropDownHeight="360"
+                              VerticalAlignment="Center" SelectionChanged="OnSpeakerChanged" />
+                    <ToggleButton x:Name="FavouriteSpeakerButton" Content="Star" Width="56" Margin="6,0,0,0"
+                                  VerticalAlignment="Center" ToolTip="Keep this speaker at the top of the list"
+                                  Click="OnToggleFavouriteSpeaker" />
+                    <Button x:Name="ShowFavouritesButton" Content="Favourites" Width="82" Margin="6,0,0,0"
+                            VerticalAlignment="Center" ToolTip="Show only starred speakers"
+                            Click="OnShowFavouriteSpeakers" />
+                    <TextBlock x:Name="SpeakerCountText" VerticalAlignment="Center" Margin="10,0,0,0"
+                               Foreground="#555" />
+                </StackPanel>
             </Grid>
         </Border>
 

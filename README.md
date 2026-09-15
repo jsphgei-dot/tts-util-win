@@ -12,6 +12,7 @@ engine, no network access at run time, and your choice of an installer or a port
 * Omit hash characters, web links, and mailto links from the audio.
 * Read each word back as you finish typing it.
 * Pick a voice, a speaker within a multi speaker voice, and a speech rate.
+* Search a long speaker list by name or number, and star the speakers you keep coming back to.
 
 ## Where to get a build
 
@@ -159,6 +160,28 @@ On an all users installation the program folder is under Program Files, so runni
 script there needs an elevated PowerShell, or a `-Destination` you can write to.
 The authoritative licence for a model is the `LICENSE` or `MODEL_CARD` file inside its
 folder; the About tab displays it for the selected voice.
+
+### Speakers
+
+A multi speaker voice shows a speaker row under the voice picker. Names come from the
+model's own metadata where it has any: piper models carry a `speaker_id_map`, so
+`vits-piper-en_US-libritts_r-medium` lists its 904 speakers by LibriTTS reader id rather
+than by position. Where a model says nothing, the speakers are numbered.
+
+To name them yourself, drop a `speakers.txt` into the voice folder. A line is either
+`id = name` or a bare name, bare lines numbering themselves from zero, and blank lines and
+lines starting with `#` are ignored. Your names win over the model's.
+
+```
+# voices/vits-piper-en_US-libritts_r-medium/speakers.txt
+12  = Narrator
+307 = Warm, low
+```
+
+The search box filters by name or by leading digits of the number, and Star keeps a speaker
+at the top of the list. Both the chosen speaker and its starred speakers are remembered per
+voice, so switching voices and back returns you to where you were. Favourites shows only
+the starred speakers, and shows everything again when pressed a second time.
 
 ## Requirements
 

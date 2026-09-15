@@ -23,7 +23,14 @@ public sealed class AppSettings
 
     public string? LastVoiceName { get; set; }
 
+    /// <summary>The speaker used before choices became per voice, still the fallback.</summary>
     public int SpeakerId { get; set; }
+
+    /// <summary>The chosen speaker for each voice, keyed by lower case voice name.</summary>
+    public Dictionary<string, int> SpeakerIds { get; set; } = new();
+
+    /// <summary>Speakers the user starred, keyed by lower case voice name.</summary>
+    public Dictionary<string, List<int>> FavouriteSpeakers { get; set; } = new();
 
     public float Speed { get; set; } = 1.0f;
 
@@ -122,6 +129,61 @@ public sealed class AppSettings
             // Settings are a convenience; a read-only location is not fatal.
         }
     }
+
+    /// <summary>The speaker last used for a voice, falling back to the shared setting.</summary>
+    public int GetSpeakerId(string? voiceName)
+    {
+        var key = VoiceKey(voiceName);
+        if (key is not null && SpeakerIds.TryGetValue(key, out var id)) return id;
+        return SpeakerId;
+    }
+
+    /// <summary>Records the speaker for one voice, and as the fallback for a new voice.</summary>
+    public void SetSpeakerId(string? voiceName, int speakerId)
+    {
+        SpeakerId = speakerId;
+
+        var key = VoiceKey(voiceName);
+        if (key is null) return;
+        SpeakerIds[key] = speakerId;
+    }
+
+    /// <summary>The starred speakers for a voice, in the order they were starred.</summary>
+    public IReadOnlyList<int> GetFavouriteSpeakers(string? voiceName)
+    {
+        var key = VoiceKey(voiceName);
+        if (key is null || !FavouriteSpeakers.TryGetValue(key, out var ids)) return Array.Empty<int>();
+        return ids;
+    }
+
+    public bool IsFavouriteSpeaker(string? voiceName, int speakerId) =>
+        GetFavouriteSpeakers(voiceName).Contains(speakerId);
+
+    /// <summary>Stars or unstars a speaker, returning whether it is starred afterwards.</summary>
+    public bool ToggleFavouriteSpeaker(string? voiceName, int speakerId)
+    {
+        var key = VoiceKey(voiceName);
+        if (key is null) return false;
+
+        if (!FavouriteSpeakers.TryGetValue(key, out var ids))
+        {
+            ids = new List<int>();
+            FavouriteSpeakers[key] = ids;
+        }
+
+        if (ids.Remove(speakerId))
+        {
+            // An empty list would only grow the settings file with nothing in it.
+            if (ids.Count == 0) FavouriteSpeakers.Remove(key);
+            return false;
+        }
+
+        ids.Add(speakerId);
+        return true;
+    }
+
+    private static string? VoiceKey(string? voiceName) =>
+        string.IsNullOrWhiteSpace(voiceName) ? null : voiceName!.Trim().ToLowerInvariant();
 
     public ChunkerOptions ToChunkerOptions() => new()
     {

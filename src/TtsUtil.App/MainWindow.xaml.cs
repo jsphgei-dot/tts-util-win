@@ -32,6 +32,10 @@ public partial class MainWindow : Window
     private readonly List<VoiceCatalogueRow> _catalogueRows = new();
     private CancellationTokenSource? _installCancellation;
     private bool _installing;
+    private IReadOnlyList<SpeakerInfo> _speakers = Array.Empty<SpeakerInfo>();
+    private string? _speakerVoiceName;
+    private int _speakerId;
+    private bool _favouritesOnly;
 
     public MainWindow() : this(LoadSettingsWithOverrides())
     {
@@ -175,7 +179,7 @@ public partial class MainWindow : Window
             var engine = await Task.Run(() => SherpaTtsEngine.Load(voice, threads));
             _engine = engine;
             _loadedVoiceName = voice.Name;
-            PopulateSpeakers(engine.SpeakerCount);
+            PopulateSpeakers(voice, engine.SpeakerCount);
             SetStatus($"{voice.Name} loaded: {engine.SampleRate} Hz, {engine.SpeakerCount} speaker(s).");
             return engine;
         }
@@ -187,18 +191,63 @@ public partial class MainWindow : Window
         }
     }
 
-    internal void PopulateSpeakers(int count)
+    /// <summary>Fills the picker with numbered speakers, used where no voice folder is at hand.</summary>
+    internal void PopulateSpeakers(int count) => PopulateSpeakers(null, count);
+
+    /// <summary>Reads the voice's speaker names, then fills the picker and restores the choice.</summary>
+    internal void PopulateSpeakers(VoiceDescriptor? voice, int count)
     {
-        _initialising = true;
-        SpeakerBox.Items.Clear();
-        for (var i = 0; i < count; i++) SpeakerBox.Items.Add(i.ToString());
-        SpeakerBox.SelectedIndex = Math.Clamp(_settings.SpeakerId, 0, Math.Max(0, count - 1));
-        _initialising = false;
+        _speakerVoiceName = voice?.Name;
+        _speakers = voice is null
+            ? SpeakerCatalog.Build(count)
+            : SpeakerCatalog.Load(voice, count);
+
+        _speakerId = Math.Clamp(_settings.GetSpeakerId(_speakerVoiceName), 0, Math.Max(0, count - 1));
+
+        _favouritesOnly = false;
+        ShowFavouritesButton.Content = "Favourites";
+        SpeakerSearchBox.Text = string.Empty;
+        RefreshSpeakerList();
 
         var visibility = count > 1 ? Visibility.Visible : Visibility.Collapsed;
+        SpeakerPanel.Visibility = visibility;
         SpeakerBox.Visibility = visibility;
         SpeakerLabel.Visibility = visibility;
     }
+
+    /// <summary>Applies the search box and the starred speakers to what the picker shows.</summary>
+    private void RefreshSpeakerList()
+    {
+        var favourites = _settings.GetFavouriteSpeakers(_speakerVoiceName);
+        var pool = _favouritesOnly
+            ? _speakers.Where(speaker => favourites.Contains(speaker.Id)).ToList()
+            : _speakers;
+        var shown = SpeakerCatalog.Filter(pool, SpeakerSearchBox.Text, favourites);
+
+        _initialising = true;
+        SpeakerBox.Items.Clear();
+        foreach (var speaker in shown) SpeakerBox.Items.Add(speaker);
+
+        // The selected speaker can be filtered out, and then nothing is selected to change.
+        var index = shown.ToList().FindIndex(speaker => speaker.Id == _speakerId);
+        SpeakerBox.SelectedIndex = index;
+        _initialising = false;
+
+        FavouriteSpeakerButton.IsChecked = _settings.IsFavouriteSpeaker(_speakerVoiceName, _speakerId);
+
+        var count = shown.Count == _speakers.Count
+            ? $"{_speakers.Count} speakers"
+            : $"{shown.Count} of {_speakers.Count} speakers";
+
+        // The filter can hide the speaker that is still the one a run would use.
+        SpeakerCountText.Text = index >= 0 ? count : $"{count}, still using {ActiveSpeakerLabel()}";
+    }
+
+    /// <summary>The speaker the next run uses, whatever the picker is filtered down to.</summary>
+    internal int SelectedSpeakerId => _speakerId;
+
+    private string ActiveSpeakerLabel() =>
+        _speakers.FirstOrDefault(speaker => speaker.Id == _speakerId)?.Label ?? _speakerId.ToString();
 
     private async Task RunSynthesisAsync(Func<TextReader> readerFactory, string? outputPath,
         long? knownCharacters = null)
@@ -219,7 +268,7 @@ public partial class MainWindow : Window
         var token = cancellation.Token;
 
         var options = _settings.ToChunkerOptions();
-        var speakerId = Math.Max(0, SpeakerBox.SelectedIndex);
+        var speakerId = _speakerId;
         var speed = (float)SpeedSlider.Value;
         var progress = new Progress<SynthesisProgress>(p =>
         {
@@ -562,8 +611,47 @@ public partial class MainWindow : Window
 
     private void OnSpeakerChanged(object sender, SelectionChangedEventArgs e)
     {
-        if (_initialising || SpeakerBox.SelectedIndex < 0) return;
-        _settings.SpeakerId = SpeakerBox.SelectedIndex;
+        if (_initialising || SpeakerBox.SelectedItem is not SpeakerInfo speaker) return;
+
+        _speakerId = speaker.Id;
+        _settings.SetSpeakerId(_speakerVoiceName, speaker.Id);
+        FavouriteSpeakerButton.IsChecked = _settings.IsFavouriteSpeaker(_speakerVoiceName, speaker.Id);
+    }
+
+    private void OnSpeakerSearchChanged(object sender, TextChangedEventArgs e)
+    {
+        if (_speakers.Count == 0) return;
+        RefreshSpeakerList();
+    }
+
+    private void OnToggleFavouriteSpeaker(object sender, RoutedEventArgs e)
+    {
+        if (_speakers.Count == 0) return;
+
+        _settings.ToggleFavouriteSpeaker(_speakerVoiceName, _speakerId);
+        _settings.Save();
+
+        if (_favouritesOnly && _settings.GetFavouriteSpeakers(_speakerVoiceName).Count == 0)
+        {
+            _favouritesOnly = false;
+            ShowFavouritesButton.Content = "Favourites";
+        }
+
+        RefreshSpeakerList();
+    }
+
+    private void OnShowFavouriteSpeakers(object sender, RoutedEventArgs e)
+    {
+        var favourites = _settings.GetFavouriteSpeakers(_speakerVoiceName);
+        if (!_favouritesOnly && favourites.Count == 0)
+        {
+            SetStatus("No starred speakers for this voice yet. Pick one and press Star.");
+            return;
+        }
+
+        _favouritesOnly = !_favouritesOnly;
+        ShowFavouritesButton.Content = _favouritesOnly ? "Show all" : "Favourites";
+        RefreshSpeakerList();
     }
 
     private void OnSpeedChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
@@ -607,7 +695,7 @@ public partial class MainWindow : Window
         }
 
         var token = (_typingCancellation ??= new CancellationTokenSource()).Token;
-        var speakerId = Math.Max(0, SpeakerBox.SelectedIndex);
+        var speakerId = _speakerId;
         var speed = (float)SpeedSlider.Value;
 
         try
