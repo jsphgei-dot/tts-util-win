@@ -7,7 +7,6 @@
 using System.IO;
 using System.Windows;
 using System.Windows.Controls;
-using Microsoft.Win32;
 using TtsUtil.Core;
 using TtsUtil.Core.Settings;
 using TtsUtil.Core.Text;

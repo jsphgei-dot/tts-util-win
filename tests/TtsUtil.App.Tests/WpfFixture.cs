@@ -1,5 +1,4 @@
 using System.Windows.Threading;
-using TtsUtil.App;
 using Xunit;
 
 namespace TtsUtil.App.Tests;

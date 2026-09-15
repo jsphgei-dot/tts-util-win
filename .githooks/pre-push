@@ -1,0 +1,5 @@
+#!/bin/sh
+# Shim: git runs this, PowerShell does the work.
+dir="$(dirname "$0")"
+if command -v pwsh >/dev/null 2>&1; then shell=pwsh; else shell=powershell; fi
+exec "$shell" -NoProfile -ExecutionPolicy Bypass -File "$dir/pre-push.ps1" "$@"

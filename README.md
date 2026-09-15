@@ -178,6 +178,28 @@ dotnet build src\TtsUtil.App -p:SkipTests=true
 .\scripts\BuildPortable.ps1 -SkipTests
 ```
 
+## Git hooks
+
+Run once per clone:
+
+```powershell
+.\scripts\InstallHooks.ps1
+```
+
+That sets `core.hooksPath` to `.githooks`, so the hooks are versioned with the repository
+rather than stranded in `.git\hooks`. Each is a small shell shim over a PowerShell script.
+
+| Hook | Checks | Cost |
+| --- | --- | --- |
+| `pre-commit` | trailing whitespace and conflict markers in the staged diff, staged files over 5 MB, staged build output, `dotnet format --verify-no-changes`, a `-warnaserror` build, the core tests | about 8 s, and it skips the last four when no code is staged |
+| `commit-msg` | Conventional Commits subject in lowercase with no trailing period, 72 character subject, blank line before the body, body of 200 words or fewer, no tool attribution line | instant |
+| `pre-push` | the whole suite, user interface tests included | about 15 s |
+
+The heavy UI tests sit on push rather than commit so that committing stays quick. Bypass a
+single run with `git commit --no-verify` or `git push --no-verify`, and a whole session with
+`$env:SKIP_HOOKS = 1`. `.editorconfig` holds the formatting rules that `dotnet format`
+enforces, so an editor and the hook agree.
+
 ## Versioning
 
 Two numbers, the same split the Android original uses: a semantic **version name**
