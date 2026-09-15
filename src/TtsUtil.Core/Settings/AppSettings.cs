@@ -6,6 +6,7 @@
 
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using TtsUtil.Core.Audio;
 using TtsUtil.Core.Text;
 
 namespace TtsUtil.Core.Settings;
@@ -63,6 +64,11 @@ public sealed class AppSettings
 
     public string? OutputDirectory { get; set; }
 
+    /// <summary>The file type Save writes. MP3 is smaller and plays anywhere.</summary>
+    public AudioOutputFormat OutputFormat { get; set; } = AudioOutputFormat.Mp3;
+
+    public int Mp3BitRate { get; set; } = 128000;
+
     public int MaxChunkLength { get; set; } = 2000;
 
     [JsonIgnore]
@@ -73,11 +79,15 @@ public sealed class AppSettings
         AppDirectory,
         InstallPaths.HasVoices);
 
+    /// <summary>The folder Save offers, which is a named folder under Music by default.</summary>
     [JsonIgnore]
     public string ResolvedOutputDirectory =>
         string.IsNullOrWhiteSpace(OutputDirectory)
-            ? Environment.GetFolderPath(Environment.SpecialFolder.MyMusic)
+            ? Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyMusic), OutputFolderName)
             : OutputDirectory!;
+
+    /// <summary>Name of the folder created under Music, so saved audio is not loose among it.</summary>
+    public const string OutputFolderName = "TTS Util";
 
     /// <summary>Directory holding the running executable.</summary>
     public static string AppDirectory =>

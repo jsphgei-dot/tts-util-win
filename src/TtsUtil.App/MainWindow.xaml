@@ -77,7 +77,7 @@
                                 Click="OnReadFromHere"
                                 ToolTip="Start at the selected line, or at the cursor when no line is selected" />
                         <Button x:Name="StopButton" Content="Stop" Click="OnStop" />
-                        <Button x:Name="SaveWaveButton" Content="Save as WAV" Width="120" Click="OnSaveTextToWave" />
+                        <Button x:Name="SaveWaveButton" Content="Save audio" Width="110" Click="OnSaveTextToWave" />
                         <Button x:Name="PasteButton" Content="Paste" Click="OnPasteClipboard" />
                         <Button x:Name="ClearButton" Content="Clear" Click="OnClearText" />
                         <CheckBox x:Name="ReadAsYouTypeBox" Content="Read as I type" VerticalAlignment="Center"
@@ -171,7 +171,7 @@
                     <StackPanel Orientation="Horizontal">
                         <Button x:Name="ReadFileButton" Content="Read file" Click="OnReadFile" />
                         <Button x:Name="StopFileButton" Content="Stop" Click="OnStop" />
-                        <Button x:Name="ConvertFileButton" Content="Convert to WAV" Width="130" Click="OnSaveFileToWave" />
+                        <Button x:Name="ConvertFileButton" Content="Convert to audio" Width="130" Click="OnSaveFileToWave" />
                         <Button x:Name="ImportTextButton" Content="Import to Text tab" Width="140"
                                 Click="OnImportFileToTextTab" />
                     </StackPanel>
@@ -225,6 +225,8 @@
                             <ColumnDefinition Width="Auto" />
                         </Grid.ColumnDefinitions>
                         <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
                             <RowDefinition Height="Auto" />
                             <RowDefinition Height="Auto" />
                             <RowDefinition Height="Auto" />
@@ -310,7 +312,17 @@
                         <TextBox x:Name="ChunkLengthBox" Grid.Row="13" Grid.Column="1"
                                  Style="{StaticResource SettingBox}" />
 
-                        <StackPanel Grid.Row="14" Grid.Column="1" Orientation="Horizontal" Margin="0,8,0,0">
+                        <TextBlock Grid.Row="14" Grid.Column="0" Text="Saved audio format"
+                                   Style="{StaticResource SettingLabel}" />
+                        <ComboBox x:Name="OutputFormatBox" Grid.Row="14" Grid.Column="1"
+                                  Margin="0,0,0,8" VerticalAlignment="Center" />
+
+                        <TextBlock Grid.Row="15" Grid.Column="0" Text="MP3 bit rate (kbps)"
+                                   Style="{StaticResource SettingLabel}" />
+                        <TextBox x:Name="Mp3BitRateBox" Grid.Row="15" Grid.Column="1"
+                                 Style="{StaticResource SettingBox}" />
+
+                        <StackPanel Grid.Row="16" Grid.Column="1" Orientation="Horizontal" Margin="0,8,0,0">
                             <Button x:Name="ApplySettingsButton" Content="Apply" Click="OnApplySettings" />
                             <TextBlock x:Name="SettingsPathText" VerticalAlignment="Center" Foreground="#555"
                                        TextTrimming="CharacterEllipsis" />

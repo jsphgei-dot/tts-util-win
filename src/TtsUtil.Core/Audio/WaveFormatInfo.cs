@@ -35,3 +35,11 @@ public readonly record struct WaveFormatInfo(int SampleRate, short Channels, sho
         return bytes - (bytes % BlockAlign);
     }
 }
+
+/// <summary>The file type a saved run is written as.</summary>
+public enum AudioOutputFormat
+{
+    Wav,
+
+    Mp3,
+}

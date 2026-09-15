@@ -7,7 +7,7 @@ engine, no network access at run time, and your choice of an installer or a port
 ## What it does
 
 * Read typed text, clipboard text, or a plain text file aloud.
-* Write the same input to a wave file.
+* Write the same input to an MP3 or a wave file, into a TTS Util folder under Music.
 * Insert custom silence for line endings, sentences, questions, and exclamations.
 * Omit hash characters, web links, and mailto links from the audio.
 * Read only letters and digits aloud by default, so symbols are never voiced as their names.
@@ -210,6 +210,21 @@ The search box filters by name or by leading digits of the number, and Star keep
 at the top of the list. Both the chosen speaker and its starred speakers are remembered per
 voice, so switching voices and back returns you to where you were. Favourites shows only
 the starred speakers, and shows everything again when pressed a second time.
+
+## Saved audio
+
+Save audio writes MP3 by default, which is roughly a tenth the size of the equivalent wave
+file and plays in anything. Switch to WAV in Settings if you want uncompressed audio, and set
+the MP3 bit rate there too. The file type actually written follows the extension you choose
+in the save dialog, so you can override the default for one file.
+
+Files go to a `TTS Util` folder inside Music unless you set another output directory. The
+folder is created when it is first needed. After a file is written the status bar names it
+and the folder is a link: click it to open that folder.
+
+MP3 is encoded with the Media Foundation encoder built into Windows, so nothing extra is
+installed. Encoding happens after synthesis, on the same background thread, so the window
+stays responsive; the status bar says "Encoding MP3..." while it runs.
 
 ## Saved scripts
 

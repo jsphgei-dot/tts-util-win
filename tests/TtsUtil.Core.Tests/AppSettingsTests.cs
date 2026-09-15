@@ -115,6 +115,17 @@ public sealed class AppSettingsTests : IDisposable
     }
 
     [Fact]
+    public void WithNoOutputDirectorySavedAudioGoesToAFolderUnderMusic()
+    {
+        var settings = AppSettings.LoadFrom(_path);
+        settings.OutputDirectory = null;
+
+        var music = Environment.GetFolderPath(Environment.SpecialFolder.MyMusic);
+
+        Assert.Equal(Path.Combine(music, "TTS Util"), settings.ResolvedOutputDirectory);
+    }
+
+    [Fact]
     public void SettingsMapOntoChunkerOptions()
     {
         var settings = AppSettings.LoadFrom(_path);

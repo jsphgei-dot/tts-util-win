@@ -8,9 +8,11 @@ using System.Diagnostics;
 using System.IO;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Threading;
 using TtsUtil.Core;
+using TtsUtil.Core.Audio;
 using TtsUtil.Core.Settings;
 using TtsUtil.Core.Text;
 using TtsUtil.Core.Tts;
@@ -121,6 +123,8 @@ public partial class MainWindow : Window
         FilterWebBox.IsChecked = _settings.FilterWebLinks;
         FilterMailBox.IsChecked = _settings.FilterMailToLinks;
         PopulateSpokenCharacterChoices();
+        PopulateOutputFormatChoices();
+        Mp3BitRateBox.Text = (_settings.Mp3BitRate / 1000).ToString();
         AllowedExtraBox.Text = _settings.AllowedExtraCharacters;
         VoicesDirBox.Text = _settings.ResolvedVoicesDirectory;
         OutputDirBox.Text = _settings.ResolvedOutputDirectory;
@@ -144,6 +148,8 @@ public partial class MainWindow : Window
         _settings.FilterWebLinks = FilterWebBox.IsChecked == true;
         _settings.FilterMailToLinks = FilterMailBox.IsChecked == true;
         _settings.SpokenCharacters = SelectedSpokenCharacterPolicy();
+        _settings.OutputFormat = OutputFormatBox.SelectedIndex == 1 ? AudioOutputFormat.Wav : AudioOutputFormat.Mp3;
+        _settings.Mp3BitRate = Math.Clamp(ParseInt(Mp3BitRateBox.Text, 128), 32, 320) * 1000;
         _settings.AllowedExtraCharacters = AllowedExtraBox.Text ?? string.Empty;
         _settings.NumThreads = Math.Clamp(ParseInt(ThreadsBox.Text, _settings.NumThreads), 1, 16);
         _settings.MaxChunkLength = Math.Clamp(ParseInt(ChunkLengthBox.Text, _settings.MaxChunkLength), 64, 20000);
@@ -231,6 +237,17 @@ public partial class MainWindow : Window
         (SpokenCharacterPolicy.AnyLetter, "Any letter or digit, including accents and other scripts"),
         (SpokenCharacterPolicy.Off, "Everything, including punctuation and symbols"),
     };
+
+    private void PopulateOutputFormatChoices()
+    {
+        if (OutputFormatBox.Items.Count == 0)
+        {
+            OutputFormatBox.Items.Add("MP3, smaller and plays anywhere");
+            OutputFormatBox.Items.Add("WAV, uncompressed");
+        }
+
+        OutputFormatBox.SelectedIndex = _settings.OutputFormat == AudioOutputFormat.Wav ? 1 : 0;
+    }
 
     private void PopulateSpokenCharacterChoices()
     {
@@ -332,6 +349,7 @@ public partial class MainWindow : Window
         var speed = (float)SpeedSlider.Value;
         _runStartOffset = startOffset;
         _spokenLine = -1;
+        IProgress<string> encodeProgress = new Progress<string>(SetStatus);
 
         var progress = new Progress<SynthesisProgress>(p =>
         {
@@ -367,8 +385,16 @@ public partial class MainWindow : Window
                 }
                 else
                 {
-                    using var sink = new WaveFileSink(outputPath, engine.SampleRate);
-                    runner.Run(reader, totalCharacters, sink, progress, token);
+                    // Disposing encodes when the sink is an MP3 one, on this worker thread.
+                    var sink = CreateFileSink(outputPath, engine.SampleRate, encodeProgress.Report);
+                    try
+                    {
+                        runner.Run(reader, totalCharacters, sink, progress, token);
+                    }
+                    finally
+                    {
+                        (sink as IDisposable)?.Dispose();
+                    }
                 }
 
                 return (runner.CharactersFiltered, runner.UtterancesSpoken, totalCharacters);
@@ -385,7 +411,15 @@ public partial class MainWindow : Window
             }
 
             var note = filtered > 0 ? $" {filtered} character(s) filtered." : string.Empty;
-            SetStatus(outputPath is null ? $"Finished reading.{note}" : $"Wrote {outputPath}.{note}");
+
+            if (outputPath is null)
+            {
+                SetStatus($"Finished reading.{note}");
+            }
+            else
+            {
+                SetStatusWithFileLink($"Wrote {Path.GetFileName(outputPath)}.{note} ", outputPath);
+            }
         }
         catch (OperationCanceledException)
         {
@@ -520,7 +554,7 @@ public partial class MainWindow : Window
             return;
         }
 
-        var path = AskForWavePath("tts_output.wav");
+        var path = AskForAudioPath("tts_output");
         if (path is null) return;
 
         _ = RunSynthesisAsync(() => new StringReader(text), path, text.Length);
@@ -537,7 +571,7 @@ public partial class MainWindow : Window
             return;
         }
 
-        var outputPath = AskForWavePath(Path.GetFileNameWithoutExtension(path) + ".wav");
+        var outputPath = AskForAudioPath(Path.GetFileNameWithoutExtension(path));
         if (outputPath is null) return;
 
         _ = ReadOrConvertFileAsync(outputPath);
@@ -1205,23 +1239,88 @@ public partial class MainWindow : Window
         Cursor = busy ? System.Windows.Input.Cursors.AppStarting : null;
     }
 
-    private void SetStatus(string message) => StatusText.Text = message;
-
-    private string? AskForWavePath(string suggestedName)
+    private void SetStatus(string message)
     {
+        StatusText.Inlines.Clear();
+        StatusText.Text = message;
+    }
+
+    /// <summary>Says what was written and makes the folder a link, since a path alone is not.</summary>
+    private void SetStatusWithFileLink(string message, string path)
+    {
+        var folder = Path.GetDirectoryName(path);
+
+        if (folder is null)
+        {
+            SetStatus(message + path);
+            return;
+        }
+
+        var link = new Hyperlink(new Run(folder)) { ToolTip = "Open this folder" };
+        link.Click += (_, _) => OpenFolder(folder);
+
+        StatusText.Inlines.Clear();
+        StatusText.Inlines.Add(new Run(message));
+        StatusText.Inlines.Add(link);
+    }
+
+    private void OpenFolder(string folder)
+    {
+        try
+        {
+            FolderOpener(folder);
+        }
+        catch (Exception ex)
+        {
+            SetStatus($"Could not open {folder}: {ex.Message}");
+        }
+    }
+
+    /// <summary>Offers a file name in the configured format, inside the output folder.</summary>
+    private string? AskForAudioPath(string suggestedStem)
+    {
+        var mp3 = _settings.OutputFormat == AudioOutputFormat.Mp3;
+
         var dialog = new SaveFileDialog
         {
-            Title = "Write wave file",
-            Filter = "Wave files (*.wav)|*.wav",
-            FileName = suggestedName,
+            Title = mp3 ? "Write MP3 file" : "Write wave file",
+            Filter = mp3
+                ? "MP3 files (*.mp3)|*.mp3|Wave files (*.wav)|*.wav"
+                : "Wave files (*.wav)|*.wav|MP3 files (*.mp3)|*.mp3",
+            FileName = suggestedStem + (mp3 ? ".mp3" : ".wav"),
             AddExtension = true,
-            DefaultExt = "wav",
+            DefaultExt = mp3 ? "mp3" : "wav",
         };
 
-        var initial = _settings.ResolvedOutputDirectory;
-        if (Directory.Exists(initial)) dialog.InitialDirectory = initial;
+        var initial = EnsureOutputDirectory();
+        if (initial is not null) dialog.InitialDirectory = initial;
 
         return dialog.ShowDialog(this) == true ? dialog.FileName : null;
+    }
+
+    /// <summary>Creates the output folder so the dialog opens there the first time too.</summary>
+    private string? EnsureOutputDirectory()
+    {
+        var directory = _settings.ResolvedOutputDirectory;
+
+        try
+        {
+            Directory.CreateDirectory(directory);
+            return directory;
+        }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
+        {
+            return Directory.Exists(directory) ? directory : null;
+        }
+    }
+
+    /// <summary>The sink a run writes to, chosen by the file's own extension.</summary>
+    private ISampleSink CreateFileSink(string path, int sampleRate, Action<string> progress)
+    {
+        var isMp3 = string.Equals(Path.GetExtension(path), ".mp3", StringComparison.OrdinalIgnoreCase);
+        if (!isMp3) return new WaveFileSink(path, sampleRate);
+
+        return new Mp3FileSink(path, sampleRate, _settings.Mp3BitRate, progress);
     }
 
     private static string? AskForDirectory(string? current)
