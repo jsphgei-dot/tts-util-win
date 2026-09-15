@@ -1,8 +1,8 @@
 # TTS Util Win
 
 A Windows port of [TTS Util](https://github.com/jdanefinlay/tts-util-app) that synthesises
-speech locally with [sherpa-onnx](https://github.com/k2-fsa/sherpa-onnx). It ships as a
-portable executable: no installer, no system speech engine, no network access at run time.
+speech locally with [sherpa-onnx](https://github.com/k2-fsa/sherpa-onnx). No system speech
+engine, no network access at run time, and your choice of an installer or a portable folder.
 
 ## What it does
 
@@ -12,6 +12,15 @@ portable executable: no installer, no system speech engine, no network access at
 * Omit hash characters, web links, and mailto links from the audio.
 * Read each word back as you finish typing it.
 * Pick a voice, a speaker within a multi speaker voice, and a speech rate.
+
+## Where to get a build
+
+Published builds, when there are any, are attached to the
+[Releases page](https://github.com/jsphgei-dot/tts-util-win/releases). Nothing is committed
+to the repository itself: `dist/` is ignored, so the executable and the installer are always
+either downloaded from a release or built locally.
+
+Building takes about a minute and needs only the .NET 6 SDK.
 
 ## Quick start
 
@@ -27,8 +36,51 @@ portable executable: no installer, no system speech engine, no network access at
 .\dist\TtsUtilWin\TtsUtilWin.exe
 ```
 
-`BuildPortable.ps1 -IncludeVoices` copies the models into the output folder so the whole
-directory can be zipped and handed to someone else.
+## Building a release
+
+**Prerequisites**
+
+* .NET 6 SDK, for everything.
+* [Inno Setup 6](https://jrsoftware.org/isinfo.php), only if you want the installer:
+  `winget install JRSoftware.InnoSetup`. The build script finds it automatically, whether
+  winget installed it per user or per machine.
+
+**Commands**
+
+```powershell
+.\scripts\BuildPortable.ps1                 # portable folder only
+.\scripts\BuildPortable.ps1 -Installer      # portable folder and the setup program
+.\scripts\BuildPortable.ps1 -Installer -IncludeVoices   # also copy the voice models in
+```
+
+**Outputs**
+
+| What | Path | Size |
+| --- | --- | --- |
+| Portable folder | `dist\TtsUtilWin\` | 70 MB, plus voices |
+| Portable executable | `dist\TtsUtilWin\TtsUtilWin.exe` | 70 MB |
+| Installer | `dist\TtsUtilWin-<version>-setup.exe` | 65 MB |
+
+**Switches**
+
+| Switch | Effect |
+| --- | --- |
+| `-Installer` | Compiles `installer\TtsUtilWin.iss` after publishing |
+| `-IncludeVoices` | Copies `voices\` into the portable folder, so it can be zipped and handed over whole |
+| `-SkipTests` | Skips both test suites. The build normally refuses to publish if any test fails |
+| `-OutputDirectory <path>` | Publishes somewhere other than `dist\TtsUtilWin` |
+| `-Configuration`, `-Runtime` | Default to `Release` and `win-x64` |
+
+The version in the installer filename, in its Apps entry and in the executable's file
+properties all come from `Directory.Build.props`. Nothing needs editing in two places.
+
+To publish a build for other people, attach the two artifacts to a GitHub release:
+
+```powershell
+gh release create v0.1.0-alpha `
+  dist\TtsUtilWin-0.1.0-alpha-setup.exe `
+  --title "0.1.0-alpha" --notes "First tagged build."
+```
 
 ## Installing, or not
 
@@ -83,9 +135,10 @@ folder; the About tab displays it for the selected voice.
 ## Requirements
 
 * Windows 10 or 11, x64.
-* .NET 6 SDK to build. The published executable is self contained and needs no runtime.
+* .NET 6 SDK to build, plus Inno Setup 6 for the installer. The published executable is
+  self contained and needs no runtime on the machine that runs it.
 
-## Building and testing
+## Developing and testing
 
 ```powershell
 dotnet build TtsUtilWin.sln
