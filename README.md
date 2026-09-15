@@ -90,7 +90,14 @@ Two ways to run it, from one build:
   `dist\TtsUtilWin-<version>-setup.exe`. Its first page asks whether to install for all
   users (needs administrator) or just for you (recommended, no prompt), then adds a Start
   menu entry, an optional desktop shortcut, and an entry in Settings, Apps. Settings go to
-  `%APPDATA%\TtsUtilWin` and voices to `%LOCALAPPDATA%\TtsUtilWin\voices`.
+  `%APPDATA%\TtsUtilWin`.
+* **Voices during setup.** A components page lists the curated models with a checkbox and
+  a size each. "Program and the three recommended voices" ticks the permissively licensed
+  defaults, "Program only" ticks none, and "Choose voices" leaves every box to you. Setup
+  downloads what is ticked from the sherpa-onnx release page and extracts it into `voices`
+  beside the program, skipping any model already present. A failed download warns and lets
+  the installation finish; run `FetchVoices.ps1` afterwards for whatever is missing.
+  Uninstalling removes the voices it installed.
 * **Portable.** Copy `dist\TtsUtilWin` anywhere. The `portable.txt` file beside the
   executable keeps settings and voices inside that folder, so nothing touches the profile.
 
@@ -128,7 +135,12 @@ defaults were chosen for clear, free licences:
 | `vits-piper-en_US-libritts_r-medium` | English (US), 900+ speakers | LibriTTS-R, CC BY 4.0 |
 | `kokoro-en-v0_19` | English, 11 voices | Apache 2.0 |
 
+The installer offers these three plus `vits-piper-en_GB-alan-medium`,
+`vits-piper-en_US-amy-low` and `vits-piper-en_US-lessac-medium` as checkboxes.
+
 Run the script with `-List` for the rest of the catalogue, and `-Name <id>` to fetch one.
+On an all users installation the program folder is under Program Files, so running the
+script there needs an elevated PowerShell, or a `-Destination` you can write to.
 The authoritative licence for a model is the `LICENSE` or `MODEL_CARD` file inside its
 folder; the About tab displays it for the selected voice.
 
