@@ -17,6 +17,21 @@ public interface ISampleSink
     void WriteSilence(int milliseconds);
 }
 
+/// <summary>A sink that plays as it receives, so it can be paused and stopped.</summary>
+public interface IAudioPlayback : ISampleSink, IDisposable
+{
+    bool IsPaused { get; }
+
+    void Pause();
+
+    void Resume();
+
+    void Stop();
+
+    /// <summary>Blocks until queued audio has played out, or the run is cancelled.</summary>
+    void WaitUntilDrained();
+}
+
 /// <summary>Writes synthesised audio to a wave file.</summary>
 public sealed class WaveFileSink : ISampleSink, IDisposable
 {

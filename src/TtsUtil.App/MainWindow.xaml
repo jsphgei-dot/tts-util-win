@@ -76,6 +76,7 @@
                         <Button x:Name="ReadFromHereButton" Content="Read from here" Width="110"
                                 Click="OnReadFromHere"
                                 ToolTip="Start at the selected line, or at the cursor when no line is selected" />
+                        <Button x:Name="PauseButton" Content="Pause" Width="80" Click="OnTogglePause" />
                         <Button x:Name="StopButton" Content="Stop" Click="OnStop" />
                         <Button x:Name="SaveWaveButton" Content="Save audio" Width="110" Click="OnSaveTextToWave" />
                         <Button x:Name="PasteButton" Content="Paste" Click="OnPasteClipboard" />
@@ -170,6 +171,7 @@
                     </Grid>
                     <StackPanel Orientation="Horizontal">
                         <Button x:Name="ReadFileButton" Content="Read file" Click="OnReadFile" />
+                        <Button x:Name="PauseFileButton" Content="Pause" Width="80" Click="OnTogglePause" />
                         <Button x:Name="StopFileButton" Content="Stop" Click="OnStop" />
                         <Button x:Name="ConvertFileButton" Content="Convert to audio" Width="130" Click="OnSaveFileToWave" />
                         <Button x:Name="ImportTextButton" Content="Import to Text tab" Width="140"

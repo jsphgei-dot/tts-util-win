@@ -29,7 +29,7 @@ public partial class MainWindow : Window
     private string? _loadedVoiceName;
     private CancellationTokenSource? _cancellation;
     private CancellationTokenSource? _typingCancellation;
-    private AudioPlayerSink? _player;
+    private IAudioPlayback? _player;
     private readonly SemaphoreSlim _typingTurnstile = new(1, 1);
     private int _queuedSnippets;
     private bool _initialising = true;
@@ -349,6 +349,7 @@ public partial class MainWindow : Window
         var speed = (float)SpeedSlider.Value;
         _runStartOffset = startOffset;
         _spokenLine = -1;
+        ShowPauseState(paused: false);
         IProgress<string> encodeProgress = new Progress<string>(SetStatus);
 
         var progress = new Progress<SynthesisProgress>(p =>
@@ -371,7 +372,7 @@ public partial class MainWindow : Window
 
                 if (outputPath is null)
                 {
-                    using var player = new AudioPlayerSink(engine.SampleRate, token);
+                    using var player = PlayerFactory(engine.SampleRate, token);
                     _player = player;
                     try
                     {
@@ -860,9 +861,53 @@ public partial class MainWindow : Window
     {
         CancelTypingPlayback();
         _cancellation?.Cancel();
+
+        // Resuming first, so a run paused when Stop is pressed does not sit waiting to drain.
+        _player?.Resume();
         _player?.Stop();
+        ShowPauseState(paused: false);
         SetStatus("Stopping...");
     }
+
+    private void OnTogglePause(object sender, RoutedEventArgs e)
+    {
+        var player = _player;
+        if (player is null)
+        {
+            SetStatus("Nothing is playing.");
+            return;
+        }
+
+        if (player.IsPaused)
+        {
+            player.Resume();
+            ShowPauseState(paused: false);
+            SetStatus("Playing.");
+            return;
+        }
+
+        player.Pause();
+        ShowPauseState(paused: true);
+        SetStatus("Paused. Press Resume to carry on, or Stop to give up.");
+    }
+
+    /// <summary>Both tabs carry the button, so both follow the one playback state.</summary>
+    private void ShowPauseState(bool paused)
+    {
+        PauseButton.Content = paused ? "Resume" : "Pause";
+        PauseFileButton.Content = PauseButton.Content;
+    }
+
+    /// <summary>The playback a run is using, or null when nothing is playing.</summary>
+    internal IAudioPlayback? ActivePlayback
+    {
+        get => _player;
+        set => _player = value;
+    }
+
+    /// <summary>The player a run plays through. Tests replace it so no device is needed.</summary>
+    internal Func<int, CancellationToken, IAudioPlayback> PlayerFactory { get; set; } =
+        (sampleRate, token) => new AudioPlayerSink(sampleRate, token);
 
     private void OnPasteClipboard(object sender, RoutedEventArgs e)
     {

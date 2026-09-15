@@ -13,7 +13,7 @@ engine, no network access at run time, and your choice of an installer or a port
 * Read only letters and digits aloud by default, so symbols are never voiced as their names.
 * Read each word back as you finish typing it.
 * Import a PDF, including a scanned one, which is read with the OCR built into Windows.
-* Start reading from any line, and watch the line list follow along as it reads.
+* Pause and resume playback, and start reading from any line.
 * Keep named scripts and reopen them, stored as ordinary text files.
 * Pick a voice, a speaker within a multi speaker voice, and a speech rate.
 * Search a long speaker list by name or number, and star the speakers you keep coming back to.
@@ -239,6 +239,17 @@ the files in any editor, or drop one in from elsewhere and it appears in the lis
 
 Characters Windows will not accept in a file name become spaces in the file name, so
 `Chapter 1: the beginning` is stored as `Chapter 1 the beginning.txt`.
+
+## Pause, resume and moving about
+
+Pause holds the audio device and Resume carries on from the same place. Synthesis keeps a few
+seconds of lookahead and then waits, so pausing does not quietly race ahead generating the
+rest of the book. Stop gives up on the run entirely; pressing it while paused releases the
+pause first, so nothing is left waiting.
+
+There is no scrub bar, because the audio does not exist yet: it is synthesised as it plays.
+Moving about is done by line instead. Stop, pick a line, and Read from here, which is why the
+line list follows the run and leaves the selection where playback reached.
 
 ## Reading from a line
 

@@ -10,7 +10,7 @@ using TtsUtil.Core.Tts;
 namespace TtsUtil.App;
 
 /// <summary>Plays synthesised audio through the default output device.</summary>
-public sealed class AudioPlayerSink : ISampleSink, IDisposable
+public sealed class AudioPlayerSink : IAudioPlayback
 {
     private static readonly TimeSpan MaxQueued = TimeSpan.FromSeconds(4);
 
@@ -19,6 +19,7 @@ public sealed class AudioPlayerSink : ISampleSink, IDisposable
     private readonly CancellationToken _cancellationToken;
     private byte[] _scratch = Array.Empty<byte>();
     private bool _disposed;
+    private volatile bool _paused;
 
     public AudioPlayerSink(int sampleRate, CancellationToken cancellationToken)
     {
@@ -35,6 +36,39 @@ public sealed class AudioPlayerSink : ISampleSink, IDisposable
         _output = new WaveOutEvent { DesiredLatency = 200 };
         _output.Init(_buffer);
         _output.Play();
+    }
+
+    public bool IsPaused => _paused;
+
+    /// <summary>Holds the device. Synthesis carries on until its few seconds of lookahead fill.</summary>
+    public void Pause()
+    {
+        if (_paused) return;
+
+        _paused = true;
+        try
+        {
+            _output.Pause();
+        }
+        catch (Exception)
+        {
+            // The device may already be gone.
+        }
+    }
+
+    public void Resume()
+    {
+        if (!_paused) return;
+
+        _paused = false;
+        try
+        {
+            _output.Play();
+        }
+        catch (Exception)
+        {
+            // The device may already be gone.
+        }
     }
 
     public void WriteSamples(ReadOnlySpan<float> samples)
@@ -84,8 +118,9 @@ public sealed class AudioPlayerSink : ISampleSink, IDisposable
     /// <summary>Blocks until queued audio has finished playing or the task is cancelled.</summary>
     public void WaitUntilDrained()
     {
+        // A paused device is not draining, but the audio is still owed to the listener.
         while (!_cancellationToken.IsCancellationRequested &&
-               _output.PlaybackState == PlaybackState.Playing &&
+               (_paused || _output.PlaybackState == PlaybackState.Playing) &&
                _buffer.BufferedBytes > 0)
         {
             Thread.Sleep(50);
@@ -97,6 +132,8 @@ public sealed class AudioPlayerSink : ISampleSink, IDisposable
 
     public void Stop()
     {
+        _paused = false;
+
         try
         {
             _buffer.ClearBuffer();
