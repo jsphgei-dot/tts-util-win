@@ -2,6 +2,22 @@
 
 Newest first. Version codes are monotonic and never reused.
 
+## 0.5.0-beta (version code 9)
+
+* **The voices Windows already has.** Every Microsoft voice installed in Windows appears in the
+  voice list beside the downloaded ones, so the program speaks before anything is downloaded.
+  A setting turns them off again.
+* **Aliases.** A list of words the voice should say differently, applied as the text is read.
+  Whole word and case matching per rule, a preview box, and lists that import and export as
+  JSON so they can be shared.
+* **The message history is paged.** Each message has its own box, the strip below reads
+  `< page 1/4 > >>`, and the page number can be typed. Settings hold how many messages are kept
+  and how many a page shows.
+* **Batch conversion.** Every saved script has a tick box. Tick what you want, press Convert
+  ticked to audio, choose a folder, and each is written as its own file.
+* **Saving no longer loses your place.** Writing audio to a file stops the reading, writes the
+  file, then sets the reading up again at the line you were hearing, paused.
+
 ## 0.4.1-beta (version code 8)
 
 * **A Check now button** beside the update setting in Settings. It looks straight away whether

@@ -2,6 +2,7 @@ using System.IO;
 using System.Net.Http;
 using System.Windows;
 using System.Windows.Controls.Primitives;
+using TtsUtil.Core;
 using TtsUtil.Core.Settings;
 using TtsUtil.Core.Update;
 using Xunit;
@@ -58,7 +59,7 @@ public sealed class UpdateNoticeTests : IDisposable
         _wpf.Invoke(() =>
         {
             Assert.Equal(0, _setupFetches);
-            Assert.Equal(9, window.Settings.DismissedUpdateCode);
+            Assert.Equal(AppVersion.Code + 1, window.Settings.DismissedUpdateCode);
             Assert.NotNull(window.Settings.LastUpdateCheckUtc);
         });
     }
@@ -92,7 +93,7 @@ public sealed class UpdateNoticeTests : IDisposable
     public async Task CheckingNowIgnoresAnEarlierNoToTheSameVersion()
     {
         var window = CreateWindow(portable: true, accept: false);
-        _wpf.Invoke(() => window.Settings.DismissedUpdateCode = 9);
+        _wpf.Invoke(() => window.Settings.DismissedUpdateCode = AppVersion.Code + 1);
 
         await CheckNow(window);
 
@@ -155,10 +156,11 @@ public sealed class UpdateNoticeTests : IDisposable
         return window;
     });
 
-    private static UpdateManifest Manifest(int code = 9) => new()
+    // One past whatever is running, so a version bump does not turn the offer into no offer.
+    private static UpdateManifest Manifest(int? code = null) => new()
     {
         VersionName = "0.9.0-beta",
-        VersionCode = code,
+        VersionCode = code ?? AppVersion.Code + 1,
         ReleaseUrl = "https://example.invalid/releases/tag/v0.9.0-beta",
         Setup = new UpdateDownload
         {
