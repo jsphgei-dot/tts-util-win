@@ -40,6 +40,7 @@ public partial class MainWindow : Window
     private LineMap _lineMap = LineMap.Build(string.Empty);
     private DispatcherTimer? _lineRebuildTimer;
     private long _runStartOffset;
+    private DispatcherTimer? _playbackFollow;
     private Action? _rerun;
     private bool _restarting;
     private int _spokenLine = -1;
@@ -355,10 +356,13 @@ public partial class MainWindow : Window
         {
             Progress.Value = p.Percent;
             if (p.TotalCharacters > 0) SetStatus($"{p.Percent}% ({p.CharactersRead} of {p.TotalCharacters} characters)");
-            HighlightSpokenLine(p.CharactersRead);
+
+            // A reading follows the listener instead, which trails synthesis by seconds.
+            if (_player is null) HighlightSpokenLine(p.CharactersRead);
         });
 
         SetBusy(true);
+        if (outputPath is null) StartFollowingPlayback();
 
         try
         {
@@ -432,6 +436,7 @@ public partial class MainWindow : Window
         }
         finally
         {
+            StopFollowingPlayback();
             SetBusy(false);
             Progress.Value = 0;
             _cancellation = null;
@@ -574,6 +579,28 @@ public partial class MainWindow : Window
         LineListColumn.Width = show ? new GridLength(300) : new GridLength(0);
         RebuildLineList();
     }
+
+    /// <summary>Keeps the list on the line being heard, which lags what has been synthesised.</summary>
+    private void StartFollowingPlayback()
+    {
+        if (_playbackFollow is null)
+        {
+            _playbackFollow = new DispatcherTimer(DispatcherPriority.Background)
+            {
+                Interval = TimeSpan.FromMilliseconds(120),
+            };
+
+            _playbackFollow.Tick += (_, _) =>
+            {
+                var player = _player;
+                if (player is not null) HighlightSpokenLine(player.PlayedCharacters);
+            };
+        }
+
+        _playbackFollow.Start();
+    }
+
+    private void StopFollowingPlayback() => _playbackFollow?.Stop();
 
     /// <summary>Follows the run down the list, so the spoken line is visible.</summary>
     private void HighlightSpokenLine(long charactersRead)

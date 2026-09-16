@@ -114,6 +114,8 @@ public sealed class PauseTests : IDisposable
     {
         public bool IsPaused { get; private set; }
 
+        public long PlayedCharacters { get; set; }
+
         public bool Stopped { get; private set; }
 
         public void Pause() => IsPaused = true;

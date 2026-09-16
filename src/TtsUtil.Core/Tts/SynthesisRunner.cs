@@ -15,12 +15,20 @@ public interface ISampleSink
     void WriteSamples(ReadOnlySpan<float> samples);
 
     void WriteSilence(int milliseconds);
+
+    /// <summary>Notes that audio queued from here on speaks the text at this character.</summary>
+    void Mark(long characterOffset)
+    {
+    }
 }
 
 /// <summary>A sink that plays as it receives, so it can be paused and stopped.</summary>
 public interface IAudioPlayback : ISampleSink, IDisposable
 {
     bool IsPaused { get; }
+
+    /// <summary>The character the listener is hearing, which trails what has been synthesised.</summary>
+    long PlayedCharacters { get; }
 
     void Pause();
 
@@ -94,9 +102,14 @@ public sealed class SynthesisRunner
 
         progress?.Report(new SynthesisProgress(0, 0, totalCharacters));
 
+        var spokenFrom = 0L;
+
         foreach (var utterance in chunker.Read(input))
         {
             cancellationToken.ThrowIfCancellationRequested();
+
+            // Marked before any of its audio is queued, so a player can say where it has reached.
+            sink.Mark(spokenFrom);
 
             if (utterance.Text.Trim().Length > 0)
             {
@@ -113,6 +126,7 @@ public sealed class SynthesisRunner
             sink.WriteSilence(utterance.SilenceMs);
 
             CharactersFiltered = chunker.CharactersFiltered;
+            spokenFrom = chunker.CharactersRead;
             progress?.Report(BuildProgress(chunker.CharactersRead, totalCharacters));
         }
 

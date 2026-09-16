@@ -280,7 +280,9 @@ and press **Read from here**, to start there instead of at the top. With nothing
 **Read from here** uses the line the cursor is on, so you can click into the text and carry
 on from there, whether or not something is already playing.
 
-The list follows the run: the line being spoken is selected and scrolled into view. That
+The list follows what you are hearing, not what has been synthesised: audio is generated
+several seconds ahead of the speaker, so following synthesis left the highlight a line or two
+early. The reading is marked as it is queued and the list follows the marks as they play. That
 makes Stop and **Read from here** a resume, since the selection is left on the line playback
 reached. Untick **Lines** to hide the list and give the editor the full width.
 

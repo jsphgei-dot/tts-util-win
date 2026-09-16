@@ -5,6 +5,7 @@
  */
 
 using NAudio.Wave;
+using TtsUtil.Core.Audio;
 using TtsUtil.Core.Tts;
 
 namespace TtsUtil.App;
@@ -17,6 +18,8 @@ public sealed class AudioPlayerSink : IAudioPlayback
     private readonly WaveOutEvent _output;
     private readonly BufferedWaveProvider _buffer;
     private readonly CancellationToken _cancellationToken;
+    private readonly PlaybackMarks _marks = new();
+    private long _bytesQueued;
     private byte[] _scratch = Array.Empty<byte>();
     private bool _disposed;
     private volatile bool _paused;
@@ -39,6 +42,11 @@ public sealed class AudioPlayerSink : IAudioPlayback
     }
 
     public bool IsPaused => _paused;
+
+    /// <summary>Where the listener has reached, which trails what has been synthesised.</summary>
+    public long PlayedCharacters => _marks.CharactersAt(PlayedBytes());
+
+    public void Mark(long characterOffset) => _marks.Add(_bytesQueued, characterOffset);
 
     /// <summary>Holds the device. Synthesis carries on until its few seconds of lookahead fill.</summary>
     public void Pause()
@@ -91,6 +99,7 @@ public sealed class AudioPlayerSink : IAudioPlayback
         WaitForRoom();
         if (_cancellationToken.IsCancellationRequested) return;
         _buffer.AddSamples(_scratch, 0, needed);
+        _bytesQueued += needed;
     }
 
     public void WriteSilence(int milliseconds)
@@ -111,6 +120,7 @@ public sealed class AudioPlayerSink : IAudioPlayback
             WaitForRoom();
             if (_cancellationToken.IsCancellationRequested) return;
             _buffer.AddSamples(block, 0, count);
+            _bytesQueued += count;
             remaining -= count;
         }
     }
@@ -133,6 +143,7 @@ public sealed class AudioPlayerSink : IAudioPlayback
     public void Stop()
     {
         _paused = false;
+        _marks.Clear();
 
         try
         {
@@ -152,6 +163,14 @@ public sealed class AudioPlayerSink : IAudioPlayback
 
         Stop();
         _output.Dispose();
+    }
+
+    /// <summary>Bytes the listener has actually heard, allowing for what sits in the device.</summary>
+    private long PlayedBytes()
+    {
+        var drained = _bytesQueued - _buffer.BufferedBytes;
+        var inDevice = _buffer.WaveFormat.AverageBytesPerSecond * (long)_output.DesiredLatency / 1000;
+        return Math.Max(0, drained - inDevice);
     }
 
     private void WaitForRoom()
