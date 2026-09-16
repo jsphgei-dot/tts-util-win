@@ -479,12 +479,13 @@ no request at all while the setting is off.
 
 A new version found at startup waits on the Updates tab: the tab wears a red exclamation mark,
 the version number is named, and what changed in it is listed there. Nothing interrupts what you
-were doing. The box **Update prompt popup box on startup** turns the older behavior back on, and
-**Check now** always answers in a dialog whatever that box says.
+were doing. The box **Update prompt popup box on startup** turns the older behavior back on.
+While it is off, no update dialog opens anywhere: **Check now** writes its answer on the status
+line, and **Install update** treats the press itself as the answer.
 
 **Install update** sits beside **Check now** and is grey until a check finds something newer.
-Pressing it downloads and runs the new version the same way the startup dialog would, so the
-update can be taken at any time from the tab itself rather than only from the popup.
+Pressing it downloads and runs the new version, so the update can be taken at any time from the
+tab itself rather than only from the popup.
 
 What happens next when the dialog is asked for depends on how the program was installed. An
 **installed** copy offers to download the setup program, checks it against the SHA256 published in the manifest, and hands

@@ -52,6 +52,9 @@ public partial class MainWindow
     /// <summary>The check that runs at startup, kept so tests can wait for it.</summary>
     internal Task UpdateCheck { get; private set; } = Task.CompletedTask;
 
+    /// <summary>The install started from the tab, kept so tests can wait for it.</summary>
+    internal Task InstallRun { get; private set; } = Task.CompletedTask;
+
     /// <summary>The newer version the last check found, which the Install button acts on.</summary>
     private UpdateManifest? _newVersion;
 
@@ -71,7 +74,7 @@ public partial class MainWindow
         _settings.Save();
     }
 
-    /// <summary>A dialog at startup is opt in, so the tab is the only place a new version waits.</summary>
+    /// <summary>Update dialogs are opt in, so the tab is the only place a new version waits.</summary>
     private void OnPromptForUpdatesChanged(object sender, RoutedEventArgs e)
     {
         _settings.PromptForUpdates = PromptForUpdatesBox.IsChecked == true;
@@ -188,8 +191,12 @@ public partial class MainWindow
             return;
         }
 
-        // A check nobody asked for leaves the news on the tab unless a dialog was asked for.
-        if (!asked && !_settings.PromptForUpdates) return;
+        // With the box off no dialog opens at all, so the tab and the status line carry the news.
+        if (!_settings.PromptForUpdates)
+        {
+            if (asked) ShowUpdateLink(manifest);
+            return;
+        }
 
         switch (action)
         {
@@ -205,7 +212,9 @@ public partial class MainWindow
 
     /// <summary>Takes the new version the last check found. A portable copy is sent to the
     /// page it downloads from instead.</summary>
-    private async void OnInstallUpdate(object sender, RoutedEventArgs e)
+    private void OnInstallUpdate(object sender, RoutedEventArgs e) => InstallRun = InstallUpdateAsync();
+
+    private async Task InstallUpdateAsync()
     {
         if (_newVersion is not UpdateManifest manifest)
         {
@@ -263,7 +272,8 @@ public partial class MainWindow
             + Environment.NewLine + Environment.NewLine
             + "Download it and run the installer now? The program will close while it installs.";
 
-        var wanted = Confirm(question, "Update available");
+        // Pressing Install update is the answer already when the box has the dialogs turned off.
+        var wanted = !_settings.PromptForUpdates || Confirm(question, "Update available");
 
         if (!wanted)
         {

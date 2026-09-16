@@ -172,6 +172,40 @@ public sealed class UpdateNoticeTests : IDisposable
         });
     }
 
+    /// <summary>With the box off, Check now answers on the tab rather than in a dialog.</summary>
+    [Fact]
+    public async Task WithTheDialogOffCheckingNowOpensNothing()
+    {
+        var window = CreateWindow(portable: false, accept: true);
+        _wpf.Invoke(() => window.Settings.PromptForUpdates = false);
+
+        await CheckNow(window);
+
+        _wpf.Invoke(() =>
+        {
+            Assert.Equal(0, _setupFetches);
+            Assert.Contains("0.9.0-beta is available", window.StatusHistory[^1]);
+        });
+    }
+
+    /// <summary>The press itself is the answer once the dialogs are off.</summary>
+    [Fact]
+    public async Task WithTheDialogOffInstallingTakesTheUpdateWithoutAsking()
+    {
+        var window = CreateWindow(portable: false, accept: false);
+        _wpf.Invoke(() => window.Settings.PromptForUpdates = false);
+
+        await CheckNow(window);
+        _wpf.Invoke(() => window.InstallUpdateButton.RaiseEvent(new RoutedEventArgs(ButtonBase.ClickEvent)));
+        await window.InstallRun;
+
+        _wpf.Invoke(() =>
+        {
+            Assert.Equal(1, _setupFetches);
+            Assert.Equal(new[] { "setup.exe" }, _opened);
+        });
+    }
+
     private async Task CheckNow(MainWindow window)
     {
         _wpf.Invoke(() => window.CheckForUpdatesButton.RaiseEvent(

@@ -828,7 +828,7 @@
                         <CheckBox x:Name="PromptForUpdatesBox" Margin="0,0,0,10"
                                   Content="Update prompt popup box on startup"
                                   Click="OnPromptForUpdatesChanged"
-                                  ToolTip="Off by default: a new version puts a mark on this tab and waits here" />
+                                  ToolTip="Off by default: no update dialog opens anywhere, and a new version waits on this tab" />
                         <StackPanel Orientation="Horizontal" Margin="0,0,0,14">
                             <Button x:Name="CheckForUpdatesButton" Content="Check now" MinWidth="110"
                                     Click="OnCheckForUpdates"
