@@ -105,6 +105,12 @@ if (-not $Publish) {
     return
 }
 
+# The zips are rebuilt every run, so hashes written into the notes by hand go stale.
+$notes = Get-Content $NotesFile -Raw
+foreach ($hash in @($manifest.setup.sha256, $manifest.portable.sha256)) {
+    if ($notes -notlike "*$hash*") { throw "The notes do not carry $hash. Copy the hashes above into $NotesFile." }
+}
+
 Write-Host "Creating $tag in $DistributionRepo" -ForegroundColor Cyan
 gh release create $tag $setupZip $portableZip --repo $DistributionRepo --title $version `
     --notes-file $NotesFile --prerelease
@@ -114,10 +120,20 @@ if ($LASTEXITCODE -ne 0) { throw 'Creating the release failed.' }
 # not there yet.
 $clone = Join-Path $env:TEMP "ttsutilwin-releases-$([guid]::NewGuid().ToString('N'))"
 gh repo clone $DistributionRepo $clone -- --depth 1
+if ($LASTEXITCODE -ne 0) { throw 'Cloning the distribution repository failed.' }
+
+# A machine with no global identity still has one here, and the clone is told about it.
+$name = git -C $root config user.name
+$mail = git -C $root config user.email
+if ($name) { git -C $clone config user.name $name }
+if ($mail) { git -C $clone config user.email $mail }
+
 Copy-Item $manifestPath (Join-Path $clone 'latest.json') -Force
 git -C $clone add latest.json
 git -C $clone commit -m "chore(release): point the manifest at $version"
+if ($LASTEXITCODE -ne 0) { throw 'Committing the manifest failed.' }
 git -C $clone push
+if ($LASTEXITCODE -ne 0) { throw 'Pushing the manifest failed, so the release is not offered yet.' }
 Remove-Item $clone -Recurse -Force
 
 Write-Host "Published $version." -ForegroundColor Green
