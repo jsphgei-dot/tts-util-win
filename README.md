@@ -3,7 +3,7 @@
 ![version](https://img.shields.io/badge/version-0.8.0--beta-blue)
 ![platform](https://img.shields.io/badge/platform-Windows%2010%20%7C%2011%20x64-0078D6)
 ![built with](https://img.shields.io/badge/.NET-6.0-512BD4)
-![tests](https://img.shields.io/badge/tests-425%20passing-brightgreen)
+![tests](https://img.shields.io/badge/tests-429%20passing-brightgreen)
 ![license](https://img.shields.io/badge/license-Apache%202.0-lightgrey)
 
 > Read anything you can type, paste or open out loud, entirely on your own machine.
@@ -381,17 +381,25 @@ Four lists come with the program, and none of them is on until it is ticked:
 | Everyday shorthand | The abbreviations prose is full of, such as e.g., i.e. and etc. |
 
 Ticking a list puts its rules straight into the grid, so every one of them can be read, edited,
-reordered or turned off like a rule of your own, and unticking takes those same rules back out.
+reordered or turned off like a rule of your own. Unticking takes back the rules that are still
+as the list wrote them, and leaves behind every rule you changed, now marked as one of your own.
 Each ticked list gets its own tab above the grid, next to **My rules**, so a list can be looked
-through without scrolling past the others. **Make their rules mine** drops the mark saying which
-list a rule came from, which keeps those rules when the list is unticked.
+through without scrolling past the others.
+
+The rules on show can be kept under a name of your own. Type a name in the box under **Your
+saved rulesets** and press the save icon: the rules on the current tab are written to
+`rulesets\<name>.json` beside the settings, and the name appears as a tick box beside the lists
+that ship. Ticking it puts those rules back in the grid under a tab of their own, unticking
+takes them out again, and the bin icon forgets the ruleset. A ruleset is an ordinary alias
+file, so it can be exported and shared like any other.
 
 Symbols that are also ordinary English words, among them `In`, `No`, `He` and `As`, arrive
 turned off inside the chemistry list, so a sentence starting with one of them is read as
 English.
 
-A rule that can never fire is named in orange under the grid, either because the same word is
-listed twice or because a rule above it matches inside it and takes the text first. The lists
+A rule that can never fire is shown in red in the grid and named in orange under it, either
+because the same word is listed twice or because a rule above it matches inside it and takes
+the text first. Hovering a red row says which rule stands in its way. The lists
 that ship are checked for the same thing by a test, so ticking one never quietly does nothing.
 
 ### Settings
@@ -409,7 +417,9 @@ Settings that also live elsewhere in the window are repeated at the bottom of th
 everything can be found in one place: **Read as I type**, **Pause when I click away**, the
 alias switch, the reading speed, the editor text size and the repeat mode. A change in
 either place moves the other. **Reset to defaults** puts every setting back to a first run,
-after asking. Scripts, aliases and saved audio are left alone.
+after asking. Scripts, aliases and saved audio are left alone. **Reset aliases** empties the
+alias list, after asking and after copying the list to `aliases.json.bak` beside it, so a list
+built up over months is never lost to one press.
 
 Two groups are worth knowing about before you go looking. **Silence** sets how long a pause
 follows a line ending, a sentence, a question and an exclamation, in milliseconds, and can be
@@ -458,8 +468,12 @@ no request at all while the setting is off.
 
 A new version found at startup waits on the Updates tab: the tab wears a red exclamation mark,
 the version number is named, and what changed in it is listed there. Nothing interrupts what you
-were doing. The box **Ask about a new version in a dialog at startup** turns the older behavior
-back on, and **Check now** always answers in a dialog whatever that box says.
+were doing. The box **Update prompt popup box on startup** turns the older behavior back on, and
+**Check now** always answers in a dialog whatever that box says.
+
+**Install update** sits beside **Check now** and is grey until a check finds something newer.
+Pressing it downloads and runs the new version the same way the startup dialog would, so the
+update can be taken at any time from the tab itself rather than only from the popup.
 
 What happens next when the dialog is asked for depends on how the program was installed. An
 **installed** copy offers to download the setup program, checks it against the SHA256 published in the manifest, and hands
@@ -469,9 +483,10 @@ it may be running from is not the program's business. Saying no to a version mea
 not every version after it.
 
 All of this lives on its own **Updates** tab, which holds the boxes **Look for a new version
-when the program starts** and **Ask about a new version in a dialog at startup**, a **Check
-now** button that looks straight away whatever the boxes say, the version you are running, and
-when the last check ran. The mark stays there even after an offer is turned down.
+when the program starts** and **Update prompt popup box on startup**, a **Check now** button
+that looks straight away whatever the boxes say, an **Install update** button for what the last
+check found, the version you are running, and when the last check ran. The mark stays there even
+after an offer is turned down.
 
 The same tab carries the change history, newest first, read from the changelog built into the
 program rather than fetched, so it says what this build is and works with no network at all. When

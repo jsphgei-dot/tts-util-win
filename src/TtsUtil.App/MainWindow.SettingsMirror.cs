@@ -89,4 +89,7 @@ public partial class MainWindow
 
         SetStatus("Settings are back to their defaults.");
     }
+
+    /// <summary>Aliases are kept apart from the settings, so clearing them is its own button.</summary>
+    private void OnResetAliases(object sender, RoutedEventArgs e) => ResetAliases();
 }

@@ -8,7 +8,6 @@ using System.Collections;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
-using System.Windows.Media;
 using ButtonBase = System.Windows.Controls.Primitives.ButtonBase;
 using CheckBox = System.Windows.Controls.CheckBox;
 using MouseButtonEventArgs = System.Windows.Input.MouseButtonEventArgs;
@@ -100,7 +99,7 @@ public static class RowTicking
         {
             if (source is T found) return found;
 
-            source = VisualTreeHelper.GetParent(source) ?? LogicalTreeHelper.GetParent(source);
+            source = MainWindow.ParentOf(source);
         }
 
         return null;

@@ -83,9 +83,15 @@ public partial class MainWindow
         while (source is not null)
         {
             if (source is ButtonBase button) return button;
-            source = VisualTreeHelper.GetParent(source) ?? LogicalTreeHelper.GetParent(source);
+            source = ParentOf(source);
         }
 
         return null;
     }
+
+    /// <summary>Text inside a paragraph is not a visual, and asking the visual tree about it throws.</summary>
+    internal static DependencyObject? ParentOf(DependencyObject source) =>
+        source is Visual or System.Windows.Media.Media3D.Visual3D
+            ? VisualTreeHelper.GetParent(source) ?? LogicalTreeHelper.GetParent(source)
+            : LogicalTreeHelper.GetParent(source);
 }

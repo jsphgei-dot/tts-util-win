@@ -32,6 +32,8 @@ public sealed class AliasTabTests : IDisposable
             return new MainWindow(settings, loadVoiceOnSelection: false)
             {
                 AliasStore = new AliasStore(_aliasPath),
+                AliasRulesets = new AliasRulesetLibrary(Path.Combine(_root, "rulesets")),
+                Confirmer = (_, _) => true,
             };
         });
     }
@@ -72,18 +74,63 @@ public sealed class AliasTabTests : IDisposable
         });
     }
 
-    /// <summary>Rules made yours stay behind when the list that brought them is unticked.</summary>
+    /// <summary>A rule you changed stays behind when the list that brought it is unticked.</summary>
     [Fact]
-    public void RulesMadeMineSurviveUnticking()
+    public void AnEditedRuleSurvivesUnticking()
     {
         _wpf.Invoke(() =>
         {
             Tick("chemistry", true);
-            _window.CopyAliasPackButton.RaiseEvent(new RoutedEventArgs(ButtonBase.ClickEvent));
+            _window.AliasRules.First(rule => rule.Match == "K").SayAs = "the potassium one";
             Tick("chemistry", false);
 
-            Assert.Equal("potassium", _window.ActiveAliases()!.Apply("K"));
+            var kept = Assert.Single(_window.AliasRules);
+            Assert.Equal("K", kept.Match);
+            Assert.Equal(string.Empty, kept.Source);
         });
+    }
+
+    /// <summary>Rules saved under a name come back as a list of their own, ticked like the
+    /// ones that ship.</summary>
+    [Fact]
+    public void ASavedRulesetIsTickedBackIn()
+    {
+        Add("SQL", "sequel");
+
+        _wpf.Invoke(() =>
+        {
+            _window.AliasRulesetTitleBox.Text = "Work words";
+            _window.SaveAliasRulesetButton.RaiseEvent(new RoutedEventArgs(ButtonBase.ClickEvent));
+
+            _window.AliasRules.Clear();
+            TickRuleset("Work words", true);
+
+            var rule = Assert.Single(_window.AliasRules);
+            Assert.Equal("sequel", rule.SayAs);
+            Assert.Equal(new[] { "My rules", "Work words" }, Tabs());
+        });
+    }
+
+    /// <summary>Clearing the list leaves the old one beside it, rather than throwing it away.</summary>
+    [Fact]
+    public void ResettingTheAliasesKeepsTheOldListAsABak()
+    {
+        Add("SQL", "sequel");
+
+        _wpf.Invoke(() => _window.ResetAliasesButton.RaiseEvent(new RoutedEventArgs(ButtonBase.ClickEvent)));
+
+        _wpf.Invoke(() => Assert.Empty(_window.AliasRules));
+        Assert.Contains("sequel", File.ReadAllText(_aliasPath + ".bak"));
+    }
+
+    private void TickRuleset(string title, bool on)
+    {
+        var box = _window.AliasRulesetPanel.Children
+            .OfType<System.Windows.Controls.CheckBox>()
+            .First(item => (string)item.Content == title);
+
+        box.IsChecked = on;
+        box.RaiseEvent(new RoutedEventArgs(ButtonBase.ClickEvent));
     }
 
     /// <summary>A rule an earlier one already swallows is named, rather than quietly doing

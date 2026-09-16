@@ -515,13 +515,27 @@
                         <TextBlock Text="Lists that come with the program" Foreground="#555"
                                    Margin="0,0,0,4" />
                         <WrapPanel x:Name="AliasPackPanel" Margin="0,0,0,4" />
-                        <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
-                            <Button x:Name="CopyAliasPackButton" Content="Make their rules mine"
-                                    MinWidth="220" Click="OnCopyAliasPacks"
-                                    ToolTip="Keep the rules a ticked list added, even after the list is unticked" />
-                            <TextBlock x:Name="AliasPackText" VerticalAlignment="Center" Foreground="#777"
-                                       Margin="12,0,0,0" TextWrapping="Wrap" />
-                        </StackPanel>
+                        <TextBlock x:Name="AliasPackText" Foreground="#777" Margin="0,0,0,8"
+                                   TextWrapping="Wrap" />
+
+                        <TextBlock Text="Your saved rulesets" Foreground="#555" Margin="0,0,0,4" />
+                        <DockPanel Margin="0,0,0,4">
+                            <Button x:Name="SaveAliasRulesetButton" DockPanel.Dock="Right"
+                                    Style="{StaticResource IconButton}" Content="&#xE792;"
+                                    AutomationProperties.Name="Save ruleset" Click="OnSaveAliasRuleset"
+                                    ToolTip="Save the rules shown above under this name" Margin="6,0,0,0" />
+                            <Button x:Name="DeleteAliasRulesetButton" DockPanel.Dock="Right"
+                                    Style="{StaticResource IconButton}" Content="&#xE74D;"
+                                    AutomationProperties.Name="Delete ruleset" Click="OnDeleteAliasRuleset"
+                                    ToolTip="Delete the saved ruleset of this name" Margin="6,0,0,0" />
+                            <TextBox x:Name="AliasRulesetTitleBox" Padding="6,4"
+                                     VerticalContentAlignment="Center"
+                                     Tag="A name to save these rules under"
+                                     ToolTip="A name to save these rules under" />
+                        </DockPanel>
+                        <WrapPanel x:Name="AliasRulesetPanel" Margin="0,0,0,4" />
+                        <TextBlock x:Name="AliasRulesetText" Foreground="#777" TextWrapping="Wrap"
+                                   Margin="0,0,0,8" />
 
                         <CheckBox x:Name="UseAliasesBox" Content="Use these aliases when reading"
                                   Margin="0,0,0,8" Click="OnUseAliasesChanged" />
@@ -541,7 +555,8 @@
 
                     <DataGrid x:Name="AliasList" AutoGenerateColumns="False" CanUserAddRows="False"
                               CanUserSortColumns="False" SelectionMode="Single" HeadersVisibility="Column"
-                              GridLinesVisibility="All" CellEditEnding="OnAliasRuleEdited">
+                              GridLinesVisibility="All" CellEditEnding="OnAliasRuleEdited"
+                              LoadingRow="OnAliasRowLoaded">
                         <DataGrid.Columns>
                             <DataGridCheckBoxColumn Header="On" Width="40"
                                                     Binding="{Binding Enabled, UpdateSourceTrigger=PropertyChanged}" />
@@ -783,6 +798,9 @@
                             <Button x:Name="ResetSettingsButton" Content="Reset to defaults"
                                     Click="OnResetSettings" MinWidth="130"
                                     ToolTip="Put every setting back to how it started" />
+                            <Button x:Name="ResetAliasesButton" Content="Reset aliases"
+                                    Click="OnResetAliases" MinWidth="130"
+                                    ToolTip="Empty the alias list, keeping a copy as aliases.json.bak" />
                             <TextBlock x:Name="SettingsPathText" VerticalAlignment="Center" Foreground="#555"
                                        TextTrimming="CharacterEllipsis" />
                         </StackPanel>
@@ -808,13 +826,16 @@
                                   Content="Look for a new version when the program starts"
                                   Click="OnCheckForUpdatesChanged" />
                         <CheckBox x:Name="PromptForUpdatesBox" Margin="0,0,0,10"
-                                  Content="Ask about a new version in a dialog at startup"
+                                  Content="Update prompt popup box on startup"
                                   Click="OnPromptForUpdatesChanged"
                                   ToolTip="Off by default: a new version puts a mark on this tab and waits here" />
                         <StackPanel Orientation="Horizontal" Margin="0,0,0,14">
                             <Button x:Name="CheckForUpdatesButton" Content="Check now" MinWidth="110"
                                     Click="OnCheckForUpdates"
                                     ToolTip="Look for a new version now, whatever the box says" />
+                            <Button x:Name="InstallUpdateButton" Content="Install update" MinWidth="130"
+                                    IsEnabled="False" Click="OnInstallUpdate"
+                                    ToolTip="Download the new version found by the last check" />
                             <TextBlock x:Name="LastUpdateCheckText" VerticalAlignment="Center"
                                        Foreground="#777" Margin="12,0,0,0" />
                         </StackPanel>

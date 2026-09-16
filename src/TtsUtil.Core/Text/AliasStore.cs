@@ -40,6 +40,16 @@ public sealed class AliasStore
         }
     }
 
+    /// <summary>Copies the list aside before it is thrown away. Null when there was no file.</summary>
+    public string? Backup()
+    {
+        if (!File.Exists(_path)) return null;
+
+        var copy = _path + ".bak";
+        File.Copy(_path, copy, overwrite: true);
+        return copy;
+    }
+
     public void Save(AliasDictionary aliases)
     {
         var folder = Path.GetDirectoryName(_path);

@@ -52,6 +52,9 @@ public partial class MainWindow
     /// <summary>The check that runs at startup, kept so tests can wait for it.</summary>
     internal Task UpdateCheck { get; private set; } = Task.CompletedTask;
 
+    /// <summary>The newer version the last check found, which the Install button acts on.</summary>
+    private UpdateManifest? _newVersion;
+
     /// <summary>Looks for a newer release on the way in, and never in a way that blocks.</summary>
     internal void StartUpdateCheck(DateTime? nowUtc = null)
     {
@@ -107,8 +110,10 @@ public partial class MainWindow
     /// version does while the dialog is turned off.</summary>
     private void MarkNewVersion(UpdateManifest? manifest)
     {
+        _newVersion = manifest;
         UpdatesTabMark.Visibility = manifest is null ? Visibility.Collapsed : Visibility.Visible;
         NewVersionPanel.Visibility = manifest is null ? Visibility.Collapsed : Visibility.Visible;
+        InstallUpdateButton.IsEnabled = manifest is not null;
 
         UpdateStateText.Text = manifest is null
             ? $"{AppVersion.Name} is the newest version."
@@ -196,6 +201,44 @@ public partial class MainWindow
                 await OfferUpdateAsync(manifest);
                 break;
         }
+    }
+
+    /// <summary>Takes the new version the last check found. A portable copy is sent to the
+    /// page it downloads from instead.</summary>
+    private async void OnInstallUpdate(object sender, RoutedEventArgs e)
+    {
+        if (_newVersion is not UpdateManifest manifest)
+        {
+            SetStatus("Press Check now first.");
+            return;
+        }
+
+        if (UpdateDecision.For(manifest, AppVersion.Code, IsPortableCopy(), dismissedVersionCode: 0)
+            == UpdateAction.OfferSetup)
+        {
+            InstallUpdateButton.IsEnabled = false;
+
+            try
+            {
+                await OfferUpdateAsync(manifest);
+            }
+            finally
+            {
+                InstallUpdateButton.IsEnabled = true;
+            }
+
+            return;
+        }
+
+        OpenReleasePage(manifest);
+    }
+
+    /// <summary>Opens the page a release is downloaded from.</summary>
+    private void OpenReleasePage(UpdateManifest manifest)
+    {
+        var page = string.IsNullOrWhiteSpace(manifest.ReleaseUrl) ? UpdateSource.ReleasesUrl : manifest.ReleaseUrl;
+        OpenFolder(page);
+        SetStatus($"Opened the page for version {manifest.VersionName}.");
     }
 
     private void ShowUpdateLink(UpdateManifest manifest)

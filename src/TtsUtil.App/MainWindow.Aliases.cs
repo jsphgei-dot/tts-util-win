@@ -18,12 +18,23 @@ namespace TtsUtil.App;
 /// <summary>The alias list: what the voice says in place of what was typed.</summary>
 public partial class MainWindow
 {
+    private static readonly System.Windows.Media.Brush ClashBrush =
+        new System.Windows.Media.SolidColorBrush(System.Windows.Media.Color.FromRgb(0xFD, 0xE7, 0xE5));
+
+    private static readonly System.Windows.Media.Brush ClashTextBrush =
+        new System.Windows.Media.SolidColorBrush(System.Windows.Media.Color.FromRgb(0xA0, 0x21, 0x21));
+
     private ObservableCollection<AliasRule> _aliasRules = new();
 
     private AliasStore _aliasStore = AliasStore.Beside(AppSettings.SettingsPath);
 
+    private AliasRulesetLibrary _aliasRulesets = AliasRulesetLibrary.Beside(AppSettings.SettingsPath);
+
     /// <summary>The list whose rules the grid is showing, empty for the rules of your own.</summary>
     private string _aliasGroup = string.Empty;
+
+    /// <summary>The rules that never fire, against the line saying what stands in their way.</summary>
+    private Dictionary<AliasRule, string> _aliasClashing = new();
 
     /// <summary>Where the list is kept. Tests point it somewhere temporary, which reloads it.</summary>
     internal AliasStore AliasStore
@@ -33,6 +44,17 @@ public partial class MainWindow
         {
             _aliasStore = value;
             LoadAliases();
+        }
+    }
+
+    /// <summary>Where saved rulesets are kept. Tests point it somewhere temporary.</summary>
+    internal AliasRulesetLibrary AliasRulesets
+    {
+        get => _aliasRulesets;
+        set
+        {
+            _aliasRulesets = value;
+            ShowAliasRulesets();
         }
     }
 
@@ -119,11 +141,24 @@ public partial class MainWindow
         AfterAliasChange(message);
     }
 
+    /// <summary>A list by id, whether it ships with the program or was saved here.</summary>
+    private AliasPack? FindList(string id)
+    {
+        if (AliasPacks.Find(id) is AliasPack shipped) return shipped;
+        if (AliasRulesetLibrary.TitleOf(id) is not string title) return null;
+
+        var saved = _aliasRulesets.Load(title);
+        return saved is null ? null : new AliasPack { Id = id, Name = title, Rules = saved.Rules };
+    }
+
+    /// <summary>What to call a list on a tab and in a message.</summary>
+    private string ListName(string id) => FindList(id)?.Name ?? AliasRulesetLibrary.TitleOf(id) ?? id;
+
     /// <summary>Adds a list's rules under the ones already there, skipping words already covered.</summary>
     private string AddPackRules(string id)
     {
-        var pack = AliasPacks.Find(id);
-        if (pack is null) return "That list is not one this version ships.";
+        var pack = FindList(id);
+        if (pack is null) return "That list is no longer here.";
 
         var known = new HashSet<string>(
             _aliasRules.Select(rule => rule.Match), StringComparer.OrdinalIgnoreCase);
@@ -142,18 +177,45 @@ public partial class MainWindow
             : $"Added {added} rules from {pack.Name}. They can be read and changed above.";
     }
 
+    /// <summary>Unticking takes back what the list gave and never what you changed: an edited
+    /// rule stays behind as one of your own.</summary>
     private string DropPackRules(string id)
     {
-        var pack = AliasPacks.Find(id);
-        var going = _aliasRules.Where(rule =>
-            string.Equals(rule.Source, id, StringComparison.OrdinalIgnoreCase)).ToList();
+        var theirs = new Dictionary<string, AliasRule>(StringComparer.Ordinal);
+
+        foreach (var rule in FindList(id)?.Rules ?? Array.Empty<AliasRule>()) theirs[rule.Match] = rule;
+
+        var going = new List<AliasRule>();
+        var mine = 0;
+
+        foreach (var rule in _aliasRules.Where(rule =>
+            string.Equals(rule.Source, id, StringComparison.OrdinalIgnoreCase)))
+        {
+            if (theirs.TryGetValue(rule.Match, out var shipped) && SameRule(rule, shipped))
+            {
+                going.Add(rule);
+                continue;
+            }
+
+            rule.Source = string.Empty;
+            mine++;
+        }
 
         foreach (var rule in going) _aliasRules.Remove(rule);
+        if (mine > 0) AliasList.Items.Refresh();
+
+        var kept = mine == 0 ? string.Empty : $", keeping the {mine} you changed";
 
         return going.Count == 0
             ? "Nothing was taken away: those rules are your own now."
-            : $"Took {going.Count} rules from {pack?.Name ?? id} back out.";
+            : $"Took {going.Count} rules from {ListName(id)} back out{kept}.";
     }
+
+    private static bool SameRule(AliasRule rule, AliasRule other) =>
+        rule.SayAs == other.SayAs
+        && rule.WholeWord == other.WholeWord
+        && rule.MatchCase == other.MatchCase
+        && rule.Enabled == other.Enabled;
 
     private void ShowAliasPackCount()
     {
@@ -164,21 +226,144 @@ public partial class MainWindow
             : $"{rules} of the rules above came from a ticked list.";
     }
 
-    /// <summary>Makes the rules a list put there your own, so unticking it leaves them alone.</summary>
-    private void OnCopyAliasPacks(object sender, RoutedEventArgs e)
+    /// <summary>A tick box per ruleset saved here, beside the lists that ship.</summary>
+    private void ShowAliasRulesets()
     {
-        var theirs = _aliasRules.Where(rule => rule.Source.Length > 0).ToList();
+        if (AliasRulesetPanel is null) return;
 
-        if (theirs.Count == 0)
+        AliasRulesetPanel.Children.Clear();
+        var titles = _aliasRulesets.Titles();
+
+        foreach (var title in titles)
         {
-            SetStatus("Tick a list that comes with the program first.");
+            var id = AliasRulesetLibrary.IdFor(title);
+
+            var box = new CheckBox
+            {
+                Content = title,
+                Tag = id,
+                Margin = new Thickness(0, 0, 14, 0),
+                ToolTip = "Put this ruleset's rules in the list above",
+                IsChecked = _settings.AliasPacks.Contains(id, StringComparer.OrdinalIgnoreCase),
+            };
+
+            box.Click += OnAliasPackChanged;
+            AliasRulesetPanel.Children.Add(box);
+        }
+
+        AliasRulesetText.Text = titles.Count == 0
+            ? "Nothing saved yet. Name the rules on show above to keep them as a ruleset of your own."
+            : "Tick one to put its rules in the list above, untick it to take them back out.";
+    }
+
+    /// <summary>Keeps the rules on show under a name, so they can be put back later.</summary>
+    private void OnSaveAliasRuleset(object sender, RoutedEventArgs e)
+    {
+        if (!ClaimClick()) return;
+
+        var title = AliasRulesetTitleBox.Text.Trim();
+
+        if (title.Length == 0)
+        {
+            SetStatus("Type a name for the ruleset first.");
             return;
         }
 
-        foreach (var rule in theirs) rule.Source = string.Empty;
+        var rules = AliasList.Items.OfType<AliasRule>().ToList();
 
-        AliasList.Items.Refresh();
-        AfterAliasChange($"{theirs.Count} rules are yours now, and stay when a list is unticked.");
+        if (rules.Count == 0)
+        {
+            SetStatus("There are no rules on this tab to save.");
+            return;
+        }
+
+        if (_aliasRulesets.Exists(title)
+            && !Confirm($"A ruleset called {title} is already saved. Replace it?", "Save ruleset"))
+        {
+            return;
+        }
+
+        try
+        {
+            if (!_aliasRulesets.Save(title, rules))
+            {
+                SetStatus("There is nothing in that name a file can be called.");
+                return;
+            }
+        }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
+        {
+            SetStatus($"Could not save the ruleset: {ex.Message}");
+            return;
+        }
+
+        ShowAliasRulesets();
+        SetStatus($"Saved {rules.Count} rules as {title}.");
+    }
+
+    /// <summary>Forgets a saved ruleset. The rules it put in the list are taken out with it.</summary>
+    private void OnDeleteAliasRuleset(object sender, RoutedEventArgs e)
+    {
+        if (!ClaimClick()) return;
+
+        var title = AliasRulesetTitleBox.Text.Trim();
+
+        if (title.Length == 0 || !_aliasRulesets.Exists(title))
+        {
+            SetStatus("Type the name of a saved ruleset first.");
+            return;
+        }
+
+        if (!Confirm($"Delete the saved ruleset {title}?", "Delete ruleset")) return;
+
+        var id = AliasRulesetLibrary.IdFor(title);
+        var message = DropPackRules(id);
+
+        _settings.AliasPacks = _settings.AliasPacks
+            .Where(ticked => !string.Equals(ticked, id, StringComparison.OrdinalIgnoreCase)).ToList();
+        _settings.Save();
+
+        _aliasRulesets.Delete(title);
+        ShowAliasRulesets();
+        AfterAliasChange($"Deleted the ruleset {title}. {message}");
+    }
+
+    /// <summary>Empties the alias list, writing what was there to a .bak file first.</summary>
+    internal void ResetAliases()
+    {
+        if (_aliasRules.Count == 0)
+        {
+            SetStatus("The alias list is already empty.");
+            return;
+        }
+
+        var question = $"Clear all {_aliasRules.Count} alias rules? A copy is kept beside the list "
+            + "as aliases.json.bak.";
+
+        if (!Confirm(question, "Reset aliases")) return;
+
+        string? backup;
+
+        try
+        {
+            backup = _aliasStore.Backup();
+        }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
+        {
+            SetStatus($"Nothing was cleared: a copy could not be kept. {ex.Message}");
+            return;
+        }
+
+        _aliasRules.Clear();
+
+        _settings.AliasPacks = new List<string>();
+        _settings.Save();
+        ShowAliasPacks();
+        ShowAliasRulesets();
+
+        AfterAliasChange(backup is null
+            ? "The alias list is empty."
+            : $"The alias list is empty. The old one is in {Path.GetFileName(backup)}.");
     }
 
     private void LoadAliases()
@@ -189,6 +374,7 @@ public partial class MainWindow
         CollectionViewSource.GetDefaultView(_aliasRules).Filter = InGroup;
         UseAliasesBox.IsChecked = _settings.UseAliases;
         LoadAliasPacks();
+        ShowAliasRulesets();
         ShowAliasGroups();
         ShowAliasCount();
         ShowAliasClashes();
@@ -375,12 +561,11 @@ public partial class MainWindow
 
         var wanted = new List<(string Id, string Name)> { (string.Empty, "My rules") };
 
-        foreach (var pack in AliasPacks.All)
+        foreach (var id in _aliasRules.Select(rule => rule.Source)
+            .Where(source => source.Length > 0)
+            .Distinct(StringComparer.OrdinalIgnoreCase))
         {
-            if (_aliasRules.Any(rule => string.Equals(rule.Source, pack.Id, StringComparison.OrdinalIgnoreCase)))
-            {
-                wanted.Add((pack.Id, pack.Name));
-            }
+            wanted.Add((id, ListName(id)));
         }
 
         var shown = AliasGroupTabs.Items.OfType<TabItem>().Select(tab => (string)tab.Tag).ToList();
@@ -423,8 +608,33 @@ public partial class MainWindow
     {
         if (AliasClashText is null) return;
 
-        var clash = AliasConflicts.Summarize(_aliasRules);
-        AliasClashText.Text = clash ?? string.Empty;
-        AliasClashText.Visibility = clash is null ? Visibility.Collapsed : Visibility.Visible;
+        var found = AliasConflicts.Find(_aliasRules);
+        _aliasClashing = found.ToDictionary(conflict => conflict.Rule, conflict => conflict.Describe());
+
+        AliasClashText.Text = found.Count == 0 ? string.Empty : AliasConflicts.Summarize(_aliasRules);
+        AliasClashText.Visibility = found.Count == 0 ? Visibility.Collapsed : Visibility.Visible;
+
+        foreach (var rule in _aliasRules)
+        {
+            if (AliasList.ItemContainerGenerator.ContainerFromItem(rule) is DataGridRow row) PaintAliasRow(row);
+        }
+    }
+
+    private void OnAliasRowLoaded(object sender, DataGridRowEventArgs e) => PaintAliasRow(e.Row);
+
+    /// <summary>A rule that never fires is shown in red, with the rule above it named.</summary>
+    private void PaintAliasRow(DataGridRow row)
+    {
+        if (row.Item is AliasRule rule && _aliasClashing.TryGetValue(rule, out var why))
+        {
+            row.Background = ClashBrush;
+            row.Foreground = ClashTextBrush;
+            row.ToolTip = why;
+            return;
+        }
+
+        row.ClearValue(BackgroundProperty);
+        row.ClearValue(ForegroundProperty);
+        row.ClearValue(ToolTipProperty);
     }
 }
