@@ -4,6 +4,14 @@
         Title="TTS Util Win" Height="660" Width="940" MinHeight="480" MinWidth="720"
         WindowStartupLocation="CenterScreen"
         Closing="OnWindowClosing">
+    <Window.CommandBindings>
+        <CommandBinding Command="ApplicationCommands.Save" Executed="OnSaveScriptCommand" />
+        <CommandBinding Command="ApplicationCommands.Replace" Executed="OnToggleFindCommand" />
+    </Window.CommandBindings>
+    <Window.InputBindings>
+        <KeyBinding Modifiers="Control" Key="S" Command="ApplicationCommands.Save" />
+        <KeyBinding Modifiers="Control" Key="H" Command="ApplicationCommands.Replace" />
+    </Window.InputBindings>
     <DockPanel Margin="12">
 
         <Border DockPanel.Dock="Top" Padding="0,0,0,10">
@@ -96,6 +104,87 @@
 
             <TabItem Header="Text">
                 <DockPanel Margin="10">
+                    <!-- The title sits with the text it names, and saves with the button beside it. -->
+                    <DockPanel DockPanel.Dock="Top" Margin="0,0,0,6">
+                        <TextBlock Text="Title" VerticalAlignment="Center" Margin="0,0,8,0" Foreground="#555" />
+                        <Button x:Name="SaveScriptFromTextButton" DockPanel.Dock="Right"
+                                Style="{StaticResource IconButton}" Content="&#xE792;"
+                                AutomationProperties.Name="Save script" Click="OnSaveScript"
+                                ToolTip="Save as a script (Ctrl+S)" Margin="6,0,0,0" />
+                        <TextBox x:Name="TextTitleBox" Padding="6,4" FontSize="14"
+                                 VerticalContentAlignment="Center"
+                                 ToolTip="The name this text is saved under in the Scripts tab" />
+                    </DockPanel>
+
+                    <WrapPanel x:Name="TextToolBar" DockPanel.Dock="Top" Margin="0,0,0,6">
+                        <Button x:Name="UndoButton" Style="{StaticResource IconButton}" Content="&#xE7A7;"
+                                AutomationProperties.Name="Undo" ToolTip="Undo (Ctrl+Z)" Click="OnUndo" />
+                        <Button x:Name="RedoButton" Style="{StaticResource IconButton}" Content="&#xE7A6;"
+                                AutomationProperties.Name="Redo" ToolTip="Redo (Ctrl+Y)" Click="OnRedo" />
+                        <Border Style="{StaticResource ToolSeparator}" />
+                        <Button x:Name="CutButton" Style="{StaticResource IconButton}" Content="&#xE8C6;"
+                                AutomationProperties.Name="Cut" ToolTip="Cut (Ctrl+X)" Click="OnCut" />
+                        <Button x:Name="CopyButton" Style="{StaticResource IconButton}" Content="&#xE8C8;"
+                                AutomationProperties.Name="Copy" ToolTip="Copy (Ctrl+C)" Click="OnCopy" />
+                        <Button x:Name="PasteIntoTextButton" Style="{StaticResource IconButton}" Content="&#xE77F;"
+                                AutomationProperties.Name="Paste" ToolTip="Paste (Ctrl+V)"
+                                Click="OnPasteClipboard" />
+                        <Border Style="{StaticResource ToolSeparator}" />
+                        <Button x:Name="BulletsButton" Style="{StaticResource IconButton}" Content="&#xE8FD;"
+                                AutomationProperties.Name="Bulleted list" ToolTip="Bulleted list"
+                                Click="OnToggleBullets" />
+                        <Button x:Name="NumbersButton" Style="{StaticResource TextToolButton}" Content="1."
+                                AutomationProperties.Name="Numbered list" ToolTip="Numbered list"
+                                Click="OnToggleNumbers" />
+                        <Button x:Name="OutdentButton" Style="{StaticResource TextToolButton}" Content="&#x21E4;"
+                                AutomationProperties.Name="Outdent" ToolTip="Outdent" Click="OnOutdent" />
+                        <Button x:Name="IndentButton" Style="{StaticResource TextToolButton}" Content="&#x21E5;"
+                                AutomationProperties.Name="Indent" ToolTip="Indent" Click="OnIndent" />
+                        <Border Style="{StaticResource ToolSeparator}" />
+                        <Button x:Name="UpperCaseButton" Style="{StaticResource TextToolButton}" Content="AA"
+                                AutomationProperties.Name="Upper case" ToolTip="UPPER CASE" Click="OnUpperCase" />
+                        <Button x:Name="LowerCaseButton" Style="{StaticResource TextToolButton}" Content="aa"
+                                AutomationProperties.Name="Lower case" ToolTip="lower case" Click="OnLowerCase" />
+                        <Button x:Name="SentenceCaseButton" Style="{StaticResource TextToolButton}" Content="Aa"
+                                AutomationProperties.Name="Sentence case" ToolTip="Sentence case"
+                                Click="OnSentenceCase" />
+                        <Button x:Name="TitleCaseButton" Style="{StaticResource TextToolButton}" Content="Ab"
+                                AutomationProperties.Name="Title case" ToolTip="Title Case" Click="OnTitleCase" />
+                        <Border Style="{StaticResource ToolSeparator}" />
+                        <Menu Background="Transparent" VerticalAlignment="Center" Margin="0,0,4,0">
+                            <MenuItem x:Name="CleanUpMenu" Header="Clean up" Padding="8,5">
+                                <MenuItem x:Name="JoinWrappedItem" Header="Join wrapped lines"
+                                          Click="OnJoinWrappedLines" />
+                                <MenuItem x:Name="CollapseBlanksItem" Header="Collapse blank lines"
+                                          Click="OnCollapseBlankLines" />
+                                <MenuItem x:Name="TidySpacingItem" Header="Tidy spacing" Click="OnTidySpacing" />
+                            </MenuItem>
+                        </Menu>
+                        <Button x:Name="FindButton" Style="{StaticResource IconButton}" Content="&#xE721;"
+                                AutomationProperties.Name="Find and replace" ToolTip="Find and replace (Ctrl+H)"
+                                Click="OnToggleFind" />
+                        <Border Style="{StaticResource ToolSeparator}" />
+                        <TextBlock Text="Size" VerticalAlignment="Center" Foreground="#555" Margin="0,0,6,0" />
+                        <ComboBox x:Name="EditorFontSizeBox" Width="60" VerticalAlignment="Center"
+                                  ToolTip="How big the text looks here. Nothing that is saved changes."
+                                  SelectionChanged="OnEditorFontSizeChanged" />
+                        <CheckBox x:Name="WrapTextBox" Content="Wrap" VerticalAlignment="Center" IsChecked="True"
+                                  Margin="10,0,0,0" Checked="OnWrapChanged" Unchecked="OnWrapChanged" />
+                    </WrapPanel>
+
+                    <DockPanel x:Name="FindPanel" DockPanel.Dock="Top" Margin="0,0,0,6" Visibility="Collapsed">
+                        <TextBlock Text="Find" VerticalAlignment="Center" Margin="0,0,6,0" Foreground="#555" />
+                        <TextBox x:Name="FindBox" DockPanel.Dock="Left" Width="160" Padding="4,3"
+                                 VerticalContentAlignment="Center" />
+                        <TextBlock Text="Replace with" VerticalAlignment="Center" Margin="10,0,6,0"
+                                   Foreground="#555" DockPanel.Dock="Left" />
+                        <Button x:Name="ReplaceAllButton" DockPanel.Dock="Right" Content="Replace all"
+                                Click="OnReplaceAll" Margin="8,0,0,0" />
+                        <CheckBox x:Name="MatchCaseBox" DockPanel.Dock="Right" Content="Match case"
+                                  VerticalAlignment="Center" Margin="10,0,0,0" />
+                        <TextBox x:Name="ReplaceBox" Padding="4,3" VerticalContentAlignment="Center" />
+                    </DockPanel>
+
                     <StackPanel DockPanel.Dock="Bottom" Orientation="Horizontal" Margin="0,10,0,0">
                         <Button x:Name="ReadButton" Style="{StaticResource IconButton}" Content="&#xE768;"
                                 AutomationProperties.Name="Read" Click="OnReadText" ToolTip="Read" />
@@ -170,8 +259,11 @@
                                 <ColumnDefinition Width="*" />
                             </Grid.ColumnDefinitions>
                             <TextBlock Grid.Column="0" Text="Title" VerticalAlignment="Center" Margin="0,0,8,0" />
+                            <!-- One title, shown in both tabs, so saving from either uses the same name. -->
                             <TextBox x:Name="ScriptTitleBox" Grid.Column="1" Padding="4,4"
-                                     VerticalContentAlignment="Center" />
+                                     VerticalContentAlignment="Center"
+                                     Text="{Binding Text, ElementName=TextTitleBox, Mode=TwoWay,
+                                                    UpdateSourceTrigger=PropertyChanged}" />
                         </Grid>
 
                         <WrapPanel DockPanel.Dock="Top" Orientation="Horizontal" Margin="0,0,0,2">

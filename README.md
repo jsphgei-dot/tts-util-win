@@ -176,6 +176,31 @@ the top of the list. Both the chosen speaker and its starred speakers are rememb
 Favourites shows only the starred speakers, and shows everything again when pressed a second
 time.
 
+### Writing and editing
+
+The Text tab opens with a title box above the text and a save icon beside it. Type a name,
+press the icon or **Ctrl+S**, and the text is written to the script library under that name.
+The same title shows on the Scripts tab, so saving from either place uses one name.
+
+Under it is the editing toolbar. Scripts are plain text files, so there is no bold, no italic
+and no colour: everything here changes the words themselves and survives a round trip through
+a `.txt` file.
+
+| Tool | What it does |
+| --- | --- |
+| Undo, redo, cut, copy, paste | The usual, on the text box |
+| Bulleted list, numbered list | Marks the selected lines, or every line. Pressing again takes the marks off |
+| Indent, outdent | Four spaces on or off the front of each line |
+| AA, aa, Aa, Ab | Upper case, lower case, sentence case, title case. Words already in capitals are left alone |
+| Clean up | Join wrapped lines, collapse blank lines, tidy spacing |
+| Find and replace | A strip under the toolbar, also on **Ctrl+H** |
+| Size, Wrap | How the editor looks. Neither changes a saved file |
+
+A tool with text selected works on whole lines, never half of one. With nothing selected it
+works on everything. **Join wrapped lines** is the one to reach for after pasting from a PDF:
+it puts a sentence split over four lines back together, and leaves paragraphs and list items
+alone.
+
 ### Reading text
 
 Type or paste into the Text tab and press **Read**. **Read as I type** speaks each word as you

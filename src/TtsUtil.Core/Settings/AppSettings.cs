@@ -96,6 +96,9 @@ public sealed class AppSettings
     /// <summary>A release the reader said no to, so the same one is not offered again.</summary>
     public int DismissedUpdateCode { get; set; }
 
+    /// <summary>How big the text looks in the editor. Nothing that is saved changes.</summary>
+    public double EditorFontSize { get; set; } = 14;
+
     [JsonIgnore]
     public string ResolvedVoicesDirectory => InstallPaths.ResolveVoicesDirectory(
         VoicesDirectory,

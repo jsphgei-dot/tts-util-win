@@ -132,6 +132,7 @@ public partial class MainWindow : Window
         FilterMailBox.IsChecked = _settings.FilterMailToLinks;
         PopulateSpokenCharacterChoices();
         PopulateOutputFormatChoices();
+        LoadEditorToolbar();
         Mp3BitRateBox.Text = (_settings.Mp3BitRate / 1000).ToString();
         AllowedExtraBox.Text = _settings.AllowedExtraCharacters;
         VoicesDirBox.Text = _settings.ResolvedVoicesDirectory;
@@ -1049,7 +1050,10 @@ public partial class MainWindow : Window
         }
     }
 
-    private void OnSaveScript(object sender, RoutedEventArgs e)
+    private void OnSaveScript(object sender, RoutedEventArgs e) => SaveScriptFromText();
+
+    /// <summary>Saves the Text tab under the title beside it. Ctrl+S arrives here too.</summary>
+    internal void SaveScriptFromText()
     {
         var text = InputText.Text;
         if (string.IsNullOrWhiteSpace(text))
