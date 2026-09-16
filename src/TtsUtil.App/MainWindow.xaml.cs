@@ -133,6 +133,7 @@ public partial class MainWindow : Window
         PopulateSpokenCharacterChoices();
         PopulateOutputFormatChoices();
         LoadEditorToolbar();
+        LoadAliases();
         Mp3BitRateBox.Text = (_settings.Mp3BitRate / 1000).ToString();
         AllowedExtraBox.Text = _settings.AllowedExtraCharacters;
         VoicesDirBox.Text = _settings.ResolvedVoicesDirectory;
@@ -385,7 +386,7 @@ public partial class MainWindow : Window
             {
                 // Counting beats a byte length, which overstates the total on non ASCII text.
                 var totalCharacters = knownCharacters ?? TextMeasure.CountCharacters(readerFactory);
-                using var reader = readerFactory();
+                using var reader = AliasTextReader.Wrap(readerFactory(), ActiveAliases());
                 var runner = new SynthesisRunner(engine, options) { SpeakerId = speakerId, Speed = speed };
 
                 if (outputPath is null)

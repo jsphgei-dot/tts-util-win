@@ -391,6 +391,70 @@
                 </DockPanel>
             </TabItem>
 
+            <TabItem Header="Aliases">
+                <DockPanel Margin="12">
+                    <TextBlock DockPanel.Dock="Top" TextWrapping="Wrap" Foreground="#555" Margin="0,0,0,8"
+                               Text="An alias tells the voice to say one thing when it reads another. Rules run from the top down, and what one rule writes is left alone by the rules under it. Nothing here changes a saved script." />
+
+                    <StackPanel DockPanel.Dock="Bottom" Margin="0,8,0,0">
+                        <Grid Margin="0,0,0,8">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <TextBox x:Name="AliasMatchBox" Grid.Column="0" Padding="6,4" Margin="0,0,6,0"
+                                     ToolTip="The word or symbol to look for" />
+                            <TextBox x:Name="AliasSayAsBox" Grid.Column="1" Padding="6,4" Margin="0,0,6,0"
+                                     ToolTip="What the voice should say instead" />
+                            <Button x:Name="AddAliasButton" Grid.Column="2" Content="Add" Width="90"
+                                    Click="OnAddAlias" />
+                        </Grid>
+
+                        <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
+                            <Button x:Name="RemoveAliasButton" Content="Remove" Width="90" Click="OnRemoveAlias" />
+                            <Button x:Name="MoveAliasUpButton" Content="Move up" Width="90" Click="OnMoveAliasUp" />
+                            <Button x:Name="MoveAliasDownButton" Content="Move down" Width="90"
+                                    Click="OnMoveAliasDown" />
+                            <Button x:Name="ImportAliasesButton" Content="Import" Width="90"
+                                    Click="OnImportAliases" Margin="12,0,0,0"
+                                    ToolTip="Add the rules from a shared alias file" />
+                            <Button x:Name="ExportAliasesButton" Content="Export" Width="90"
+                                    Click="OnExportAliases" ToolTip="Write these rules to a file to share" />
+                            <TextBlock x:Name="AliasCountText" VerticalAlignment="Center" Foreground="#777"
+                                       Margin="12,0,0,0" />
+                        </StackPanel>
+
+                        <CheckBox x:Name="UseAliasesBox" Content="Use these aliases when reading"
+                                  Margin="0,0,0,8" Click="OnUseAliasesChanged" />
+
+                        <TextBlock Text="Try it" Foreground="#555" Margin="0,0,0,4" />
+                        <TextBox x:Name="AliasTryBox" Padding="6,4" TextChanged="OnAliasTryChanged"
+                                 ToolTip="Type a line here to see what the voice would be given" />
+                        <Border Background="#F4F4F4" BorderBrush="#DDD" BorderThickness="1" Padding="6,4"
+                                Margin="0,4,0,0">
+                            <TextBlock x:Name="AliasResultText" TextWrapping="Wrap" MinHeight="18" />
+                        </Border>
+                    </StackPanel>
+
+                    <DataGrid x:Name="AliasList" AutoGenerateColumns="False" CanUserAddRows="False"
+                              CanUserSortColumns="False" SelectionMode="Single" HeadersVisibility="Column"
+                              GridLinesVisibility="All" CellEditEnding="OnAliasRuleEdited">
+                        <DataGrid.Columns>
+                            <DataGridCheckBoxColumn Header="On" Width="40"
+                                                    Binding="{Binding Enabled, UpdateSourceTrigger=PropertyChanged}" />
+                            <DataGridTextColumn Header="When it reads" Width="*"
+                                                Binding="{Binding Match}" />
+                            <DataGridTextColumn Header="Say" Width="*" Binding="{Binding SayAs}" />
+                            <DataGridCheckBoxColumn Header="Whole word" Width="90"
+                                                    Binding="{Binding WholeWord, UpdateSourceTrigger=PropertyChanged}" />
+                            <DataGridCheckBoxColumn Header="Match case" Width="90"
+                                                    Binding="{Binding MatchCase, UpdateSourceTrigger=PropertyChanged}" />
+                        </DataGrid.Columns>
+                    </DataGrid>
+                </DockPanel>
+            </TabItem>
+
             <TabItem Header="Settings">
                 <ScrollViewer VerticalScrollBarVisibility="Auto">
                     <Grid Margin="12">

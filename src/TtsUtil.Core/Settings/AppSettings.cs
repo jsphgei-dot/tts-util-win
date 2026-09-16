@@ -99,6 +99,9 @@ public sealed class AppSettings
     /// <summary>How big the text looks in the editor. Nothing that is saved changes.</summary>
     public double EditorFontSize { get; set; } = 14;
 
+    /// <summary>Whether the alias list is applied to text on its way to the voice.</summary>
+    public bool UseAliases { get; set; } = true;
+
     [JsonIgnore]
     public string ResolvedVoicesDirectory => InstallPaths.ResolveVoicesDirectory(
         VoicesDirectory,
