@@ -1,5 +1,6 @@
 using System.IO;
 using System.Windows;
+using System.Windows.Controls.Primitives;
 using TtsUtil.Core.Settings;
 using TtsUtil.Core.Tts;
 using Xunit;
@@ -42,6 +43,26 @@ public sealed class SettingsMirrorTests : IDisposable
         catch (IOException)
         {
         }
+    }
+
+    /// <summary>Repeat is cycled from the Text tab as well as the queue, and both buttons show
+    /// the mode that is on.</summary>
+    [Fact]
+    public void TheRepeatButtonOnTheTextTabCyclesTheSameMode()
+    {
+        _wpf.Invoke(() =>
+        {
+            _window.Settings.Repeat = RepeatMode.Off;
+            _window.TextRepeatButton.RaiseEvent(new RoutedEventArgs(ButtonBase.ClickEvent));
+
+            Assert.Equal(RepeatMode.All, _window.Settings.Repeat);
+            Assert.Equal(_window.RepeatModeButton.Content, _window.TextRepeatButton.Content);
+
+            _window.TextRepeatButton.RaiseEvent(new RoutedEventArgs(ButtonBase.ClickEvent));
+
+            Assert.Equal(RepeatMode.One, _window.Settings.Repeat);
+            Assert.Equal(_window.RepeatModeButton.Content, _window.TextRepeatButton.Content);
+        });
     }
 
     [Fact]

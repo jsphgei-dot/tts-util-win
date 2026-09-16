@@ -835,10 +835,15 @@ public partial class MainWindow : Window
             _ => ("", "Repeat off"),
         };
 
-        RepeatModeButton.Content = glyph;
-        RepeatModeButton.Opacity = _settings.Repeat == RepeatMode.Off ? 0.45 : 1.0;
+        // The same mode is shown twice, on the queue and beside the media buttons on the Text tab.
+        foreach (var button in new[] { RepeatModeButton, TextRepeatButton })
+        {
+            button.Content = glyph;
+            button.Opacity = _settings.Repeat == RepeatMode.Off ? 0.45 : 1.0;
+            System.Windows.Automation.AutomationProperties.SetName(button, label);
+        }
+
         RepeatModeText.Text = label;
-        System.Windows.Automation.AutomationProperties.SetName(RepeatModeButton, label);
         if (SettingsRepeatBox is not null) SettingsRepeatBox.SelectedIndex = Array.IndexOf(RepeatModes, _settings.Repeat);
     }
 

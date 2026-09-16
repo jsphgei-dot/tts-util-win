@@ -403,6 +403,9 @@ The repeat button cycles three ways and the label beside it says which is in for
 | Repeat one | the same entry is read again, for as long as you leave it |
 | Repeat all | the queue moves on, and starts again from the top after the last entry |
 
+The same button sits beside the media buttons under the text, so a reading can be set looping
+without leaving the Text tab. Both show the mode that is on, dimmed when it is off.
+
 Repeat one works on a single reading as much as on the queue, so the Text tab can be left
 looping without pressing Read each time. Stop ends the repeat, whichever mode is set, and the
 mode is remembered between sessions. An entry that cannot be read (an empty script, a file that
