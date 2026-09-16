@@ -264,6 +264,27 @@ the files in any editor, or drop one in from elsewhere and it appears in the lis
 Characters Windows will not accept in a file name become spaces in the file name, so
 `Chapter 1: the beginning` is stored as `Chapter 1 the beginning.txt`.
 
+## The queue
+
+The panel on the right of the Scripts tab is a playlist. The **+** button adds whatever is
+selected in the script list, or the Text tab itself when nothing is selected, so a chapter you
+are drafting can sit in a run of saved ones. The arrows reorder, the bin removes the selected
+entry and the broom empties the queue. The play button starts from the top, a double click on
+an entry starts from there, and the highlight moves down the list as the reading moves on.
+
+The repeat button cycles three ways and the label beside it says which is in force:
+
+| Mode | What happens at the end of an entry |
+| --- | --- |
+| Off | the queue moves on, and stops after the last entry |
+| Repeat one | the same entry is read again, for as long as you leave it |
+| Repeat all | the queue moves on, and starts again from the top after the last entry |
+
+Repeat one works on a single reading as much as on the queue, so the Text tab can be left
+looping without pressing Read each time. Stop ends the repeat, whichever mode is set, and the
+mode is remembered between sessions. An entry that cannot be read (an empty script, a file
+that has gone) is reported and skipped rather than retried for ever.
+
 ## The status bar
 
 The bar along the bottom shows one message at a time, which used to mean a finished run, a
@@ -284,6 +305,13 @@ flight, **Read** becomes **Restart** and starts the same reading again from wher
 **Read from here**, and a double click in the line list, move the reading to that line without
 stopping first. Each of these stops the current run, waits for it to unwind, and starts the
 next one.
+
+A restart also sounds the same as the reading it replaces. The voice draws its prosody from a
+random generator that runs on from one sentence to the next, so reading a passage twice with
+the same voice gives two different deliveries. Every run therefore begins by winding the voice
+back to the state it loaded in, which takes about three quarters of a second on a Piper medium
+model and is reported as *Preparing the voice*. The same applies to a repeat and to each entry
+in the queue: a passage read twice is read identically.
 
 ## Reading from a line
 

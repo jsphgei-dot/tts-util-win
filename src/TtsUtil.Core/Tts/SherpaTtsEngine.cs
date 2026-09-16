@@ -13,11 +13,14 @@ namespace TtsUtil.Core.Tts;
 public sealed class SherpaTtsEngine : ITtsEngine
 {
     private readonly object _lock = new();
+    private readonly OfflineTtsConfig _config;
     private OfflineTts? _tts;
+    private bool _spoken;
 
-    private SherpaTtsEngine(VoiceDescriptor voice, OfflineTts tts)
+    private SherpaTtsEngine(VoiceDescriptor voice, OfflineTtsConfig config, OfflineTts tts)
     {
         Voice = voice;
+        _config = config;
         _tts = tts;
         SampleRate = tts.SampleRate;
         SpeakerCount = Math.Max(1, tts.NumSpeakers);
@@ -76,7 +79,7 @@ public sealed class SherpaTtsEngine : ITtsEngine
             throw new InvalidOperationException($"Failed to load the voice in \"{voice.Directory}\".");
         }
 
-        return new SherpaTtsEngine(voice, tts);
+        return new SherpaTtsEngine(voice, config, tts);
     }
 
     public void Synthesize(string text, int speakerId, float speed, SampleCallback onSamples, CancellationToken cancellationToken)
@@ -100,6 +103,39 @@ public sealed class SherpaTtsEngine : ITtsEngine
             var audio = tts.GenerateWithCallback(text, speed, sid, callback);
             GC.KeepAlive(callback);
             audio.Dispose();
+            _spoken = true;
+        }
+    }
+
+    /// <summary>
+    /// Sherpa draws the prosody noise from one generator that runs on across utterances, so the
+    /// second reading of a passage never matches the first. Only a reload winds that generator back.
+    /// </summary>
+    public bool NeedsVoiceReset
+    {
+        get
+        {
+            lock (_lock) return _spoken;
+        }
+    }
+
+    public void ResetVoice()
+    {
+        lock (_lock)
+        {
+            if (!_spoken || _tts is null) return;
+
+            var replacement = new OfflineTts(_config);
+            if (replacement.SampleRate <= 0)
+            {
+                // Keep reading with the voice in hand rather than failing over a cosmetic reset.
+                replacement.Dispose();
+                return;
+            }
+
+            _tts.Dispose();
+            _tts = replacement;
+            _spoken = false;
         }
     }
 

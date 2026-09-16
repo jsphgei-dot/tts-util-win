@@ -11,6 +11,19 @@ using TtsUtil.Core.Text;
 
 namespace TtsUtil.Core.Settings;
 
+/// <summary>What happens when a reading reaches its end.</summary>
+public enum RepeatMode
+{
+    /// <summary>Stop at the end, which is how the program has always behaved.</summary>
+    Off,
+
+    /// <summary>Start the same script again.</summary>
+    One,
+
+    /// <summary>Move to the next in the queue, and wrap round after the last.</summary>
+    All,
+}
+
 /// <summary>User settings, stored beside the executable when that is writable.</summary>
 public sealed class AppSettings
 {
@@ -70,6 +83,9 @@ public sealed class AppSettings
     public int Mp3BitRate { get; set; } = 128000;
 
     public int MaxChunkLength { get; set; } = 2000;
+
+    /// <summary>Whether a finished reading starts again, and whether the queue wraps.</summary>
+    public RepeatMode Repeat { get; set; } = RepeatMode.Off;
 
     [JsonIgnore]
     public string ResolvedVoicesDirectory => InstallPaths.ResolveVoicesDirectory(

@@ -140,8 +140,9 @@
             <TabItem Header="Scripts">
                 <Grid Margin="10">
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="300" />
+                        <ColumnDefinition Width="260" />
                         <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="260" />
                     </Grid.ColumnDefinitions>
 
                     <DockPanel Grid.Column="0" Margin="0,0,12,0">
@@ -161,22 +162,62 @@
                                      VerticalContentAlignment="Center" />
                         </Grid>
 
-                        <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Margin="0,0,0,8">
+                        <WrapPanel DockPanel.Dock="Top" Orientation="Horizontal" Margin="0,0,0,2">
                             <Button x:Name="SaveScriptButton" Content="Save from Text tab" Width="150"
-                                    Click="OnSaveScript" />
+                                    Margin="0,0,8,6" Click="OnSaveScript" />
                             <Button x:Name="OpenScriptButton" Content="Open in Text tab" Width="150"
-                                    Click="OnOpenScript" />
-                            <Button x:Name="RenameScriptButton" Content="Rename" Width="90" Click="OnRenameScript" />
-                            <Button x:Name="DeleteScriptButton" Content="Delete" Width="90" Click="OnDeleteScript" />
-                            <Button x:Name="ScriptFolderButton" Content="Open folder" Width="110"
+                                    Margin="0,0,8,6" Click="OnOpenScript" />
+                            <Button x:Name="RenameScriptButton" Content="Rename" Width="90" Margin="0,0,8,6"
+                                    Click="OnRenameScript" />
+                            <Button x:Name="DeleteScriptButton" Content="Delete" Width="90" Margin="0,0,8,6"
+                                    Click="OnDeleteScript" />
+                            <Button x:Name="ScriptFolderButton" Content="Open folder" Width="110" Margin="0,0,8,6"
                                     Click="OnOpenScriptFolder" />
-                        </StackPanel>
+                        </WrapPanel>
 
                         <TextBlock x:Name="ScriptFolderText" DockPanel.Dock="Bottom" Foreground="#555"
                                    TextWrapping="Wrap" Margin="0,8,0,0" />
 
                         <TextBox x:Name="ScriptPreview" IsReadOnly="True" TextWrapping="Wrap"
                                  VerticalScrollBarVisibility="Auto" Padding="6" Background="#FAFAFA" />
+                    </DockPanel>
+
+                    <DockPanel Grid.Column="2" Margin="12,0,0,0">
+                        <TextBlock DockPanel.Dock="Top" Text="Queue" FontWeight="SemiBold" Margin="0,0,0,4" />
+
+                        <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Margin="0,0,0,6">
+                            <Button x:Name="AddToQueueButton" Style="{StaticResource IconButton}" Content="&#xE710;"
+                                    AutomationProperties.Name="Add to queue" Click="OnAddToQueue"
+                                    ToolTip="Add the selected script, or the Text tab when none is selected" />
+                            <Button x:Name="RemoveFromQueueButton" Style="{StaticResource IconButton}"
+                                    Content="&#xE74D;" AutomationProperties.Name="Remove from queue"
+                                    Click="OnRemoveFromQueue" ToolTip="Remove the selected entry" />
+                            <Button x:Name="MoveQueueUpButton" Style="{StaticResource IconButton}" Content="&#xE74A;"
+                                    AutomationProperties.Name="Move up" Click="OnMoveQueueItemUp"
+                                    ToolTip="Move the selected entry up" />
+                            <Button x:Name="MoveQueueDownButton" Style="{StaticResource IconButton}"
+                                    Content="&#xE74B;" AutomationProperties.Name="Move down"
+                                    Click="OnMoveQueueItemDown" ToolTip="Move the selected entry down" />
+                            <Button x:Name="ClearQueueButton" Style="{StaticResource IconButton}" Content="&#xE894;"
+                                    AutomationProperties.Name="Clear the queue" Click="OnClearQueue"
+                                    ToolTip="Empty the queue" />
+                        </StackPanel>
+
+                        <StackPanel DockPanel.Dock="Bottom" Orientation="Horizontal" Margin="0,8,0,0">
+                            <Button x:Name="PlayQueueButton" Style="{StaticResource IconButton}" Content="&#xE768;"
+                                    AutomationProperties.Name="Play the queue" Click="OnPlayQueue"
+                                    ToolTip="Play from the selected entry, or from the top" />
+                            <Button x:Name="RepeatModeButton" Style="{StaticResource IconButton}" Content="&#xE8EE;"
+                                    Click="OnCycleRepeat"
+                                    ToolTip="Repeat off, then the whole queue, then one entry" />
+                            <TextBlock x:Name="RepeatModeText" VerticalAlignment="Center" Margin="4,0,0,0"
+                                       Foreground="#555" />
+                            <TextBlock x:Name="QueueCountText" VerticalAlignment="Center" Margin="10,0,0,0"
+                                       Foreground="#555" />
+                        </StackPanel>
+
+                        <ListBox x:Name="QueueList" HorizontalContentAlignment="Stretch"
+                                 MouseDoubleClick="OnQueueDoubleClick" />
                     </DockPanel>
                 </Grid>
             </TabItem>

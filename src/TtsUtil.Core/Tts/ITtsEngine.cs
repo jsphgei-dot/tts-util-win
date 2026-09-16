@@ -20,4 +20,12 @@ public interface ITtsEngine : IDisposable
 
     /// <summary>Synthesises one utterance, delivering samples as they are produced.</summary>
     void Synthesize(string text, int speakerId, float speed, SampleCallback onSamples, CancellationToken cancellationToken);
+
+    /// <summary>True once the voice has spoken, so its random state no longer matches a fresh load.</summary>
+    bool NeedsVoiceReset => false;
+
+    /// <summary>Winds the voice back to the state it was loaded in, so the same text sounds the same.</summary>
+    void ResetVoice()
+    {
+    }
 }

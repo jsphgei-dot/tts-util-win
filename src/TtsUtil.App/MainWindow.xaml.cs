@@ -66,6 +66,7 @@ public partial class MainWindow : Window
         _settings = settings;
         _loadVoiceOnSelection = loadVoiceOnSelection;
         SpeakSnippet = snippet => _ = SpeakSnippetAsync(snippet);
+        EntryPlayer = PlayEntryAsync;
         InitializeComponent();
         LoadSettingsIntoUi();
         _initialising = false;
@@ -73,6 +74,8 @@ public partial class MainWindow : Window
         RefreshVoiceCatalogue();
         RebuildLineList();
         RefreshScripts();
+        RefreshQueue();
+        ShowRepeatMode();
     }
 
     /// <summary>Where saved scripts live. Tests point it at a temporary folder.</summary>
@@ -326,17 +329,24 @@ public partial class MainWindow : Window
     private string ActiveSpeakerLabel() =>
         _speakers.FirstOrDefault(speaker => speaker.Id == _speakerId)?.Label ?? _speakerId.ToString();
 
-    private async Task RunSynthesisAsync(Func<TextReader> readerFactory, string? outputPath,
+    private async Task<RunOutcome> RunSynthesisAsync(Func<TextReader> readerFactory, string? outputPath,
         long? knownCharacters = null, long startOffset = 0)
     {
         if (_busy)
         {
             SetStatus("Already working. Press Stop first.");
-            return;
+            return RunOutcome.Failed;
         }
 
         var engine = await EnsureEngineAsync();
-        if (engine is null) return;
+        if (engine is null) return RunOutcome.Failed;
+
+        // Every run starts from the voice's loaded state, so a restart or a repeat sounds the same.
+        if (engine.NeedsVoiceReset)
+        {
+            SetStatus("Preparing the voice...");
+            await Task.Run(engine.ResetVoice);
+        }
 
         CancelTypingPlayback();
 
@@ -411,7 +421,7 @@ public partial class MainWindow : Window
             {
                 SetStatus("Nothing was left to read: every character was filtered. " +
                           "Check \"Characters read aloud\" in Settings.");
-                return;
+                return RunOutcome.Failed;
             }
 
             var note = filtered > 0 ? $" {filtered} character(s) filtered." : string.Empty;
@@ -424,15 +434,19 @@ public partial class MainWindow : Window
             {
                 SetStatusWithFileLink($"Wrote {Path.GetFileName(outputPath)}.{note} ", outputPath);
             }
+
+            return RunOutcome.Finished;
         }
         catch (OperationCanceledException)
         {
             SetStatus("Stopped.");
+            return RunOutcome.Stopped;
         }
         catch (Exception ex)
         {
             SetStatus($"Error: {ex.Message}");
             ErrorReporter(ex.Message, "Synthesis failed");
+            return RunOutcome.Failed;
         }
         finally
         {
@@ -522,11 +536,217 @@ public partial class MainWindow : Window
 
         LastReadStartOffset = offset;
         _rerun = () => ReadFrom(offset);
-        CurrentRun = RunSynthesisAsync(() => new StringReader(remainder), null, remainder.Length, offset);
+        CurrentRun = ReadRepeatedlyAsync(remainder, offset);
+    }
+
+    /// <summary>Reads the same text again while repeat is on, until something stops it.</summary>
+    private async Task ReadRepeatedlyAsync(string text, long offset)
+    {
+        do
+        {
+            var outcome = await RunSynthesisAsync(() => new StringReader(text), null, text.Length, offset);
+            if (outcome != RunOutcome.Finished) return;
+        }
+        while (_settings.Repeat != RepeatMode.Off);
     }
 
     /// <summary>Where the last Read started, which is what "read from here" actually decides.</summary>
     internal int LastReadStartOffset { get; private set; } = -1;
+
+    // --- The queue ---
+
+    private readonly List<QueueEntry> _queue = new();
+
+    /// <summary>What is waiting to be read, in the order it will be read.</summary>
+    internal IReadOnlyList<QueueEntry> Queue => _queue;
+
+    /// <summary>Reads one entry. Replaced in tests, which have no voice to read with.</summary>
+    internal Func<QueueEntry, Task<RunOutcome>> EntryPlayer { get; set; }
+
+    /// <summary>Plays from one entry on, obeying repeat, until it is stopped or runs out.</summary>
+    internal async Task PlaySequenceAsync(IReadOnlyList<QueueEntry> items, int startIndex)
+    {
+        if (items.Count == 0)
+        {
+            SetStatus("The queue is empty. Add a script to it first.");
+            return;
+        }
+
+        var index = Math.Clamp(startIndex, 0, items.Count - 1);
+        var readThisPass = 0;
+
+        while (true)
+        {
+            if (ReferenceEquals(items, _queue)) ShowQueuePosition(index);
+
+            var outcome = await EntryPlayer(items[index]);
+            if (outcome == RunOutcome.Stopped) return;
+            if (outcome == RunOutcome.Finished) readThisPass++;
+
+            var repeat = _settings.Repeat;
+
+            if (repeat == RepeatMode.One)
+            {
+                // An entry that cannot be read would otherwise spin here for ever.
+                if (outcome != RunOutcome.Finished) return;
+                continue;
+            }
+
+            var next = index + 1;
+
+            if (next >= items.Count)
+            {
+                if (repeat != RepeatMode.All || readThisPass == 0) return;
+
+                next = 0;
+                readThisPass = 0;
+            }
+
+            index = next;
+        }
+    }
+
+    private async Task<RunOutcome> PlayEntryAsync(QueueEntry entry)
+    {
+        var text = TextFor(entry);
+        if (string.IsNullOrWhiteSpace(text))
+        {
+            SetStatus($"{entry.Title} has nothing to read.");
+            return RunOutcome.Failed;
+        }
+
+        SetStatus($"Reading {entry.Title}.");
+        return await RunSynthesisAsync(() => new StringReader(text), null, text.Length);
+    }
+
+    private string TextFor(QueueEntry entry)
+    {
+        if (entry.ScriptTitle is null) return InputText.Text;
+
+        try
+        {
+            return Scripts.Load(entry.ScriptTitle);
+        }
+        catch (IOException ex)
+        {
+            SetStatus($"Could not open {entry.Title}: {ex.Message}");
+            return string.Empty;
+        }
+    }
+
+    private void OnAddToQueue(object sender, RoutedEventArgs e)
+    {
+        var entry = ScriptList.SelectedItem is SavedScript script
+            ? QueueEntry.ForScript(script.Title)
+            : QueueEntry.ForTextTab();
+
+        _queue.Add(entry);
+        RefreshQueue();
+        SetStatus($"Added {entry.Title} to the queue.");
+    }
+
+    private void OnRemoveFromQueue(object sender, RoutedEventArgs e)
+    {
+        var index = QueueList.SelectedIndex;
+        if (index < 0) return;
+
+        _queue.RemoveAt(index);
+        RefreshQueue();
+        QueueList.SelectedIndex = Math.Min(index, _queue.Count - 1);
+    }
+
+    private void OnMoveQueueItemUp(object sender, RoutedEventArgs e) => MoveQueueItem(-1);
+
+    private void OnMoveQueueItemDown(object sender, RoutedEventArgs e) => MoveQueueItem(1);
+
+    private void MoveQueueItem(int by)
+    {
+        var from = QueueList.SelectedIndex;
+        var to = from + by;
+        if (from < 0 || to < 0 || to >= _queue.Count) return;
+
+        (_queue[from], _queue[to]) = (_queue[to], _queue[from]);
+        RefreshQueue();
+        QueueList.SelectedIndex = to;
+    }
+
+    private void OnClearQueue(object sender, RoutedEventArgs e)
+    {
+        _queue.Clear();
+        RefreshQueue();
+    }
+
+    private void OnPlayQueue(object sender, RoutedEventArgs e)
+    {
+        if (_busy && _rerun is not null)
+        {
+            _ = RestartAsync(_rerun);
+            return;
+        }
+
+        StartQueue(Math.Max(QueueList.SelectedIndex, 0));
+    }
+
+    private void OnQueueDoubleClick(object sender, MouseButtonEventArgs e)
+    {
+        if (QueueList.SelectedIndex < 0) return;
+
+        if (_busy)
+        {
+            var from = QueueList.SelectedIndex;
+            _ = RestartAsync(() => StartQueue(from));
+            return;
+        }
+
+        StartQueue(QueueList.SelectedIndex);
+    }
+
+    private void StartQueue(int index)
+    {
+        _rerun = () => StartQueue(index);
+        CurrentRun = PlaySequenceAsync(_queue, index);
+    }
+
+    internal void RefreshQueue()
+    {
+        QueueList.Items.Clear();
+        foreach (var entry in _queue) QueueList.Items.Add(entry);
+        QueueCountText.Text = _queue.Count == 0 ? "Nothing queued" : $"{_queue.Count} queued";
+    }
+
+    private void ShowQueuePosition(int index)
+    {
+        if (index < QueueList.Items.Count) QueueList.SelectedIndex = index;
+    }
+
+    private void OnCycleRepeat(object sender, RoutedEventArgs e)
+    {
+        _settings.Repeat = _settings.Repeat switch
+        {
+            RepeatMode.Off => RepeatMode.All,
+            RepeatMode.All => RepeatMode.One,
+            _ => RepeatMode.Off,
+        };
+
+        _settings.Save();
+        ShowRepeatMode();
+    }
+
+    /// <summary>Glyphs are from Segoe MDL2 Assets, which every supported Windows carries.</summary>
+    private void ShowRepeatMode()
+    {
+        var (glyph, label) = _settings.Repeat switch
+        {
+            RepeatMode.One => ("", "Repeat one"),
+            RepeatMode.All => ("", "Repeat all"),
+            _ => ("", "Repeat off"),
+        };
+
+        RepeatModeButton.Content = glyph;
+        RepeatModeButton.Opacity = _settings.Repeat == RepeatMode.Off ? 0.45 : 1.0;
+        RepeatModeText.Text = label;
+        System.Windows.Automation.AutomationProperties.SetName(RepeatModeButton, label);
+    }
 
     // --- The line list ---
 
