@@ -24,14 +24,14 @@ public sealed class AudioPlayerSink : IAudioPlayback
     private bool _disposed;
     private volatile bool _paused;
 
-    public AudioPlayerSink(int sampleRate, CancellationToken cancellationToken)
+    public AudioPlayerSink(int sampleRate, CancellationToken cancellationToken, TimeSpan? capacity = null)
     {
         _cancellationToken = cancellationToken;
 
         var format = WaveFormat.CreateIeeeFloatWaveFormat(sampleRate, 1);
         _buffer = new BufferedWaveProvider(format)
         {
-            BufferDuration = TimeSpan.FromSeconds(30),
+            BufferDuration = capacity ?? TimeSpan.FromSeconds(30),
             DiscardOnBufferOverflow = false,
             ReadFully = true,
         };
@@ -96,10 +96,7 @@ public sealed class AudioPlayerSink : IAudioPlayback
             _scratch[offset++] = (byte)(bits >> 24);
         }
 
-        WaitForRoom();
-        if (_cancellationToken.IsCancellationRequested) return;
-        _buffer.AddSamples(_scratch, 0, needed);
-        _bytesQueued += needed;
+        Write(_scratch, needed);
     }
 
     public void WriteSilence(int milliseconds)
@@ -117,10 +114,7 @@ public sealed class AudioPlayerSink : IAudioPlayback
             count -= count % format.BlockAlign;
             if (count == 0) break;
 
-            WaitForRoom();
-            if (_cancellationToken.IsCancellationRequested) return;
-            _buffer.AddSamples(block, 0, count);
-            _bytesQueued += count;
+            Write(block, count);
             remaining -= count;
         }
     }
@@ -171,6 +165,28 @@ public sealed class AudioPlayerSink : IAudioPlayback
         var drained = _bytesQueued - _buffer.BufferedBytes;
         var inDevice = _buffer.WaveFormat.AverageBytesPerSecond * (long)_output.DesiredLatency / 1000;
         return Math.Max(0, drained - inDevice);
+    }
+
+    /// <summary>Hands audio over in pieces the buffer has room for, since a Windows voice
+    /// arrives as one whole utterance and the buffer throws rather than waiting.</summary>
+    private void Write(byte[] data, int count)
+    {
+        var align = _buffer.WaveFormat.BlockAlign;
+        var offset = 0;
+
+        while (offset < count)
+        {
+            WaitForRoom();
+            if (_cancellationToken.IsCancellationRequested) return;
+
+            var take = Math.Min(count - offset, _buffer.BufferLength - _buffer.BufferedBytes);
+            take -= take % align;
+            if (take == 0) continue;
+
+            _buffer.AddSamples(data, offset, take);
+            _bytesQueued += take;
+            offset += take;
+        }
     }
 
     private void WaitForRoom()
