@@ -21,6 +21,7 @@
 * **Text, files, PDFs and scans.** Scanned pages go through the OCR already in Windows.
 * **Listen or keep it.** Play it back, or write the same input to an MP3 or a wave file.
 * **Queue and repeat.** Line up a run of scripts, loop one of them, or loop the lot.
+* **Batch conversion.** Tick several saved scripts and write them all to audio files at once.
 * **Installer or portable.** One build gives both, and the portable copy touches nothing
   outside its own folder.
 
@@ -293,6 +294,12 @@ the files in any editor, or drop one in from elsewhere and it appears in the lis
 
 Characters Windows will not accept in a file name become spaces, so `Chapter 1: the beginning`
 is stored as `Chapter 1 the beginning.txt`.
+
+Each script in the list has a tick box. Tick the ones you want, press **Convert ticked to
+audio**, choose a folder, and each is written as its own file in the format set in Settings.
+They are written one at a time; **Stop** gives up on the rest. A name already in use gains a
+number rather than writing over the file that is there. **Tick all** and **Clear** work the
+list in one go.
 
 ### The queue
 

@@ -109,12 +109,12 @@ public sealed class QueueTests : IDisposable
         _wpf.Invoke(() =>
         {
             _window.RefreshScripts();
-            _window.ScriptList.SelectedItem = _window.ScriptList.Items.Cast<SavedScript>()
+            _window.ScriptList.SelectedItem = _window.ScriptList.Items.Cast<ScriptRow>()
                 .First(s => s.Title == "First");
         });
         Click(_window.AddToQueueButton);
 
-        _wpf.Invoke(() => _window.ScriptList.SelectedItem = _window.ScriptList.Items.Cast<SavedScript>()
+        _wpf.Invoke(() => _window.ScriptList.SelectedItem = _window.ScriptList.Items.Cast<ScriptRow>()
             .First(s => s.Title == "Second"));
         Click(_window.AddToQueueButton);
 

@@ -69,6 +69,7 @@ public partial class MainWindow : Window
         _settings = settings;
         _loadVoiceOnSelection = loadVoiceOnSelection;
         SpeakSnippet = snippet => _ = SpeakSnippetAsync(snippet);
+        BatchFolderPicker = () => AskForDirectory(_settings.ResolvedOutputDirectory);
         EntryPlayer = PlayEntryAsync;
         InitializeComponent();
         LoadSettingsIntoUi();
@@ -654,7 +655,7 @@ public partial class MainWindow : Window
 
     private void OnAddToQueue(object sender, RoutedEventArgs e)
     {
-        var entry = ScriptList.SelectedItem is SavedScript script
+        var entry = SelectedScript is SavedScript script
             ? QueueEntry.ForScript(script.Title)
             : QueueEntry.ForTextTab();
 
@@ -1066,26 +1067,33 @@ public partial class MainWindow : Window
 
     // --- Saved scripts ---
 
+    /// <summary>The script the list is on, or null when the list is empty.</summary>
+    private SavedScript? SelectedScript => (ScriptList.SelectedItem as ScriptRow)?.Script;
+
     /// <summary>Reloads the script list, keeping the selected title where it still exists.</summary>
     internal void RefreshScripts()
     {
-        var selected = (ScriptList.SelectedItem as SavedScript)?.Title;
+        var selected = SelectedScript?.Title;
+        var ticked = ChosenScripts().Select(s => s.Title).ToHashSet(StringComparer.OrdinalIgnoreCase);
 
         ScriptList.Items.Clear();
-        foreach (var script in Scripts.List()) ScriptList.Items.Add(script);
+        foreach (var script in Scripts.List())
+        {
+            ScriptList.Items.Add(new ScriptRow(script) { Chosen = ticked.Contains(script.Title) });
+        }
 
         ScriptFolderText.Text = $"Scripts folder: {Scripts.Directory}";
 
         if (selected is null) return;
 
-        var found = ScriptList.Items.Cast<SavedScript>()
+        var found = ScriptList.Items.Cast<ScriptRow>()
             .FirstOrDefault(s => string.Equals(s.Title, selected, StringComparison.OrdinalIgnoreCase));
         if (found is not null) ScriptList.SelectedItem = found;
     }
 
     private void OnScriptSelected(object sender, SelectionChangedEventArgs e)
     {
-        if (ScriptList.SelectedItem is not SavedScript script) return;
+        if (SelectedScript is not SavedScript script) return;
 
         ScriptTitleBox.Text = script.Title;
 
@@ -1124,7 +1132,7 @@ public partial class MainWindow : Window
             var existed = Scripts.Exists(title);
             var saved = Scripts.Save(title, text);
             RefreshScripts();
-            ScriptList.SelectedItem = ScriptList.Items.Cast<SavedScript>()
+            ScriptList.SelectedItem = ScriptList.Items.Cast<ScriptRow>()
                 .FirstOrDefault(s => s.Title == saved.Title);
 
             SetStatus(existed ? $"Replaced {saved.Title}." : $"Saved {saved.Title}.");
@@ -1138,7 +1146,7 @@ public partial class MainWindow : Window
 
     private void OnOpenScript(object sender, RoutedEventArgs e)
     {
-        if (ScriptList.SelectedItem is not SavedScript script)
+        if (SelectedScript is not SavedScript script)
         {
             SetStatus("Select a script first.");
             return;
@@ -1159,7 +1167,7 @@ public partial class MainWindow : Window
 
     private void OnRenameScript(object sender, RoutedEventArgs e)
     {
-        if (ScriptList.SelectedItem is not SavedScript script)
+        if (SelectedScript is not SavedScript script)
         {
             SetStatus("Select a script first.");
             return;
@@ -1184,7 +1192,7 @@ public partial class MainWindow : Window
 
     private void OnDeleteScript(object sender, RoutedEventArgs e)
     {
-        if (ScriptList.SelectedItem is not SavedScript script)
+        if (SelectedScript is not SavedScript script)
         {
             SetStatus("Select a script first.");
             return;

@@ -109,7 +109,7 @@ public sealed class ScriptsTabTests : IDisposable
         _wpf.Invoke(() =>
         {
             window.RefreshScripts();
-            window.ScriptList.SelectedItem = window.ScriptList.Items.Cast<SavedScript>()
+            window.ScriptList.SelectedItem = window.ScriptList.Items.Cast<ScriptRow>()
                 .First(s => s.Title == "Other");
             window.ScriptTitleBox.Text = "Keep";
         });
