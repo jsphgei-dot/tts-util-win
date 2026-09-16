@@ -692,15 +692,6 @@
                         <Button Grid.Row="19" Grid.Column="3" Tag="use-windows-voices"
                                 Style="{StaticResource HelpButton}" Click="OnSettingsHelp" />
 
-                        <CheckBox x:Name="CheckForUpdatesBox" Grid.Row="16" Grid.Column="0" Grid.ColumnSpan="2"
-                                  Content="Look for a new version when the program starts" Margin="0,4,0,8"
-                                  VerticalAlignment="Center" />
-                        <Button x:Name="CheckForUpdatesButton" Grid.Row="16" Grid.Column="2"
-                                Content="Check now" Margin="8,0,0,8" Click="OnCheckForUpdates"
-                                ToolTip="Look for a new version now, whatever the box beside it says" />
-                        <Button Grid.Row="16" Grid.Column="3" Tag="check-for-updates"
-                                Style="{StaticResource HelpButton}" Click="OnSettingsHelp" />
-
                         <Popup x:Name="SettingsHelpPopup" Placement="Left" StaysOpen="False"
                                AllowsTransparency="True" HorizontalOffset="-6">
                             <Border Background="White" BorderBrush="#BBB" BorderThickness="1"
@@ -784,6 +775,39 @@
                                        TextTrimming="CharacterEllipsis" />
                         </StackPanel>
                     </Grid>
+                </ScrollViewer>
+            </TabItem>
+
+            <TabItem x:Name="UpdatesTab">
+                <TabItem.Header>
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="Updates" />
+                        <TextBlock x:Name="UpdatesTabMark" Text="!" FontWeight="Bold" Foreground="#C0392B"
+                                   Margin="4,0,0,0" Visibility="Collapsed" />
+                    </StackPanel>
+                </TabItem.Header>
+                <ScrollViewer VerticalScrollBarVisibility="Auto">
+                    <StackPanel Margin="14">
+                        <TextBlock x:Name="UpdateVersionText" FontSize="16" FontWeight="SemiBold"
+                                   Margin="0,0,0,2" />
+                        <TextBlock x:Name="UpdateStateText" TextWrapping="Wrap" Margin="0,0,0,12" />
+
+                        <CheckBox x:Name="CheckForUpdatesBox" Margin="0,0,0,10"
+                                  Content="Look for a new version when the program starts"
+                                  Click="OnCheckForUpdatesChanged" />
+                        <StackPanel Orientation="Horizontal" Margin="0,0,0,14">
+                            <Button x:Name="CheckForUpdatesButton" Content="Check now" MinWidth="110"
+                                    Click="OnCheckForUpdates"
+                                    ToolTip="Look for a new version now, whatever the box says" />
+                            <TextBlock x:Name="LastUpdateCheckText" VerticalAlignment="Center"
+                                       Foreground="#777" Margin="12,0,0,0" />
+                        </StackPanel>
+
+                        <TextBlock TextWrapping="Wrap" Foreground="#555" Margin="0,0,0,8"
+                                   Text="The check asks a single published file whether a newer release exists. Nothing about you is sent: no identifier, no text, no list of voices, and no request at all while the box is clear." />
+                        <TextBlock TextWrapping="Wrap" Foreground="#555"
+                                   Text="An installed copy can offer to download the installer and run it, after checking the download against its published checksum. A portable copy is given the link instead, since replacing the folder it runs from is yours to do." />
+                    </StackPanel>
                 </ScrollViewer>
             </TabItem>
 

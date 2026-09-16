@@ -61,6 +61,34 @@ public partial class MainWindow
         UpdateCheck = RunUpdateCheckAsync(now, asked: false);
     }
 
+    /// <summary>The box lives on its own tab, so it saves itself rather than waiting for Apply.</summary>
+    private void OnCheckForUpdatesChanged(object sender, RoutedEventArgs e)
+    {
+        _settings.CheckForUpdates = CheckForUpdatesBox.IsChecked == true;
+        _settings.Save();
+    }
+
+    /// <summary>Fills the Updates tab with what is known before any check has run.</summary>
+    internal void ShowUpdateState()
+    {
+        UpdateVersionText.Text = $"You are running {AppVersion.Name}";
+        UpdateStateText.Text = "Press Check now to ask the release page for a newer version.";
+
+        LastUpdateCheckText.Text = _settings.LastUpdateCheckUtc is DateTime last
+            ? $"Last checked {last.ToLocalTime():d MMM yyyy, HH:mm}"
+            : "Not checked yet";
+    }
+
+    /// <summary>The mark on the tab header, which is the only nagging a new version does.</summary>
+    private void MarkNewVersion(UpdateManifest? manifest)
+    {
+        UpdatesTabMark.Visibility = manifest is null ? Visibility.Collapsed : Visibility.Visible;
+
+        UpdateStateText.Text = manifest is null
+            ? $"{AppVersion.Name} is the newest version."
+            : $"Version {manifest.VersionName} is available.";
+    }
+
     /// <summary>Looks now, whatever the schedule says, and reports what it finds either way.</summary>
     private void OnCheckForUpdates(object sender, RoutedEventArgs e)
     {
@@ -107,14 +135,19 @@ public partial class MainWindow
 
         _settings.LastUpdateCheckUtc = nowUtc;
         _settings.Save();
+        LastUpdateCheckText.Text = $"Last checked {nowUtc.ToLocalTime():d MMM yyyy, HH:mm}";
 
         // Asking outright outranks an earlier no to that same version.
         var dismissed = asked ? 0 : _settings.DismissedUpdateCode;
         var action = UpdateDecision.For(manifest, AppVersion.Code, IsPortableCopy(), dismissed);
 
-        if (action == UpdateAction.None && asked)
+        // The mark follows the version itself, so an offer turned down still shows on the tab.
+        MarkNewVersion(manifest.VersionCode > AppVersion.Code ? manifest : null);
+
+        if (action == UpdateAction.None)
         {
-            SetStatus($"You are running {AppVersion.Name}, which is the newest version.");
+            if (asked) SetStatus($"You are running {AppVersion.Name}, which is the newest version.");
+
             return;
         }
 

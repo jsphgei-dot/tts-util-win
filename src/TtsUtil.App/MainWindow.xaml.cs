@@ -191,6 +191,7 @@ public partial class MainWindow : Window
         ReadAsYouTypeBox.IsChecked = _settings.ReadAsYouType;
         PauseWhenUnfocusedBox.IsChecked = _settings.PauseWhenUnfocused;
         CheckForUpdatesBox.IsChecked = _settings.CheckForUpdates;
+        ShowUpdateState();
         UseWindowsVoicesBox.IsChecked = _settings.UseWindowsVoices;
         SaveScriptWithAudioBox.IsChecked = _settings.SaveScriptWithAudio;
         SpeedSlider.Value = Math.Clamp(_settings.Speed, 0.5, 2.0);

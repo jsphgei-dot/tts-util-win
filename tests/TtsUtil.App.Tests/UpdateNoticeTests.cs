@@ -118,6 +118,25 @@ public sealed class UpdateNoticeTests : IDisposable
         });
     }
 
+    /// <summary>The tab wears a mark while a newer version is out, even after the offer is
+    /// turned down.</summary>
+    [Fact]
+    public async Task TheUpdatesTabIsMarkedWhileANewerVersionIsOut()
+    {
+        var window = CreateWindow(portable: false, accept: false);
+
+        _wpf.Invoke(() => Assert.Equal(Visibility.Collapsed, window.UpdatesTabMark.Visibility));
+
+        await RunCheck(window);
+
+        _wpf.Invoke(() => Assert.Equal(Visibility.Visible, window.UpdatesTabMark.Visibility));
+
+        _wpf.Invoke(() => window.UpdateFetcher = _ => Task.FromResult<UpdateManifest?>(Manifest(code: 1)));
+        await CheckNow(window);
+
+        _wpf.Invoke(() => Assert.Equal(Visibility.Collapsed, window.UpdatesTabMark.Visibility));
+    }
+
     private async Task CheckNow(MainWindow window)
     {
         _wpf.Invoke(() => window.CheckForUpdatesButton.RaiseEvent(

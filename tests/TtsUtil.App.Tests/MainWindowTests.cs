@@ -56,10 +56,18 @@ public sealed class MainWindowTests : IDisposable
         _wpf.Invoke(() =>
         {
             Assert.Equal("TTS Util Win", window.Title);
-            var headers = window.Tabs.Items.Cast<TabItem>().Select(t => t.Header.ToString()).ToList();
-            Assert.Equal(new[] { "Text", "Scripts", "File", "Voices", "Aliases", "Settings", "About" }, headers);
+            var headers = window.Tabs.Items.Cast<TabItem>().Select(Header).ToList();
+            Assert.Equal(
+                new[] { "Text", "Scripts", "File", "Voices", "Aliases", "Settings", "Updates", "About" },
+                headers);
         });
     }
+
+    /// <summary>The Updates tab carries a mark beside its name, so its header is a panel.</summary>
+    private static string Header(TabItem tab) => tab.Header is string text
+        ? text
+        : ((System.Windows.Controls.Panel)tab.Header).Children
+            .OfType<System.Windows.Controls.TextBlock>().First().Text;
 
     [Fact]
     public void AnEmptyVoicesDirectoryProducesGuidanceInTheStatusBar()
