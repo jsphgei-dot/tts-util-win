@@ -50,6 +50,31 @@ public sealed class DocumentTabsTests : IDisposable
         });
     }
 
+    /// <summary>Eight tabs stay on one line, so closing one cannot reshuffle the rows.</summary>
+    [Fact]
+    public void TheTabStripIsOneRowThatScrollsSideways()
+    {
+        var window = CreateWindow();
+
+        _wpf.Invoke(() =>
+        {
+            for (var more = 0; more < 7; more++) window.NewDocument();
+
+            window.DocumentTabs.ApplyTemplate();
+            var strip = window.DocumentTabs.Template.FindName("HeaderScroller", window.DocumentTabs);
+            var scroller = Assert.IsType<System.Windows.Controls.ScrollViewer>(strip);
+            var panel = Assert.IsType<System.Windows.Controls.StackPanel>(scroller.Content);
+
+            Assert.Equal(System.Windows.Controls.Orientation.Horizontal, panel.Orientation);
+            Assert.Equal(System.Windows.Controls.ScrollBarVisibility.Disabled, scroller.VerticalScrollBarVisibility);
+
+            window.CloseDocument(window.Documents[3]);
+            Assert.Equal(7, window.Documents.Count);
+
+            window.Close();
+        });
+    }
+
     [Fact]
     public void ClosingTheLastTabEmptiesItInstead()
     {

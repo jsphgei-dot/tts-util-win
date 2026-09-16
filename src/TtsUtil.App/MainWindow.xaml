@@ -261,6 +261,7 @@
                         </Grid.ColumnDefinitions>
 
                         <TabControl x:Name="DocumentTabs" Grid.Column="0" Padding="0"
+                                    Style="{StaticResource ScrollingTabs}"
                                     SelectionChanged="OnDocumentTabChanged" />
 
                         <GridSplitter x:Name="LineSplitter" Grid.Column="1" Width="6"

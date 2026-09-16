@@ -81,5 +81,34 @@
                 </Setter.Value>
             </Setter>
         </Style>
+        <!-- Tab headers stay on one line and scroll sideways, rather than wrapping into rows
+             that reshuffle as tabs are closed. -->
+        <Style x:Key="ScrollingTabs" TargetType="TabControl">
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="TabControl">
+                        <DockPanel KeyboardNavigation.TabNavigation="Local">
+                            <ScrollViewer x:Name="HeaderScroller" DockPanel.Dock="Top" Focusable="False"
+                                          HorizontalScrollBarVisibility="Auto"
+                                          VerticalScrollBarVisibility="Disabled">
+                                <StackPanel IsItemsHost="True" Orientation="Horizontal" Margin="2,2,2,0"
+                                            KeyboardNavigation.TabIndex="1" />
+                            </ScrollViewer>
+                            <Border Background="{TemplateBinding Background}"
+                                    BorderBrush="{TemplateBinding BorderBrush}"
+                                    BorderThickness="{TemplateBinding BorderThickness}"
+                                    KeyboardNavigation.TabNavigation="Local"
+                                    KeyboardNavigation.DirectionalNavigation="Contained"
+                                    KeyboardNavigation.TabIndex="2">
+                                <ContentPresenter x:Name="PART_SelectedContentHost"
+                                                  ContentSource="SelectedContent"
+                                                  Margin="{TemplateBinding Padding}"
+                                                  SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" />
+                            </Border>
+                        </DockPanel>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
     </Application.Resources>
 </Application>

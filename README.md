@@ -3,7 +3,7 @@
 ![version](https://img.shields.io/badge/version-0.7.0--beta-blue)
 ![platform](https://img.shields.io/badge/platform-Windows%2010%20%7C%2011%20x64-0078D6)
 ![built with](https://img.shields.io/badge/.NET-6.0-512BD4)
-![tests](https://img.shields.io/badge/tests-405%20passing-brightgreen)
+![tests](https://img.shields.io/badge/tests-406%20passing-brightgreen)
 ![license](https://img.shields.io/badge/license-Apache%202.0-lightgrey)
 
 > Read anything you can type, paste or open out loud, entirely on your own machine.
@@ -200,6 +200,10 @@ on the Scripts tab, so saving from either place uses one name.
 The icon answers for itself: it turns into a tick, green when the name is written for the first
 time and blue when an existing script is replaced, and goes back to normal a moment later. The
 status bar says which of the two happened as well.
+
+The tab strip above the text stays on one line however many tabs are open. It scrolls
+sideways when they no longer fit, by its scrollbar or the mouse wheel over the strip, so
+closing one never reshuffles the rest onto different rows.
 
 Under it is the editing toolbar. Scripts are plain text files, so there is no bold, no italic
 and no color: everything here changes the words themselves and survives a round trip through

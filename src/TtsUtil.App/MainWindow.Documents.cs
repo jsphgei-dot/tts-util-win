@@ -6,7 +6,10 @@
 
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Threading;
 using Button = System.Windows.Controls.Button;
+using MouseWheelEventArgs = System.Windows.Input.MouseWheelEventArgs;
+using ScrollViewer = System.Windows.Controls.ScrollViewer;
 using SystemColors = System.Windows.SystemColors;
 using TextBox = System.Windows.Controls.TextBox;
 
@@ -18,6 +21,7 @@ public partial class MainWindow
 {
     private readonly List<TextDocument> _documents = new();
     private TabItem? _plusTab;
+    private ScrollViewer? _tabStrip;
 
     /// <summary>The open documents, in tab order.</summary>
     internal IReadOnlyList<TextDocument> Documents => _documents;
@@ -74,6 +78,7 @@ public partial class MainWindow
             DocumentTabs.SelectedItem = tab;
         }
 
+        ScrollTabIntoView(tab);
         return document;
     }
 
@@ -124,6 +129,8 @@ public partial class MainWindow
             return;
         }
 
+        if (DocumentTabs.SelectedItem is TabItem selected) ScrollTabIntoView(selected);
+
         if (_initialising || InputText is null) return;
 
         _spokenLine = -1;
@@ -141,6 +148,34 @@ public partial class MainWindow
         box.IsReadOnly = locked;
         box.Background = locked ? SystemColors.ControlBrush : SystemColors.WindowBrush;
         box.Foreground = locked ? SystemColors.GrayTextBrush : SystemColors.WindowTextBrush;
+    }
+
+    /// <summary>Brings a tab into view on a strip that is wider than the window.</summary>
+    internal void ScrollTabIntoView(TabItem tab)
+    {
+        TabStrip();
+        Dispatcher.BeginInvoke(new Action(() => tab.BringIntoView()), DispatcherPriority.Loaded);
+    }
+
+    /// <summary>The sideways scroller the tab headers sit in, once the template has been built.</summary>
+    private ScrollViewer? TabStrip()
+    {
+        if (_tabStrip is not null) return _tabStrip;
+
+        DocumentTabs.ApplyTemplate();
+        _tabStrip = DocumentTabs.Template?.FindName("HeaderScroller", DocumentTabs) as ScrollViewer;
+        if (_tabStrip is not null) _tabStrip.PreviewMouseWheel += OnTabStripWheel;
+
+        return _tabStrip;
+    }
+
+    /// <summary>The wheel walks the strip sideways, since it has nowhere to go up or down.</summary>
+    private void OnTabStripWheel(object sender, MouseWheelEventArgs e)
+    {
+        if (sender is not ScrollViewer strip) return;
+
+        strip.ScrollToHorizontalOffset(strip.HorizontalOffset - e.Delta);
+        e.Handled = true;
     }
 
     /// <summary>The plus sits at the end of the strip, and opens a tab when it is picked.</summary>
