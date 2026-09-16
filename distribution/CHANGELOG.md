@@ -1,6 +1,13 @@
-# Changelog
+﻿# Changelog
 
 Newest first. Version codes are monotonic and never reused.
+
+## 0.4.1-beta (version code 8)
+
+* **A Check now button** beside the update setting in Settings. It looks straight away whether
+  or not the daily check is on, reports that you are up to date when you are, and offers a
+  version you turned down before.
+* The Apply button no longer sits on top of the update checkbox in Settings.
 
 ## 0.4.0-beta (version code 7)
 

@@ -1,4 +1,4 @@
-<Project>
+﻿<Project>
   <PropertyGroup>
     <LangVersion>10</LangVersion>
     <Nullable>enable</Nullable>
@@ -10,11 +10,11 @@
 
   <!-- Version name is semantic; version code is a monotonic integer, one per release. -->
   <PropertyGroup>
-    <VersionPrefix>0.4.0</VersionPrefix>
+    <VersionPrefix>0.4.1</VersionPrefix>
     <VersionSuffix>beta</VersionSuffix>
-    <VersionCode>7</VersionCode>
-    <AssemblyVersion>0.4.0.0</AssemblyVersion>
-    <FileVersion>0.4.0.$(VersionCode)</FileVersion>
+    <VersionCode>8</VersionCode>
+    <AssemblyVersion>0.4.1.0</AssemblyVersion>
+    <FileVersion>0.4.1.$(VersionCode)</FileVersion>
   </PropertyGroup>
 
   <ItemGroup>

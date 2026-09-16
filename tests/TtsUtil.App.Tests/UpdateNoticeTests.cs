@@ -1,4 +1,7 @@
 using System.IO;
+using System.Net.Http;
+using System.Windows;
+using System.Windows.Controls.Primitives;
 using TtsUtil.Core.Settings;
 using TtsUtil.Core.Update;
 using Xunit;
@@ -74,6 +77,54 @@ public sealed class UpdateNoticeTests : IDisposable
         });
     }
 
+    [Fact]
+    public async Task CheckingNowSaysSoWhenThereIsNothingNewer()
+    {
+        var window = CreateWindow(portable: true, accept: false);
+        _wpf.Invoke(() => window.UpdateFetcher = _ => Task.FromResult<UpdateManifest?>(Manifest(code: 1)));
+
+        await CheckNow(window);
+
+        _wpf.Invoke(() => Assert.Contains("newest version", window.StatusHistory[^1]));
+    }
+
+    [Fact]
+    public async Task CheckingNowIgnoresAnEarlierNoToTheSameVersion()
+    {
+        var window = CreateWindow(portable: true, accept: false);
+        _wpf.Invoke(() => window.Settings.DismissedUpdateCode = 9);
+
+        await CheckNow(window);
+
+        _wpf.Invoke(() => Assert.Contains("0.9.0-beta is available", window.StatusHistory[^1]));
+    }
+
+    [Fact]
+    public async Task AFailedCheckIsSilentOnTheScheduleAndSpokenWhenAsked()
+    {
+        var window = CreateWindow(portable: true, accept: false);
+        _wpf.Invoke(() => window.UpdateFetcher = _ => throw new HttpRequestException("no route"));
+
+        await RunCheck(window);
+        var quiet = _wpf.Invoke(() => window.StatusHistory.Count);
+
+        await CheckNow(window);
+
+        _wpf.Invoke(() =>
+        {
+            Assert.Equal(quiet, window.StatusHistory.Count - 2);
+            Assert.Contains("Try again later.", window.StatusHistory[^1]);
+        });
+    }
+
+    private async Task CheckNow(MainWindow window)
+    {
+        _wpf.Invoke(() => window.CheckForUpdatesButton.RaiseEvent(
+            new RoutedEventArgs(ButtonBase.ClickEvent)));
+
+        await window.UpdateCheck;
+    }
+
     private async Task RunCheck(MainWindow window)
     {
         _wpf.Invoke(() => window.StartUpdateCheck());
@@ -103,10 +154,10 @@ public sealed class UpdateNoticeTests : IDisposable
         return window;
     });
 
-    private static UpdateManifest Manifest() => new()
+    private static UpdateManifest Manifest(int code = 9) => new()
     {
         VersionName = "0.9.0-beta",
-        VersionCode = 9,
+        VersionCode = code,
         ReleaseUrl = "https://example.invalid/releases/tag/v0.9.0-beta",
         Setup = new UpdateDownload
         {

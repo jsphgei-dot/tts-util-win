@@ -1,6 +1,6 @@
-# TTS Util Win
+﻿# TTS Util Win
 
-![version](https://img.shields.io/badge/version-0.4.0--beta-blue)
+![version](https://img.shields.io/badge/version-0.4.1--beta-blue)
 ![platform](https://img.shields.io/badge/platform-Windows%2010%20%7C%2011%20x64-0078D6)
 ![built with](https://img.shields.io/badge/.NET-6.0-512BD4)
 ![tests](https://img.shields.io/badge/tests-326%20passing-brightgreen)
@@ -378,7 +378,8 @@ over to it, since setup already knows how to upgrade in place and keep settings 
 it may be running from is not the program's business. Saying no to a version means that version,
 not every version after it.
 
-Turn it off with **Look for a new version once a day** in Settings.
+Turn it off with **Look for a new version once a day** in Settings. **Check now**, beside that
+box, looks straight away whatever the box says, and says so when there is nothing newer.
 
 ## 🛠️ Build from source
 

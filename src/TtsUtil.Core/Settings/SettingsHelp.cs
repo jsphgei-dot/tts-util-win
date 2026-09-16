@@ -138,7 +138,9 @@ public static class SettingsHelp
             + "request at all while this is off." + NewParagraph
             + "An installed copy can offer to download the installer and run it, after checking the "
             + "download against its published checksum. A portable copy is only given the link, since "
-            + "replacing the folder it is running from is yours to do."),
+            + "replacing the folder it is running from is yours to do." + NewParagraph
+            + "Check now looks straight away, whether or not the box is ticked and whether or not "
+            + "you have already turned down the version it finds."),
     };
 
     /// <summary>The topic for a key, or null when nothing matches it.</summary>

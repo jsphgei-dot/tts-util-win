@@ -6,6 +6,7 @@
 
 using System.Diagnostics;
 using System.IO;
+using System.Windows;
 using System.Windows.Documents;
 using TtsUtil.Core;
 using TtsUtil.Core.Settings;
@@ -57,10 +58,32 @@ public partial class MainWindow
         var now = nowUtc ?? DateTime.UtcNow;
         if (!UpdateChecker.IsDue(_settings.CheckForUpdates, _settings.LastUpdateCheckUtc, now)) return;
 
-        UpdateCheck = RunUpdateCheckAsync(now);
+        UpdateCheck = RunUpdateCheckAsync(now, asked: false);
     }
 
-    private async Task RunUpdateCheckAsync(DateTime nowUtc)
+    /// <summary>Looks now, whatever the schedule says, and reports what it finds either way.</summary>
+    private void OnCheckForUpdates(object sender, RoutedEventArgs e)
+    {
+        if (!CheckForUpdatesButton.IsEnabled) return;
+
+        CheckForUpdatesButton.IsEnabled = false;
+        SetStatus("Looking for a new version...");
+        UpdateCheck = RunUpdateCheckAsync(DateTime.UtcNow, asked: true);
+    }
+
+    private async Task RunUpdateCheckAsync(DateTime nowUtc, bool asked)
+    {
+        try
+        {
+            await CheckAsync(nowUtc, asked);
+        }
+        finally
+        {
+            CheckForUpdatesButton.IsEnabled = true;
+        }
+    }
+
+    private async Task CheckAsync(DateTime nowUtc, bool asked)
     {
         UpdateManifest? manifest;
 
@@ -71,16 +94,29 @@ public partial class MainWindow
         }
         catch (Exception)
         {
-            // An update check is a courtesy. Failing one is not worth telling anybody about.
+            // A check nobody asked for is a courtesy, and failing one is not worth saying.
+            if (asked) SetStatus("Could not reach the release page. Try again later.");
             return;
         }
 
-        if (manifest is null) return;
+        if (manifest is null)
+        {
+            if (asked) SetStatus("Could not read the list of releases. Try again later.");
+            return;
+        }
 
         _settings.LastUpdateCheckUtc = nowUtc;
         _settings.Save();
 
-        var action = UpdateDecision.For(manifest, AppVersion.Code, IsPortableCopy(), _settings.DismissedUpdateCode);
+        // Asking outright outranks an earlier no to that same version.
+        var dismissed = asked ? 0 : _settings.DismissedUpdateCode;
+        var action = UpdateDecision.For(manifest, AppVersion.Code, IsPortableCopy(), dismissed);
+
+        if (action == UpdateAction.None && asked)
+        {
+            SetStatus($"You are running {AppVersion.Name}, which is the newest version.");
+            return;
+        }
 
         switch (action)
         {

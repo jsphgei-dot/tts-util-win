@@ -1,6 +1,6 @@
-# TTS Util Win
+﻿# TTS Util Win
 
-[![Version](https://img.shields.io/badge/version-0.4.0--beta-blue.svg)](https://github.com/jsphgei-dot/tts-util-win-releases/releases/latest)
+[![Version](https://img.shields.io/badge/version-0.4.1--beta-blue.svg)](https://github.com/jsphgei-dot/tts-util-win-releases/releases/latest)
 [![Platform](https://img.shields.io/badge/platform-Windows%2010%2F11%20x64-green.svg)](#requirements)
 [![Licence](https://img.shields.io/badge/licence-Apache%202.0-lightgrey.svg)](LICENSE)
 
@@ -39,7 +39,7 @@ The program asks this repository once a day whether a newer release exists, by r
 `latest.json`. Nothing is sent: no identifier, no text, no telemetry. An installed copy can
 offer to download the installer and run it, after checking the download against its published
 hash. A portable copy is given the link and left to unpack it where it likes. The whole thing
-can be switched off in **Settings**.
+can be switched off in **Settings**, where **Check now** also looks on demand.
 
 ## 📜 History
 
