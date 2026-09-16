@@ -100,6 +100,25 @@ public sealed class ScriptsTabTests : IDisposable
     }
 
     [Fact]
+    public void AudioWrittenFromAnOpenedScriptIsNamedAfterIt()
+    {
+        File.WriteAllText(Path.Combine(_scriptsDir, "Act One.txt"), "First.");
+        var window = CreateWindow();
+
+        _wpf.Invoke(() =>
+        {
+            window.RefreshScripts();
+            window.ScriptList.SelectedIndex = 0;
+        });
+
+        Click(window.OpenScriptButton);
+        _wpf.Invoke(() => Assert.Equal("Act One", MainWindow.AudioStem(window.TextScriptTitle)));
+
+        Click(window.ClearButton);
+        _wpf.Invoke(() => Assert.Equal("tts_output", MainWindow.AudioStem(window.TextScriptTitle)));
+    }
+
+    [Fact]
     public void RenamingRefusesWhenTheNewTitleIsTaken()
     {
         File.WriteAllText(Path.Combine(_scriptsDir, "Keep.txt"), "keep");

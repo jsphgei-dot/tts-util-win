@@ -111,6 +111,9 @@ public sealed class AppSettings
     /// <summary>How many messages one page of the history shows.</summary>
     public int ShowLastMessages { get; set; } = 10;
 
+    /// <summary>The script the Text tab was left holding, which names audio written from it.</summary>
+    public string? TextScriptTitle { get; set; }
+
     [JsonIgnore]
     public string ResolvedVoicesDirectory => InstallPaths.ResolveVoicesDirectory(
         VoicesDirectory,

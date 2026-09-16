@@ -45,6 +45,7 @@ public partial class MainWindow : Window
     private bool _restarting;
     private int _spokenLine = -1;
     private bool _readingFromText;
+    private string? _textScriptTitle;
     private IReadOnlyList<SpeakerInfo> _speakers = Array.Empty<SpeakerInfo>();
     private string? _speakerVoiceName;
     private int _speakerId;
@@ -68,6 +69,7 @@ public partial class MainWindow : Window
     {
         _settings = settings;
         _loadVoiceOnSelection = loadVoiceOnSelection;
+        Draft = TextDraft.Beside(settings.SourcePath);
         SpeakSnippet = snippet => _ = SpeakSnippetAsync(snippet);
         BatchFolderPicker = () => AskForDirectory(_settings.ResolvedOutputDirectory);
         EntryPlayer = PlayEntryAsync;
@@ -80,6 +82,31 @@ public partial class MainWindow : Window
         RefreshScripts();
         RefreshQueue();
         ShowRepeatMode();
+        RestoreDraft();
+    }
+
+    /// <summary>Where the Text tab is kept between sittings, beside the settings it belongs to.</summary>
+    internal TextDraft Draft { get; }
+
+    /// <summary>Puts back the text the window closed on, so nothing typed is lost.</summary>
+    private void RestoreDraft()
+    {
+        var text = Draft.Read();
+        if (text.Length == 0) return;
+
+        InputText.Text = text;
+        InputText.CaretIndex = text.Length;
+        _textScriptTitle = _settings.TextScriptTitle;
+        RebuildLineList();
+    }
+
+    /// <summary>Keeps the Text tab for next time, on the way out.</summary>
+    protected override void OnClosing(System.ComponentModel.CancelEventArgs e)
+    {
+        Draft.Write(InputText.Text);
+        _settings.TextScriptTitle = _textScriptTitle;
+        _settings.Save();
+        base.OnClosing(e);
     }
 
     /// <summary>Where saved scripts live. Tests point it at a temporary folder.</summary>
@@ -863,7 +890,7 @@ public partial class MainWindow : Window
             return;
         }
 
-        var path = AskForAudioPath("tts_output");
+        var path = AskForAudioPath(AudioStem(_textScriptTitle));
         if (path is null) return;
 
         PendingWork = SaveThenResumeAsync(() =>
@@ -988,6 +1015,7 @@ public partial class MainWindow : Window
         }
 
         InputText.Text = text;
+        _textScriptTitle = null;
         RebuildLineList();
         Tabs.SelectedIndex = 0;
         SetStatus($"Imported {text.Length:N0} character(s) from {Path.GetFileName(path)}.");
@@ -1131,6 +1159,7 @@ public partial class MainWindow : Window
         {
             var existed = Scripts.Exists(title);
             var saved = Scripts.Save(title, text);
+            _textScriptTitle = saved.Title;
             RefreshScripts();
             ScriptList.SelectedItem = ScriptList.Items.Cast<ScriptRow>()
                 .FirstOrDefault(s => s.Title == saved.Title);
@@ -1155,6 +1184,7 @@ public partial class MainWindow : Window
         try
         {
             InputText.Text = Scripts.Load(script.Title);
+            _textScriptTitle = script.Title;
             RebuildLineList();
             Tabs.SelectedIndex = 0;
             SetStatus($"Opened {script.Title}.");
@@ -1303,11 +1333,16 @@ public partial class MainWindow : Window
             return;
         }
 
+        _textScriptTitle = null;
         InputText.Text = Clipboard.GetText();
         InputText.CaretIndex = InputText.Text.Length;
     }
 
-    private void OnClearText(object sender, RoutedEventArgs e) => InputText.Clear();
+    private void OnClearText(object sender, RoutedEventArgs e)
+    {
+        _textScriptTitle = null;
+        InputText.Clear();
+    }
 
     private void OnBrowseInputFile(object sender, RoutedEventArgs e)
     {
@@ -1694,10 +1729,20 @@ public partial class MainWindow : Window
     {
         _busy = busy;
         Cursor = busy ? System.Windows.Input.Cursors.AppStarting : null;
+        LockText(busy);
         ShowRestartState(busy && _rerun is not null);
 
         if (busy) Media?.Describe(TextTitleBox.Text);
         ShowMediaState(busy ? MediaState.Playing : MediaState.Stopped);
+    }
+
+    /// <summary>The text being spoken is held still, and looks it, until the run ends. It can
+    /// still be scrolled and copied from.</summary>
+    private void LockText(bool locked)
+    {
+        InputText.IsReadOnly = locked;
+        InputText.Background = locked ? System.Windows.SystemColors.ControlBrush : System.Windows.SystemColors.WindowBrush;
+        InputText.Foreground = locked ? System.Windows.SystemColors.GrayTextBrush : System.Windows.SystemColors.WindowTextBrush;
     }
 
     /// <summary>Read becomes Restart while a reading is in flight, so Stop is not needed first.</summary>
@@ -1744,6 +1789,18 @@ public partial class MainWindow : Window
         {
             SetStatus($"Could not open {folder}: {ex.Message}");
         }
+    }
+
+    /// <summary>The file name a script leads with, or the plain one when the text came from
+    /// somewhere else.</summary>
+    internal static string AudioStem(string? scriptTitle) =>
+        ScriptLibrary.ToFileName(scriptTitle) ?? "tts_output";
+
+    /// <summary>The script the Text tab holds, which names the audio written from it.</summary>
+    internal string? TextScriptTitle
+    {
+        get => _textScriptTitle;
+        set => _textScriptTitle = value;
     }
 
     /// <summary>Offers a file name in the configured format, inside the output folder.</summary>

@@ -100,7 +100,7 @@ public partial class MainWindow
     /// <summary>A name nothing is using, so a batch never writes over a file already there.</summary>
     private string FreeAudioPath(string folder, string title)
     {
-        var stem = ScriptLibrary.ToFileName(title) ?? "script";
+        var stem = AudioStem(title);
         var extension = _settings.OutputFormat == AudioOutputFormat.Mp3 ? ".mp3" : ".wav";
 
         var path = Path.Combine(folder, stem + extension);
