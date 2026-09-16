@@ -153,6 +153,25 @@ public sealed class UpdateNoticeTests : IDisposable
         });
     }
 
+    /// <summary>Left alone, a new version found at startup waits on the tab and opens nothing.</summary>
+    [Fact]
+    public async Task WithoutTheDialogANewVersionOnlyWaitsOnTheTab()
+    {
+        var window = CreateWindow(portable: false, accept: true);
+        _wpf.Invoke(() => window.Settings.PromptForUpdates = false);
+
+        await RunCheck(window);
+
+        _wpf.Invoke(() =>
+        {
+            Assert.Equal(0, _setupFetches);
+            Assert.Equal(Visibility.Visible, window.UpdatesTabMark.Visibility);
+            Assert.Equal(Visibility.Visible, window.NewVersionPanel.Visibility);
+            Assert.Contains("0.9.0-beta", window.NewVersionTitle.Text);
+            Assert.Equal(new[] { "A thing that changed" }, window.NewVersionNotes.ItemsSource.Cast<string>());
+        });
+    }
+
     private async Task CheckNow(MainWindow window)
     {
         _wpf.Invoke(() => window.CheckForUpdatesButton.RaiseEvent(
@@ -173,6 +192,7 @@ public sealed class UpdateNoticeTests : IDisposable
         settings.VoicesDirectory = Path.Combine(_root, "voices");
         settings.UseWindowsVoices = false;
         settings.OutputDirectory = _root;
+        settings.PromptForUpdates = true;
 
         var window = new MainWindow(settings, loadVoiceOnSelection: false)
         {
@@ -197,6 +217,7 @@ public sealed class UpdateNoticeTests : IDisposable
         VersionName = "0.9.0-beta",
         VersionCode = code ?? AppVersion.Code + 1,
         ReleaseUrl = "https://example.invalid/releases/tag/v0.9.0-beta",
+        Notes = new[] { "A thing that changed" },
         Setup = new UpdateDownload
         {
             Url = "https://example.invalid/setup.zip",

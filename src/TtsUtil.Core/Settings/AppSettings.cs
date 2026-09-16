@@ -106,6 +106,10 @@ public sealed class AppSettings
     /// <summary>Whether the program asks at each start whether a newer release is published.</summary>
     public bool CheckForUpdates { get; set; } = true;
 
+    /// <summary>Whether a newer version is put in a dialog at startup rather than left as a mark
+    /// on the Updates tab.</summary>
+    public bool PromptForUpdates { get; set; }
+
     /// <summary>When a check last succeeded, kept as a record of the last one that worked.</summary>
     public DateTime? LastUpdateCheckUtc { get; set; }
 

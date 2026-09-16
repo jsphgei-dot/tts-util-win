@@ -42,6 +42,9 @@ public sealed class UpdateManifest
 
     public UpdateDownload? Portable { get; set; }
 
+    /// <summary>What changed in that release, shown on the Updates tab before anything is fetched.</summary>
+    public IReadOnlyList<string> Notes { get; set; } = Array.Empty<string>();
+
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
         PropertyNameCaseInsensitive = true,
@@ -57,6 +60,9 @@ public sealed class UpdateManifest
             var manifest = JsonSerializer.Deserialize<UpdateManifest>(json, JsonOptions);
             if (manifest is null || manifest.VersionCode <= 0) return null;
             if (string.IsNullOrWhiteSpace(manifest.VersionName)) return null;
+
+            manifest.Notes = manifest.Notes?.Where(note => !string.IsNullOrWhiteSpace(note)).ToList()
+                ?? (IReadOnlyList<string>)Array.Empty<string>();
 
             return manifest;
         }

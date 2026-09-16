@@ -28,6 +28,17 @@ public sealed class UpdateTests
         Assert.Null(UpdateManifest.Parse(json.Replace('Q', '"')));
     }
 
+    /// <summary>A manifest carries what changed, and an old one without that field still reads.</summary>
+    [Fact]
+    public void TheNotesAreReadAndAreEmptyWhenTheManifestHasNone()
+    {
+        var withNotes = Json(code: 9, sha: new string('a', 64))
+            .Replace("\"VersionCode\": 9", "\"VersionCode\": 9, \"Notes\": [\"Faster\", \"  \"]");
+
+        Assert.Equal(new[] { "Faster" }, UpdateManifest.Parse(withNotes)!.Notes);
+        Assert.Empty(UpdateManifest.Parse(Json(code: 9, sha: new string('a', 64)))!.Notes);
+    }
+
     [Fact]
     public void AnUnusableDownloadIsRejectedBeforeAnythingIsFetched()
     {

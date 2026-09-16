@@ -25,4 +25,19 @@ public sealed class RowTickingTests
 
         Assert.False(RowTicking.Toggle("a row with no tick"));
     }
+
+    /// <summary>A shift press carries the pressed row's new state across the run.</summary>
+    [Fact]
+    public void AShiftPressTicksEverythingBetween()
+    {
+        var rows = DownloadableVoices.All.Take(4).Select(v => new VoiceCatalogueRow(v)).ToList();
+
+        Assert.True(RowTicking.ToggleRun(rows, 0, 2));
+        Assert.Equal(new[] { true, true, true, false }, rows.Select(r => r.Ticked));
+
+        Assert.True(RowTicking.ToggleRun(rows, 2, 1));
+        Assert.Equal(new[] { true, false, false, false }, rows.Select(r => r.Ticked));
+
+        Assert.False(RowTicking.ToggleRun(rows, -1, 0));
+    }
 }

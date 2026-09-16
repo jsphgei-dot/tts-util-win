@@ -191,6 +191,7 @@ public partial class MainWindow : Window
         ReadAsYouTypeBox.IsChecked = _settings.ReadAsYouType;
         PauseWhenUnfocusedBox.IsChecked = _settings.PauseWhenUnfocused;
         CheckForUpdatesBox.IsChecked = _settings.CheckForUpdates;
+        PromptForUpdatesBox.IsChecked = _settings.PromptForUpdates;
         ShowUpdateState();
         UseWindowsVoicesBox.IsChecked = _settings.UseWindowsVoices;
         SaveScriptWithAudioBox.IsChecked = _settings.SaveScriptWithAudio;

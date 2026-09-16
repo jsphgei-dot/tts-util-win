@@ -804,9 +804,13 @@
                                    Margin="0,0,0,2" />
                         <TextBlock x:Name="UpdateStateText" TextWrapping="Wrap" Margin="0,0,0,12" />
 
-                        <CheckBox x:Name="CheckForUpdatesBox" Margin="0,0,0,10"
+                        <CheckBox x:Name="CheckForUpdatesBox" Margin="0,0,0,6"
                                   Content="Look for a new version when the program starts"
                                   Click="OnCheckForUpdatesChanged" />
+                        <CheckBox x:Name="PromptForUpdatesBox" Margin="0,0,0,10"
+                                  Content="Ask about a new version in a dialog at startup"
+                                  Click="OnPromptForUpdatesChanged"
+                                  ToolTip="Off by default: a new version puts a mark on this tab and waits here" />
                         <StackPanel Orientation="Horizontal" Margin="0,0,0,14">
                             <Button x:Name="CheckForUpdatesButton" Content="Check now" MinWidth="110"
                                     Click="OnCheckForUpdates"
@@ -819,6 +823,22 @@
                                    Text="The check asks a single published file whether a newer release exists. Nothing about you is sent: no identifier, no text, no list of voices, and no request at all while the box is clear." />
                         <TextBlock TextWrapping="Wrap" Foreground="#555" Margin="0,0,0,16"
                                    Text="An installed copy can offer to download the installer and run it, after checking the download against its published checksum. A portable copy is given the link instead, since replacing the folder it runs from is yours to do." />
+
+                        <StackPanel x:Name="NewVersionPanel" Visibility="Collapsed" Margin="0,0,0,16">
+                            <TextBlock x:Name="NewVersionTitle" FontSize="15" FontWeight="SemiBold"
+                                       Foreground="#1F6FEB" Margin="0,0,0,2" TextWrapping="Wrap" />
+                            <TextBlock x:Name="NewVersionEmptyText" Foreground="#777" TextWrapping="Wrap"
+                                       Visibility="Collapsed"
+                                       Text="The release page has the details of what changed." />
+                            <ItemsControl x:Name="NewVersionNotes">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <TextBlock Text="{Binding}" TextWrapping="Wrap" Foreground="#444"
+                                                   Margin="10,0,0,3" />
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </StackPanel>
 
                         <TextBlock Text="What changed" FontSize="15" FontWeight="SemiBold"
                                    Margin="0,0,0,2" />

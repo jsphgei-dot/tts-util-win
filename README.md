@@ -3,7 +3,7 @@
 ![version](https://img.shields.io/badge/version-0.7.0--beta-blue)
 ![platform](https://img.shields.io/badge/platform-Windows%2010%20%7C%2011%20x64-0078D6)
 ![built with](https://img.shields.io/badge/.NET-6.0-512BD4)
-![tests](https://img.shields.io/badge/tests-422%20passing-brightgreen)
+![tests](https://img.shields.io/badge/tests-425%20passing-brightgreen)
 ![license](https://img.shields.io/badge/license-Apache%202.0-lightgrey)
 
 > Read anything you can type, paste or open out loud, entirely on your own machine.
@@ -113,7 +113,8 @@ The **Voices** tab lists the curated models with their size, license and whether
 installed. Tick the ones you want and press **Install**: they are downloaded, checked and
 unpacked one at a time, with a progress bar counting the batch and a Cancel button that stops
 the current download and leaves the rest alone. With nothing ticked, Install takes the selected
-row. Clicking anywhere on a row moves its tick, here and on the Scripts tab. **Remove** deletes
+row. Clicking anywhere on a row moves its tick, here and on the Scripts tab, and holding Shift
+carries that tick across every row back to the last one you clicked. **Remove** deletes
 an installed voice again, and a canceled or failed
 install leaves nothing behind. When the configured voices directory cannot be written, which
 happens for an all users installation under Program Files, the download goes to
@@ -455,20 +456,27 @@ Each time it starts, the program reads one published file,
 running build. Nothing is sent with the request: no identifier, no text, no list of voices, and
 no request at all while the setting is off.
 
-What happens next depends on how the program was installed. An **installed** copy offers to
+A new version found at startup waits on the Updates tab: the tab wears a red exclamation mark,
+the version number is named, and what changed in it is listed there. Nothing interrupts what you
+were doing. The box **Ask about a new version in a dialog at startup** turns the older behavior
+back on, and **Check now** always answers in a dialog whatever that box says.
+
+What happens next when the dialog is asked for depends on how the program was installed. An **installed** copy offers to
 download the setup program, checks it against the SHA256 published in the manifest, and hands
 over to it, since setup already knows how to upgrade in place and keep settings and voices. A
 **portable** copy is told where the release is and left to unpack it, because replacing a folder
 it may be running from is not the program's business. Saying no to a version means that version,
 not every version after it.
 
-All of this lives on its own **Updates** tab, which holds the box **Look for a new version when
-the program starts**, a **Check now** button that looks straight away whatever the box says, the
+All of this lives on its own **Updates** tab, which holds the boxes **Look for a new version when
+the program starts** and **Ask about a new version in a dialog at startup**, a **Check now** button that looks straight away whatever the box says, the
 version you are running, and when the last check ran. While a newer version is out, the tab wears
 a red exclamation mark beside its name, which stays there even after an offer is turned down.
 
 The same tab carries the change history, newest first, read from the changelog built into the
-program rather than fetched, so it says what this build is and works with no network at all.
+program rather than fetched, so it says what this build is and works with no network at all. When
+a check finds something newer, what changed in that release is listed above it, taken from the
+published manifest.
 
 ## 🛠️ Build from source
 

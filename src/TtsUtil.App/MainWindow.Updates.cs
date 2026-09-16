@@ -68,6 +68,13 @@ public partial class MainWindow
         _settings.Save();
     }
 
+    /// <summary>A dialog at startup is opt in, so the tab is the only place a new version waits.</summary>
+    private void OnPromptForUpdatesChanged(object sender, RoutedEventArgs e)
+    {
+        _settings.PromptForUpdates = PromptForUpdatesBox.IsChecked == true;
+        _settings.Save();
+    }
+
     /// <summary>Fills the Updates tab with what is known before any check has run.</summary>
     internal void ShowUpdateState()
     {
@@ -96,14 +103,22 @@ public partial class MainWindow
         return reader.ReadToEnd();
     }
 
-    /// <summary>The mark on the tab header, which is the only nagging a new version does.</summary>
+    /// <summary>The mark on the tab header and the new version notes under it, which is all a new
+    /// version does while the dialog is turned off.</summary>
     private void MarkNewVersion(UpdateManifest? manifest)
     {
         UpdatesTabMark.Visibility = manifest is null ? Visibility.Collapsed : Visibility.Visible;
+        NewVersionPanel.Visibility = manifest is null ? Visibility.Collapsed : Visibility.Visible;
 
         UpdateStateText.Text = manifest is null
             ? $"{AppVersion.Name} is the newest version."
-            : $"Version {manifest.VersionName} is available.";
+            : $"Version {manifest.VersionName} is available. You are running {AppVersion.Name}.";
+
+        if (manifest is null) return;
+
+        NewVersionTitle.Text = $"New in {manifest.VersionName}";
+        NewVersionNotes.ItemsSource = manifest.Notes;
+        NewVersionEmptyText.Visibility = manifest.Notes.Count == 0 ? Visibility.Visible : Visibility.Collapsed;
     }
 
     /// <summary>Looks now, whatever the schedule says, and reports what it finds either way.</summary>
@@ -167,6 +182,9 @@ public partial class MainWindow
 
             return;
         }
+
+        // A check nobody asked for leaves the news on the tab unless a dialog was asked for.
+        if (!asked && !_settings.PromptForUpdates) return;
 
         switch (action)
         {
