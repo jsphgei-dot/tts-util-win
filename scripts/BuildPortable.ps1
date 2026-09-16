@@ -80,7 +80,11 @@ if ($IncludeVoices) {
 
 Copy-Item -Path (Join-Path $root 'README.md') -Destination $OutputDirectory -Force
 Copy-Item -Path (Join-Path $root 'LICENSE') -Destination $OutputDirectory -Force
-Copy-Item -Path (Join-Path $root 'scripts\FetchVoices.ps1') -Destination $OutputDirectory -Force
+# FetchVoices.ps1 works out its default destination from its parent folder, so it has to sit
+# in scripts\ for models to land in this folder's voices directory rather than beside it.
+$scriptsTarget = Join-Path $OutputDirectory 'scripts'
+New-Item -ItemType Directory -Force -Path $scriptsTarget | Out-Null
+Copy-Item -Path (Join-Path $root 'scripts\FetchVoices.ps1') -Destination $scriptsTarget -Force
 
 $exe = Join-Path $OutputDirectory 'TtsUtilWin.exe'
 $sizeMb = [math]::Round((Get-Item $exe).Length / 1MB, 1)

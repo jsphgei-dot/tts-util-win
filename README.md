@@ -75,7 +75,11 @@ TtsUtilWin\
   voices\
     vits-piper-en_US-ljspeech-high\
     kokoro-en-v0_19\
+  scripts\
+    FetchVoices.ps1     the downloader, which fills the voices folder above
 ```
+
+Saved scripts land in that same `scripts` folder, as plain `.txt` files.
 
 **Upgrading.** Setup recognises an existing installation by its application id. A newer setup
 upgrades in place, keeping the folder, shortcuts, settings and the voices already downloaded.
