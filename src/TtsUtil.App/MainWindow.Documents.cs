@@ -78,7 +78,7 @@ public partial class MainWindow
             DocumentTabs.SelectedItem = tab;
         }
 
-        ScrollTabIntoView(tab);
+        ScrollTabsToEnd();
         return document;
     }
 
@@ -155,6 +155,15 @@ public partial class MainWindow
     {
         TabStrip();
         Dispatcher.BeginInvoke(new Action(() => tab.BringIntoView()), DispatcherPriority.Loaded);
+    }
+
+    /// <summary>Walks the strip to its right end, where the newest tab and the plus sit, so the
+    /// plus can be pressed again without scrolling.</summary>
+    internal void ScrollTabsToEnd()
+    {
+        if (TabStrip() is not ScrollViewer strip) return;
+
+        Dispatcher.BeginInvoke(new Action(strip.ScrollToRightEnd), DispatcherPriority.Loaded);
     }
 
     /// <summary>The sideways scroller the tab headers sit in, once the template has been built.</summary>
