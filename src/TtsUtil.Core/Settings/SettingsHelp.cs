@@ -33,6 +33,8 @@ public static class SettingsHelp
 
     public const string ShowLastMessages = "show-last-messages";
 
+    public const string WriteFinishedNotice = "write-finished-notice";
+
     /// <summary>The blank line the other topics write inline as an escape.</summary>
     private const string NewParagraph = "\n\n";
 
@@ -176,6 +178,17 @@ public static class SettingsHelp
             + "page away." + NewParagraph
             + "Page 1 is always the newest, so the numbers count backwards in time and the double "
             + "arrow is the way back to now."),
+
+        new SettingsHelpTopic(
+            WriteFinishedNotice,
+            "When a file finishes",
+            "Writing an MP3 or a WAV can take a while, so the program can say when it is done "
+            + "without you watching the status bar." + NewParagraph
+            + "No notification: only the line in the status bar, as before." + NewParagraph
+            + "A sound: a short chime, which is enough when the window is behind something else."
+            + NewParagraph
+            + "A notification and a sound: the chime plus a Windows notification naming the file, "
+            + "which also waits in the notification center."),
 
         new SettingsHelpTopic(
             SaveScriptWithAudio,

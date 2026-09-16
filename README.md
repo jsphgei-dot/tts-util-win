@@ -3,7 +3,7 @@
 ![version](https://img.shields.io/badge/version-0.6.0--beta-blue)
 ![platform](https://img.shields.io/badge/platform-Windows%2010%20%7C%2011%20x64-0078D6)
 ![built with](https://img.shields.io/badge/.NET-6.0-512BD4)
-![tests](https://img.shields.io/badge/tests-403%20passing-brightgreen)
+![tests](https://img.shields.io/badge/tests-405%20passing-brightgreen)
 ![license](https://img.shields.io/badge/license-Apache%202.0-lightgrey)
 
 > Read anything you can type, paste or open out loud, entirely on your own machine.
@@ -304,6 +304,11 @@ save dialog, so you can override the default for one file.
 Files go to a `TTS Util` folder inside Music unless you set another output directory. The
 folder is created when it is first needed. After a file is written the status bar names it and
 the folder is a link: click it to open that folder.
+
+A long file can take a while, so **When a file finishes** in Settings decides how the program
+says it is done: no notification, a sound, or a Windows notification naming the file alongside
+the sound. A sound is the default. Converting several scripts at once announces itself once at
+the end rather than once per file.
 
 MP3 is encoded with the Media Foundation encoder built into Windows, so nothing extra is
 installed. Encoding happens after synthesis, on the same background thread, so the window stays

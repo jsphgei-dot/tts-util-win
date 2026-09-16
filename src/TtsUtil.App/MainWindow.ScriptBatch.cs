@@ -50,6 +50,21 @@ public partial class MainWindow
     {
         _rerun = null;
         _readingFromText = false;
+
+        HoldWriteNotices(true);
+
+        try
+        {
+            await WriteEachAsync(scripts, folder);
+        }
+        finally
+        {
+            HoldWriteNotices(false);
+        }
+    }
+
+    private async Task WriteEachAsync(IReadOnlyList<SavedScript> scripts, string folder)
+    {
         var written = 0;
         var lastPath = string.Empty;
 
@@ -96,6 +111,7 @@ public partial class MainWindow
         }
 
         SetStatusWithFileLink($"Wrote {written} of {scripts.Count} script(s) to ", lastPath);
+        NotifyWriteFinished(lastPath);
     }
 
     /// <summary>A name nothing is using, so a batch never writes over a file already there.</summary>

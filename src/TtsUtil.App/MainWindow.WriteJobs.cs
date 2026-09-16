@@ -92,6 +92,7 @@ public partial class MainWindow
             else
             {
                 SetStatusWithFileLink($"Wrote {Path.GetFileName(job.Path)}. ", job.Path);
+                NotifyWriteFinished(job.Path);
             }
         }
         catch (OperationCanceledException)

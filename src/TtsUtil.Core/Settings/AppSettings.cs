@@ -24,6 +24,19 @@ public enum RepeatMode
     All,
 }
 
+/// <summary>What the program does when a file has finished being written.</summary>
+public enum WriteFinishedNotice
+{
+    /// <summary>Nothing beyond the line in the status bar.</summary>
+    None,
+
+    /// <summary>A short sound.</summary>
+    Sound,
+
+    /// <summary>A Windows notification as well as the sound.</summary>
+    PopupAndSound,
+}
+
 /// <summary>User settings, stored beside the executable when that is writable.</summary>
 public sealed class AppSettings
 {
@@ -108,6 +121,9 @@ public sealed class AppSettings
     /// <summary>The lists that ship with the program which the reader has turned on. Empty to
     /// begin with, so none of them is applied.</summary>
     public List<string> AliasPacks { get; set; } = new();
+
+    /// <summary>How a finished audio file announces itself.</summary>
+    public WriteFinishedNotice WriteFinishedNotice { get; set; } = WriteFinishedNotice.Sound;
 
     /// <summary>Whether the voices Windows already has are offered alongside downloaded ones.</summary>
     public bool UseWindowsVoices { get; set; } = true;

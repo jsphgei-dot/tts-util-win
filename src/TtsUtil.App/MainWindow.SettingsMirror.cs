@@ -28,6 +28,8 @@ public partial class MainWindow
 
         if (SettingsFontSizeBox.ItemsSource is null) SettingsFontSizeBox.ItemsSource = EditorFontSizes;
 
+        LoadWriteNoticeChoices();
+
         SettingsReadAsYouTypeBox.IsChecked = ReadAsYouTypeBox.IsChecked;
         SettingsPauseWhenUnfocusedBox.IsChecked = PauseWhenUnfocusedBox.IsChecked;
         SettingsUseAliasesBox.IsChecked = UseAliasesBox.IsChecked;

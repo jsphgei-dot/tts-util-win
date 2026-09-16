@@ -506,6 +506,7 @@ public partial class MainWindow : Window
             else
             {
                 SetStatusWithFileLink($"Wrote {Path.GetFileName(outputPath)}.{note} ", outputPath);
+                NotifyWriteFinished(outputPath);
             }
 
             return RunOutcome.Finished;
@@ -1838,6 +1839,7 @@ public partial class MainWindow : Window
         _settings.Save();
         DisposeEngine();
         Media?.Dispose();
+        CloseNotifications();
     }
 
     private void DisposeEngine()

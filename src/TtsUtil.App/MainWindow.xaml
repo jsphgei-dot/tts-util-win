@@ -573,6 +573,7 @@
                             <RowDefinition Height="Auto" />
                             <RowDefinition Height="Auto" />
                             <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
                         </Grid.RowDefinitions>
 
                         <TextBlock Grid.Row="0" Grid.Column="0" Text="Silence after line endings (ms)"
@@ -755,7 +756,15 @@
                                   HorizontalAlignment="Left" Margin="0,0,0,8"
                                   SelectionChanged="OnSettingsRepeatChanged" />
 
-                        <StackPanel Grid.Row="27" Grid.Column="0" Grid.ColumnSpan="3" Orientation="Horizontal"
+                        <TextBlock Grid.Row="27" Grid.Column="0" Text="When a file finishes"
+                                   Style="{StaticResource SettingLabel}" />
+                        <ComboBox x:Name="SettingsWriteNoticeBox" Grid.Row="27" Grid.Column="1" Width="240"
+                                  HorizontalAlignment="Left" Margin="0,0,0,8"
+                                  SelectionChanged="OnSettingsWriteNoticeChanged" />
+                        <Button Grid.Row="27" Grid.Column="3" Tag="write-finished-notice"
+                                Style="{StaticResource HelpButton}" Click="OnSettingsHelp" />
+
+                        <StackPanel Grid.Row="28" Grid.Column="0" Grid.ColumnSpan="3" Orientation="Horizontal"
                                     Margin="0,8,0,0">
                             <Button x:Name="ApplySettingsButton" Content="Apply" Click="OnApplySettings" />
                             <Button x:Name="ResetSettingsButton" Content="Reset to defaults"
