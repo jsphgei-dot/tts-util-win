@@ -2,6 +2,22 @@
 
 Newest first. Version codes are monotonic and never reused.
 
+## 0.7.0-beta (version code 11)
+
+* **Lists that ship with the program.** The Aliases tab now offers chemistry, math symbols,
+  units and everyday shorthand, each off until it is ticked. The chemistry list reads K as
+  potassium and H2O as water. Any of them can be copied into your own rules and edited there.
+* **A finished file says so.** Settings decides whether writing audio ends with no notification,
+  a sound, or a Windows notification naming the file alongside the sound. Converting several
+  scripts announces itself once at the end.
+* **Ctrl+S asks for the name.** Saving a script from the Text tab prompts for the title first,
+  and the save icon shows a tick, green for a new script and blue when one was replaced.
+* **Voices are listed in the order they arrived.** The downloaded voices sit oldest first, so a
+  voice installed a moment ago is at the bottom rather than somewhere alphabetical.
+* Settings from elsewhere in the program are repeated on the Settings tab, with a reset button,
+  and the reading can hold itself when another window takes over.
+* A second press on a button no longer runs the same command twice.
+
 ## 0.6.0-beta (version code 10)
 
 * **Several texts at once.** The Text tab holds as many documents as you like, each on its own

@@ -1,6 +1,6 @@
 ﻿# TTS Util Win
 
-[![Version](https://img.shields.io/badge/version-0.6.0--beta-blue.svg)](https://github.com/jsphgei-dot/tts-util-win-releases/releases/latest)
+[![Version](https://img.shields.io/badge/version-0.7.0--beta-blue.svg)](https://github.com/jsphgei-dot/tts-util-win-releases/releases/latest)
 [![Platform](https://img.shields.io/badge/platform-Windows%2010%2F11%20x64-green.svg)](#requirements)
 [![License](https://img.shields.io/badge/license-Apache%202.0-lightgrey.svg)](LICENSE)
 
