@@ -19,5 +19,17 @@
             <Setter Property="Margin" Value="0,0,0,8" />
             <Setter Property="Padding" Value="4,3" />
         </Style>
+        <Style x:Key="HelpButton" TargetType="Button">
+            <Setter Property="Content" Value="?" />
+            <Setter Property="MinWidth" Value="22" />
+            <Setter Property="Width" Value="22" />
+            <Setter Property="Height" Value="22" />
+            <Setter Property="Padding" Value="0" />
+            <Setter Property="Margin" Value="8,0,0,8" />
+            <Setter Property="FontWeight" Value="Bold" />
+            <Setter Property="Foreground" Value="#334" />
+            <Setter Property="VerticalAlignment" Value="Center" />
+            <Setter Property="ToolTip" Value="What this setting does" />
+        </Style>
     </Application.Resources>
 </Application>

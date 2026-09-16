@@ -247,6 +247,7 @@
                             <ColumnDefinition Width="Auto" />
                             <ColumnDefinition Width="*" />
                             <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="Auto" />
                         </Grid.ColumnDefinitions>
                         <Grid.RowDefinitions>
                             <RowDefinition Height="Auto" />
@@ -272,6 +273,8 @@
                                    Style="{StaticResource SettingLabel}" />
                         <TextBox x:Name="SilenceLineEndingBox" Grid.Row="0" Grid.Column="1"
                                  Style="{StaticResource SettingBox}" />
+                        <Button Grid.Row="0" Grid.Column="3" Tag="silence"
+                                Style="{StaticResource HelpButton}" Click="OnSettingsHelp" />
 
                         <TextBlock Grid.Row="1" Grid.Column="0" Text="Silence after sentences (ms)"
                                    Style="{StaticResource SettingLabel}" />
@@ -290,9 +293,13 @@
 
                         <CheckBox x:Name="ScaleSilenceBox" Grid.Row="4" Grid.Column="1"
                                   Content="Scale silence to the speech rate" Margin="0,4,0,12" />
+                        <Button Grid.Row="4" Grid.Column="3" Tag="scale-silence"
+                                Style="{StaticResource HelpButton}" Click="OnSettingsHelp" />
 
                         <CheckBox x:Name="FilterHashBox" Grid.Row="5" Grid.Column="1"
                                   Content="Omit hash characters (#)" Margin="0,0,0,6" />
+                        <Button Grid.Row="5" Grid.Column="3" Tag="filters"
+                                Style="{StaticResource HelpButton}" Click="OnSettingsHelp" />
                         <CheckBox x:Name="FilterWebBox" Grid.Row="6" Grid.Column="1"
                                   Content="Omit web links" Margin="0,0,0,6" />
                         <CheckBox x:Name="FilterMailBox" Grid.Row="7" Grid.Column="1"
@@ -305,12 +312,16 @@
                         <TextBlock Grid.Row="8" Grid.Column="2" Margin="8,0,0,8" Foreground="#555"
                                    VerticalAlignment="Center"
                                    Text="Punctuation still becomes a pause" />
+                        <Button Grid.Row="8" Grid.Column="3" Tag="spoken-characters"
+                                Style="{StaticResource HelpButton}" Click="OnSettingsHelp" />
 
                         <TextBlock Grid.Row="9" Grid.Column="0" Text="Also read these characters"
                                    Style="{StaticResource SettingLabel}" />
                         <TextBox x:Name="AllowedExtraBox" Grid.Row="9" Grid.Column="1"
                                  Style="{StaticResource SettingBox}"
-                                 ToolTip="Characters allowed through on top of the setting above" />
+                                 ToolTip="Type the characters themselves, with nothing between them. Press ? for examples." />
+                        <Button Grid.Row="9" Grid.Column="3" Tag="allowed-extra"
+                                Style="{StaticResource HelpButton}" Click="OnSettingsHelp" />
 
                         <TextBlock Grid.Row="10" Grid.Column="0" Text="Voices directory"
                                    Style="{StaticResource SettingLabel}" />
@@ -318,6 +329,8 @@
                                  Style="{StaticResource SettingBox}" />
                         <Button Grid.Row="10" Grid.Column="2" Content="Browse" Margin="8,0,0,8"
                                 Click="OnBrowseVoicesDir" />
+                        <Button Grid.Row="10" Grid.Column="3" Tag="voices-directory"
+                                Style="{StaticResource HelpButton}" Click="OnSettingsHelp" />
 
                         <TextBlock Grid.Row="11" Grid.Column="0" Text="Default output directory"
                                    Style="{StaticResource SettingLabel}" />
@@ -325,26 +338,49 @@
                                  Style="{StaticResource SettingBox}" />
                         <Button Grid.Row="11" Grid.Column="2" Content="Browse" Margin="8,0,0,8"
                                 Click="OnBrowseOutputDir" />
+                        <Button Grid.Row="11" Grid.Column="3" Tag="output-directory"
+                                Style="{StaticResource HelpButton}" Click="OnSettingsHelp" />
 
                         <TextBlock Grid.Row="12" Grid.Column="0" Text="Synthesis threads"
                                    Style="{StaticResource SettingLabel}" />
                         <TextBox x:Name="ThreadsBox" Grid.Row="12" Grid.Column="1"
                                  Style="{StaticResource SettingBox}" />
+                        <Button Grid.Row="12" Grid.Column="3" Tag="threads"
+                                Style="{StaticResource HelpButton}" Click="OnSettingsHelp" />
 
                         <TextBlock Grid.Row="13" Grid.Column="0" Text="Maximum characters per chunk"
                                    Style="{StaticResource SettingLabel}" />
                         <TextBox x:Name="ChunkLengthBox" Grid.Row="13" Grid.Column="1"
                                  Style="{StaticResource SettingBox}" />
+                        <Button Grid.Row="13" Grid.Column="3" Tag="chunk-length"
+                                Style="{StaticResource HelpButton}" Click="OnSettingsHelp" />
 
                         <TextBlock Grid.Row="14" Grid.Column="0" Text="Saved audio format"
                                    Style="{StaticResource SettingLabel}" />
                         <ComboBox x:Name="OutputFormatBox" Grid.Row="14" Grid.Column="1"
                                   Margin="0,0,0,8" VerticalAlignment="Center" />
+                        <Button Grid.Row="14" Grid.Column="3" Tag="output-format"
+                                Style="{StaticResource HelpButton}" Click="OnSettingsHelp" />
 
                         <TextBlock Grid.Row="15" Grid.Column="0" Text="MP3 bit rate (kbps)"
                                    Style="{StaticResource SettingLabel}" />
                         <TextBox x:Name="Mp3BitRateBox" Grid.Row="15" Grid.Column="1"
                                  Style="{StaticResource SettingBox}" />
+                        <Button Grid.Row="15" Grid.Column="3" Tag="mp3-bit-rate"
+                                Style="{StaticResource HelpButton}" Click="OnSettingsHelp" />
+
+                        <Popup x:Name="SettingsHelpPopup" Placement="Left" StaysOpen="False"
+                               AllowsTransparency="True" HorizontalOffset="-6">
+                            <Border Background="White" BorderBrush="#BBB" BorderThickness="1"
+                                    Padding="12" MaxWidth="430">
+                                <StackPanel>
+                                    <TextBlock x:Name="SettingsHelpTitle" FontWeight="SemiBold"
+                                               TextWrapping="Wrap" Margin="0,0,0,6" />
+                                    <TextBlock x:Name="SettingsHelpBody" TextWrapping="Wrap"
+                                               Foreground="#333" />
+                                </StackPanel>
+                            </Border>
+                        </Popup>
 
                         <StackPanel Grid.Row="16" Grid.Column="1" Orientation="Horizontal" Margin="0,8,0,0">
                             <Button x:Name="ApplySettingsButton" Content="Apply" Click="OnApplySettings" />

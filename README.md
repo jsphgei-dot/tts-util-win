@@ -181,8 +181,9 @@ Everything else is dropped, because a text to speech engine happily says "dollar
 
 Settings has two controls for it. **Characters read aloud** chooses between the strict set
 above, any Unicode letter or digit, or no filtering at all. **Also read these characters**
-takes a list of extra characters to let through, for example `%$` if you want prices and
-percentages spoken.
+lets extra characters through: type the characters themselves, one after another, with
+nothing between them. There is no separator, so `%$&+` allows all four. A comma typed there
+means the comma character rather than a separator, and spaces do nothing.
 
 One consequence worth knowing: the strict default removes non Latin scripts entirely, so a
 Chinese or Japanese voice reads nothing under it. Switch to "Any letter or digit" for
@@ -210,6 +211,17 @@ The search box filters by name or by leading digits of the number, and Star keep
 at the top of the list. Both the chosen speaker and its starred speakers are remembered per
 voice, so switching voices and back returns you to where you were. Favourites shows only
 the starred speakers, and shows everything again when pressed a second time.
+
+## Settings
+
+Every setting that needs explaining has a question mark beside it. Press one and a panel
+opens with what the setting does, the range it accepts, the default, and an example where
+an example helps. Press elsewhere to close it.
+
+The panels cover the silence values, scaling silence to the speech rate, the hash and link
+filters, both character settings, the two folders, threads, chunk length, the saved audio
+format and the MP3 bit rate. The text lives in `SettingsHelp` in Core rather than in the
+XAML, so it is readable and testable without opening the window.
 
 ## Saved audio
 

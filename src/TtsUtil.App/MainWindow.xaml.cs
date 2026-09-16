@@ -953,6 +953,20 @@ public partial class MainWindow : Window
         if (chosen is not null) OutputDirBox.Text = chosen;
     }
 
+    /// <summary>Shows the explanation for whichever question mark was pressed.</summary>
+    private void OnSettingsHelp(object sender, RoutedEventArgs e)
+    {
+        if (sender is not FrameworkElement source) return;
+
+        var topic = SettingsHelp.Find(source.Tag as string);
+        if (topic is null) return;
+
+        SettingsHelpTitle.Text = topic.Title;
+        SettingsHelpBody.Text = topic.Body;
+        SettingsHelpPopup.PlacementTarget = source;
+        SettingsHelpPopup.IsOpen = true;
+    }
+
     private void OnApplySettings(object sender, RoutedEventArgs e)
     {
         ApplySettingsFromUi();
