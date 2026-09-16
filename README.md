@@ -1,128 +1,72 @@
 # TTS Util Win
 
-A Windows port of [TTS Util](https://github.com/jdanefinlay/tts-util-app) that synthesises
-speech locally with [sherpa-onnx](https://github.com/k2-fsa/sherpa-onnx). No system speech
-engine, no network access at run time, and your choice of an installer or a portable folder.
+![version](https://img.shields.io/badge/version-0.2.0--alpha-blue)
+![platform](https://img.shields.io/badge/platform-Windows%2010%20%7C%2011%20x64-0078D6)
+![built with](https://img.shields.io/badge/.NET-6.0-512BD4)
+![tests](https://img.shields.io/badge/tests-286%20passing-brightgreen)
+![licence](https://img.shields.io/badge/licence-Apache%202.0-lightgrey)
 
-## What it does
+> Read anything you can type, paste or open out loud, entirely on your own machine.
 
-* Read typed text, clipboard text, or a plain text file aloud.
-* Write the same input to an MP3 or a wave file, into a TTS Util folder under Music.
-* Insert custom silence for line endings, sentences, questions, and exclamations.
-* Omit hash characters, web links, and mailto links from the audio.
-* Read only letters and digits aloud by default, so symbols are never voiced as their names.
-* Read each word back as you finish typing it.
-* Import a PDF, including a scanned one, which is read with the OCR built into Windows.
-* Pause and resume playback, and start reading from any line.
-* Keep named scripts and reopen them, stored as ordinary text files.
-* Pick a voice, a speaker within a multi speaker voice, and a speech rate.
-* Search a long speaker list by name or number, and star the speakers you keep coming back to.
+## ✨ Highlights
 
-## Where to get a build
+* **Offline, always.** The voice runs locally. Nothing is uploaded, nothing is fetched while
+  you read, and no system speech engine is involved.
+* **Real neural voices.** Piper, Kokoro and Matcha models through
+  [sherpa-onnx](https://github.com/k2-fsa/sherpa-onnx), including one with over 900 speakers.
+* **Reads what a reader would read.** Symbols, links and stray punctuation are filtered out
+  instead of being spoken as "dollar", "hash" and "https colon slash slash".
+* **Text, files, PDFs and scans.** Scanned pages go through the OCR already in Windows.
+* **Listen or keep it.** Play it back, or write the same input to an MP3 or a wave file.
+* **Queue and repeat.** Line up a run of scripts, loop one of them, or loop the lot.
+* **Installer or portable.** One build gives both, and the portable copy touches nothing
+  outside its own folder.
 
-Published builds, when there are any, are attached to the
-[Releases page](https://github.com/jsphgei-dot/tts-util-win/releases). Nothing is committed
-to the repository itself: `dist/` is ignored, so the executable and the installer are always
-either downloaded from a release or built locally.
+## 📖 Overview
 
-Building takes about a minute and needs only the .NET 6 SDK.
+TTS Util Win turns text into speech on a Windows machine with no network access and no Windows
+voices. You give it typed text, the clipboard, a text file or a PDF; it picks the text apart
+into sentences, filters out what should not be spoken, and streams the audio from a neural
+model as it is generated, so a long document starts playing in about a second rather than
+after the whole thing has been synthesised.
 
-## Quick start
+The speech comes from [sherpa-onnx](https://github.com/k2-fsa/sherpa-onnx) running ONNX models
+on the CPU. Voices are ordinary folders you can add, remove and back up. The program ships
+with none and offers a curated list to download, so you choose what lands on the disk.
 
-```powershell
-# 1. Download voices (about 490 MB for the three permissively licensed defaults).
-.\scripts\FetchVoices.ps1 -List
-.\scripts\FetchVoices.ps1 -Default
+### How it relates to TTS Util
 
-# 2. Build the portable executable into dist\TtsUtilWin.
-.\scripts\BuildPortable.ps1
+This is a Windows port of [TTS Util](https://github.com/jdanefinlay/tts-util-app), the Android
+application by Dane Finlay, and it keeps that program's ideas: read aloud or save to a file,
+custom silence around sentences and line endings, filters for the things a reader would skip.
+What is new here is the engine (Android hands text to the system TTS service, this carries its
+own), PDF and OCR import, the script library and the queue.
 
-# 3. Run it.
-.\dist\TtsUtilWin\TtsUtilWin.exe
-```
+### Who made it
 
-## Building a release
+Written by [jsphgei-dot](https://github.com/jsphgei-dot). The original TTS Util is by Dane
+Finlay. See `NOTICE` for the full attribution.
 
-**Prerequisites**
+## ⬇️ Install
 
-* .NET 6 SDK, for everything.
-* [Inno Setup 6](https://jrsoftware.org/isinfo.php), only if you want the installer:
-  `winget install JRSoftware.InnoSetup`. The build script finds it automatically, whether
-  winget installed it per user or per machine.
+**Download a build.** Published builds are attached to the
+[Releases page](https://github.com/jsphgei-dot/tts-util-win/releases). Nothing is committed to
+the repository: `dist/` is ignored, so the executable and the installer are always either
+downloaded from a release or built locally.
 
-**Commands**
+**Installer.** `TtsUtilWin-<version>-setup.exe` asks on its first page whether to install for
+all users (needs administrator) or just for you (recommended, no prompt), then adds a Start
+menu entry, an optional desktop shortcut, and an entry in Settings, Apps. Settings go to
+`%APPDATA%\TtsUtilWin`.
 
-```powershell
-.\scripts\BuildPortable.ps1                 # portable folder only
-.\scripts\BuildPortable.ps1 -Installer      # portable folder and the setup program
-.\scripts\BuildPortable.ps1 -Installer -IncludeVoices   # also copy the voice models in
-```
+A components page lists the curated voices with a checkbox and a size each. "Program and the
+three recommended voices" ticks the permissively licensed defaults, "Program only" ticks none,
+and "Choose voices" leaves every box to you. Setup downloads what is ticked and extracts it
+into `voices` beside the program, skipping any model already present. A failed download warns
+and lets the installation finish. Uninstalling removes the voices it installed.
 
-**Outputs**
-
-| What | Path | Size |
-| --- | --- | --- |
-| Portable folder | `dist\TtsUtilWin\` | 70 MB, plus voices |
-| Portable executable | `dist\TtsUtilWin\TtsUtilWin.exe` | 70 MB |
-| Installer | `dist\TtsUtilWin-<version>-setup.exe` | 65 MB |
-
-**Switches**
-
-| Switch | Effect |
-| --- | --- |
-| `-Installer` | Compiles `installer\TtsUtilWin.iss` after publishing |
-| `-IncludeVoices` | Copies `voices\` into the portable folder, so it can be zipped and handed over whole |
-| `-SkipTests` | Skips both test suites. The build normally refuses to publish if any test fails |
-| `-OutputDirectory <path>` | Publishes somewhere other than `dist\TtsUtilWin` |
-| `-Configuration`, `-Runtime` | Default to `Release` and `win-x64` |
-
-The version in the installer filename, in its Apps entry and in the executable's file
-properties all come from `Directory.Build.props`. Nothing needs editing in two places.
-
-To publish a build for other people, attach the two artifacts to a GitHub release:
-
-```powershell
-gh release create v0.1.0-alpha `
-  dist\TtsUtilWin-0.1.0-alpha-setup.exe `
-  --title "0.1.0-alpha" --notes "First tagged build."
-```
-
-## Installing, or not
-
-Two ways to run it, from one build:
-
-* **Installer.** `scripts\BuildPortable.ps1 -Installer` produces
-  `dist\TtsUtilWin-<version>-setup.exe`. Its first page asks whether to install for all
-  users (needs administrator) or just for you (recommended, no prompt), then adds a Start
-  menu entry, an optional desktop shortcut, and an entry in Settings, Apps. Settings go to
-  `%APPDATA%\TtsUtilWin`.
-* **Voices during setup.** A components page lists the curated models with a checkbox and
-  a size each. "Program and the three recommended voices" ticks the permissively licensed
-  defaults, "Program only" ticks none, and "Choose voices" leaves every box to you. Setup
-  downloads what is ticked from the sherpa-onnx release page and extracts it into `voices`
-  beside the program, skipping any model already present. A failed download warns and lets
-  the installation finish; run `FetchVoices.ps1` afterwards for whatever is missing.
-  Uninstalling removes the voices it installed.
-* **Reinstalling and upgrading.** Setup recognises an existing installation by its
-  application id and acts on the version it finds. A newer setup upgrades in place, keeping
-  the folder, shortcuts, settings and the voices already downloaded, and the ready page says
-  so. The same version offers a repair, which replaces the program files and fetches any
-  ticked voice that is missing. An older setup warns that it would downgrade and asks for
-  confirmation. A running copy is closed through the Restart Manager rather than failing on
-  a locked file, and the folder page is skipped when a previous install is found. There is
-  no need to uninstall first.
-* **Portable.** Copy `dist\TtsUtilWin` anywhere. The `portable.txt` file beside the
-  executable keeps settings and voices inside that folder, so nothing touches the profile.
-
-The voices directory is resolved in this order, first hit wins:
-
-1. `--voices <path>` on the command line
-2. the `TTSUTIL_VOICES` environment variable
-3. the Settings tab, stored in `settings.json`
-4. `%LOCALAPPDATA%\TtsUtilWin\voices`
-5. a `voices` folder beside the executable
-
-## Layout of a portable install
+**Portable.** Copy the `TtsUtilWin` folder anywhere. The `portable.txt` file beside the
+executable keeps settings and voices inside that folder, so nothing touches your profile.
 
 ```
 TtsUtilWin\
@@ -133,22 +77,28 @@ TtsUtilWin\
     kokoro-en-v0_19\
 ```
 
-The app looks for voices in `voices` beside the executable, then in the nearest `voices`
-folder above it, and finally wherever the Settings tab points. Press **Rescan** after
-adding a model.
+**Upgrading.** Setup recognises an existing installation by its application id. A newer setup
+upgrades in place, keeping the folder, shortcuts, settings and the voices already downloaded.
+The same version offers a repair. An older setup warns that it would downgrade and asks for
+confirmation. A running copy is closed through the Restart Manager rather than failing on a
+locked file. There is no need to uninstall first.
 
-## Voices
+**Requirements.** Windows 10 or 11, x64. The published executable is self contained and needs
+no runtime installed. OCR of scanned PDFs uses the Windows OCR engine, which needs a language
+pack, the kind Windows installs with its display languages.
 
-**From the program.** The **Voices** tab lists the curated models with their size, licence
-and whether they are installed. Select one and press **Install**: it is downloaded, checked
-and unpacked into the voices directory, with a progress bar and a Cancel button. **Remove**
-deletes one again. A cancelled or failed install leaves nothing behind. When the configured
-voices directory cannot be written, which happens for an all users installation under
-Program Files, the download goes to `%LOCALAPPDATA%\TtsUtilWin\voices` instead, and the tab
-says where it is writing.
+## 🎧 Usage
 
-**From a script.** `scripts\FetchVoices.ps1` does the same job for a portable copy or an
-unattended setup. The three defaults were chosen for clear, free licences:
+### Voices
+
+The **Voices** tab lists the curated models with their size, licence and whether they are
+installed. Select one and press **Install**: it is downloaded, checked and unpacked, with a
+progress bar and a Cancel button. **Remove** deletes one again, and a cancelled or failed
+install leaves nothing behind. When the configured voices directory cannot be written, which
+happens for an all users installation under Program Files, the download goes to
+`%LOCALAPPDATA%\TtsUtilWin\voices` instead and the tab says so.
+
+The three defaults were chosen for clear, free licences:
 
 | Model | Voice | Licence |
 | --- | --- | --- |
@@ -157,13 +107,37 @@ unattended setup. The three defaults were chosen for clear, free licences:
 | `kokoro-en-v0_19` | English, 11 voices | Apache 2.0 |
 
 The installer offers these three plus `vits-piper-en_GB-alan-medium`,
-`vits-piper-en_US-amy-low` and `vits-piper-en_US-lessac-medium` as checkboxes.
+`vits-piper-en_US-amy-low` and `vits-piper-en_US-lessac-medium`.
 
-**Other languages.** The Voices tab also lists Spanish (Spain and Mexico), French, German,
-Italian, Portuguese (Brazil), Dutch, Polish, Swedish, Turkish, Vietnamese, Russian,
-Ukrainian, Greek, Arabic, Hindi and Chinese. None of them is installed by default and none is
-offered as a setup checkbox: they are there to install when you want one, and nothing is
-downloaded until you press Install.
+For a portable copy or an unattended setup, `scripts\FetchVoices.ps1` does the same job:
+
+```powershell
+.\scripts\FetchVoices.ps1 -List          # the whole catalogue
+.\scripts\FetchVoices.ps1 -Default       # the three defaults, about 490 MB
+.\scripts\FetchVoices.ps1 -Name kokoro-en-v0_19
+```
+
+On an all users installation the program folder is under Program Files, so running the script
+there needs an elevated PowerShell, or a `-Destination` you can write to. The authoritative
+licence for a model is the `LICENSE` or `MODEL_CARD` file inside its folder, and the About tab
+shows it for the selected voice.
+
+The voices directory is resolved in this order, first hit wins:
+
+1. `--voices <path>` on the command line
+2. the `TTSUTIL_VOICES` environment variable
+3. the Settings tab, stored in `settings.json`
+4. `%LOCALAPPDATA%\TtsUtilWin\voices`
+5. a `voices` folder beside the executable
+
+Press **Rescan** after adding a model by hand.
+
+#### Other languages
+
+The Voices tab also lists Spanish (Spain and Mexico), French, German, Italian, Portuguese
+(Brazil), Dutch, Polish, Swedish, Turkish, Vietnamese, Russian, Ukrainian, Greek, Arabic,
+Hindi and Chinese. None is installed by default and none is offered as a setup checkbox: they
+are there to install when you want one.
 
 Anything outside the Latin alphabet, which is Russian, Ukrainian, Greek, Arabic, Hindi and
 Chinese here, needs **Characters read aloud** set to any letter or digit in Settings,
@@ -171,43 +145,12 @@ otherwise the strict default removes the whole script before it reaches the voic
 one of those says so. Vietnamese is Latin but heavily accented: under the strict setting its
 accents fold away, so it wants the wider setting too.
 
-Run the script with `-List` for the rest of the catalogue, and `-Name <id>` to fetch one.
-On an all users installation the program folder is under Program Files, so running the
-script there needs an elevated PowerShell, or a `-Destination` you can write to.
-The authoritative licence for a model is the `LICENSE` or `MODEL_CARD` file inside its
-folder; the About tab displays it for the selected voice.
+#### Speakers
 
-### What gets read aloud
-
-By default only letters, digits and the punctuation that phrases speech reach the engine.
-Everything else is dropped, because a text to speech engine happily says "dollar",
-"percent" and "hash" out loud where a reader would say nothing.
-
-* **Kept and voiced:** `a-z`, `A-Z`, `0-9`. Accented Latin letters are folded to their base
-  letter, so `café` is read as `cafe` rather than broken into `caf`.
-* **Kept as phrasing:** `. , ; : ? !` and their fullwidth forms. The engine pauses on these
-  rather than naming them, which is exactly the behaviour asked for.
-* **Dropped:** everything else. A symbol between two words leaves a gap so the words do not
-  run together, while an apostrophe inside a word simply vanishes, so `don't` stays one
-  word. Sentence ending punctuation already became silence in the chunker before this runs.
-
-Settings has two controls for it. **Characters read aloud** chooses between the strict set
-above, any Unicode letter or digit, or no filtering at all. **Also read these characters**
-lets extra characters through: type the characters themselves, one after another, with
-nothing between them. There is no separator, so `%$&+` allows all four. A comma typed there
-means the comma character rather than a separator, and spaces do nothing.
-
-One consequence worth knowing: the strict default removes non Latin scripts entirely, so a
-Chinese or Japanese voice reads nothing under it. Switch to "Any letter or digit" for
-those. If a run ends up with nothing to say, the status bar says so and points at the
-setting rather than finishing silently.
-
-### Speakers
-
-A multi speaker voice shows a speaker row under the voice picker. Names come from the
-model's own metadata where it has any: piper models carry a `speaker_id_map`, so
-`vits-piper-en_US-libritts_r-medium` lists its 904 speakers by LibriTTS reader id rather
-than by position. Where a model says nothing, the speakers are numbered.
+A multi speaker voice shows a speaker row under the voice picker. Names come from the model's
+own metadata where it has any: piper models carry a `speaker_id_map`, so
+`vits-piper-en_US-libritts_r-medium` lists its 904 speakers by LibriTTS reader id rather than
+by position. Where a model says nothing, the speakers are numbered.
 
 To name them yourself, drop a `speakers.txt` into the voice folder. A line is either
 `id = name` or a bare name, bare lines numbering themselves from zero, and blank lines and
@@ -219,38 +162,79 @@ lines starting with `#` are ignored. Your names win over the model's.
 307 = Warm, low
 ```
 
-The search box filters by name or by leading digits of the number, and Star keeps a speaker
-at the top of the list. Both the chosen speaker and its starred speakers are remembered per
-voice, so switching voices and back returns you to where you were. Favourites shows only
-the starred speakers, and shows everything again when pressed a second time.
+The search box filters by name or by leading digits of the number, and Star keeps a speaker at
+the top of the list. Both the chosen speaker and its starred speakers are remembered per voice.
+Favourites shows only the starred speakers, and shows everything again when pressed a second
+time.
 
-## Settings
+### Reading text
 
-Every setting that needs explaining has a question mark beside it. Press one and a panel
-opens with what the setting does, the range it accepts, the default, and an example where
-an example helps. Press elsewhere to close it.
+Type or paste into the Text tab and press **Read**. **Read as I type** speaks each word as you
+finish it, never single letters. The voice, the speaker and the speech rate sit along the top.
 
-The panels cover the silence values, scaling silence to the speech rate, the hash and link
-filters, both character settings, the two folders, threads, chunk length, the saved audio
-format and the MP3 bit rate. The text lives in `SettingsHelp` in Core rather than in the
-XAML, so it is readable and testable without opening the window.
+### Moving about while it reads
 
-## Saved audio
+Pause holds the audio device and Resume carries on from the same place. Synthesis keeps a few
+seconds of lookahead and then waits, so pausing does not quietly race ahead generating the rest
+of the book. Stop gives up on the run entirely; pressing it while paused releases the pause
+first, so nothing is left waiting.
 
-Save audio writes MP3 by default, which is roughly a tenth the size of the equivalent wave
-file and plays in anything. Switch to WAV in Settings if you want uncompressed audio, and set
-the MP3 bit rate there too. The file type actually written follows the extension you choose
-in the save dialog, so you can override the default for one file.
+There is no scrub bar, because the audio does not exist yet: it is synthesised as it plays.
+Moving about is done by line instead, and Stop is no part of it. While a reading is in flight,
+**Read** becomes **Restart** and starts the same reading again from where it began. **Read from
+here**, and a double click in the line list, move the reading to that line without stopping
+first. Each of these stops the current run, waits for it to unwind, and starts the next one.
+
+A restart also sounds the same as the reading it replaces. The voice draws its prosody from a
+random generator that runs on from one sentence to the next, so reading a passage twice with
+the same voice gives two different deliveries. Every run therefore begins by winding the voice
+back to the state it loaded in, which takes about three quarters of a second on a Piper medium
+model and is reported as *Preparing the voice*. The same applies to a repeat and to each entry
+in the queue: a passage read twice is read identically.
+
+The Text tab shows a numbered line list beside the editor. Double click a line, or select it
+and press **Read from here**, to start there instead of at the top. With nothing selected,
+**Read from here** uses the line the cursor is on, so you can click into the text and carry on
+from there, whether or not something is already playing.
+
+The list follows what you are hearing, not what has been synthesised: audio is generated
+several seconds ahead of the speaker, so following synthesis left the highlight a line or two
+early. The reading is marked as it is queued and the list follows the marks as they play. That
+makes Stop and **Read from here** a resume, since the selection is left on the line playback
+reached. Untick **Lines** to hide the list and give the editor the full width.
+
+### Files and PDFs
+
+The File tab takes a text file or a PDF. **Import to Text tab** puts the extracted text in the
+Text tab so you can read it over and edit it before listening; **Read file** and **Convert to
+WAV** go straight through.
+
+Text comes from the PDF's own text layer, read with PdfPig, which covers anything produced by a
+word processor or a typesetter. A page with no text layer is a scan, and its images are passed
+to the OCR engine built into Windows, so nothing is downloaded and nothing leaves the machine.
+A file is judged by its header rather than its extension, so a text file named `.pdf` is still
+read as text.
+
+The status line reports how many pages had no text layer and which pages yielded nothing, so a
+partial read is visible rather than silent. If Windows has no OCR language pack installed,
+scanned pages are reported as unreadable instead of failing.
+
+### Saving audio
+
+Save audio writes MP3 by default, which is roughly a tenth the size of the equivalent wave file
+and plays in anything. Switch to WAV in Settings if you want uncompressed audio, and set the
+MP3 bit rate there too. The file type actually written follows the extension you choose in the
+save dialog, so you can override the default for one file.
 
 Files go to a `TTS Util` folder inside Music unless you set another output directory. The
-folder is created when it is first needed. After a file is written the status bar names it
-and the folder is a link: click it to open that folder.
+folder is created when it is first needed. After a file is written the status bar names it and
+the folder is a link: click it to open that folder.
 
 MP3 is encoded with the Media Foundation encoder built into Windows, so nothing extra is
-installed. Encoding happens after synthesis, on the same background thread, so the window
-stays responsive; the status bar says "Encoding MP3..." while it runs.
+installed. Encoding happens after synthesis, on the same background thread, so the window stays
+responsive; the status bar says "Encoding MP3..." while it runs.
 
-## Saved scripts
+### Scripts
 
 The Scripts tab keeps named texts you can come back to. Type a title, press **Save from Text
 tab**, and the text is written as a `.txt` file; **Open in Text tab** loads one back, ready to
@@ -261,10 +245,10 @@ Scripts are plain UTF-8 text files, one per script, named after the title. They 
 copy. **Open folder** opens that location. Nothing is trapped in an application format: edit
 the files in any editor, or drop one in from elsewhere and it appears in the list.
 
-Characters Windows will not accept in a file name become spaces in the file name, so
-`Chapter 1: the beginning` is stored as `Chapter 1 the beginning.txt`.
+Characters Windows will not accept in a file name become spaces, so `Chapter 1: the beginning`
+is stored as `Chapter 1 the beginning.txt`.
 
-## The queue
+### The queue
 
 The panel on the right of the Scripts tab is a playlist. The **+** button adds whatever is
 selected in the script list, or the Text tab itself when nothing is selected, so a chapter you
@@ -282,74 +266,108 @@ The repeat button cycles three ways and the label beside it says which is in for
 
 Repeat one works on a single reading as much as on the queue, so the Text tab can be left
 looping without pressing Read each time. Stop ends the repeat, whichever mode is set, and the
-mode is remembered between sessions. An entry that cannot be read (an empty script, a file
-that has gone) is reported and skipped rather than retried for ever.
+mode is remembered between sessions. An entry that cannot be read (an empty script, a file that
+has gone) is reported and skipped rather than retried for ever.
 
-## The status bar
+### Settings
+
+Every setting that needs explaining has a question mark beside it. Press one and a panel opens
+with what the setting does, the range it accepts, the default, and an example where an example
+helps. Press elsewhere to close it.
+
+The panels cover the silence values, scaling silence to the speech rate, the hash and link
+filters, both character settings, the two folders, threads, chunk length, the saved audio
+format and the MP3 bit rate. The text lives in `SettingsHelp` in Core rather than in the XAML,
+so it is readable and testable without opening the window.
+
+Two groups are worth knowing about before you go looking. **Silence** sets how long a pause
+follows a line ending, a sentence, a question and an exclamation, in milliseconds, and can be
+scaled with the speech rate so a fast reading does not sit in long gaps. **Filters** drop hash
+characters, web links and mailto links before they reach the voice, since a spoken URL is
+noise rather than information.
+
+#### What gets read aloud
+
+By default only letters, digits and the punctuation that phrases speech reach the engine.
+Everything else is dropped, because a text to speech engine happily says "dollar", "percent"
+and "hash" out loud where a reader would say nothing.
+
+* **Kept and voiced:** `a-z`, `A-Z`, `0-9`. Accented Latin letters are folded to their base
+  letter, so `café` is read as `cafe` rather than broken into `caf`.
+* **Kept as phrasing:** `. , ; : ? !` and their fullwidth forms. The engine pauses on these
+  rather than naming them.
+* **Dropped:** everything else. A symbol between two words leaves a gap so the words do not run
+  together, while an apostrophe inside a word simply vanishes, so `don't` stays one word.
+  Sentence ending punctuation already became silence in the chunker before this runs.
+
+Settings has two controls for it. **Characters read aloud** chooses between the strict set
+above, any Unicode letter or digit, or no filtering at all. **Also read these characters** lets
+extra characters through: type the characters themselves, one after another, with nothing
+between them. There is no separator, so `%$&+` allows all four. A comma typed there means the
+comma character rather than a separator, and spaces do nothing.
+
+One consequence worth knowing: the strict default removes non Latin scripts entirely, so a
+Chinese or Japanese voice reads nothing under it. If a run ends up with nothing to say, the
+status bar says so and points at the setting rather than finishing silently.
+
+### The status bar
 
 The bar along the bottom shows one message at a time, which used to mean a finished run, a
 filtered count, or an error vanished as soon as the next message arrived. **History** opens a
 list of the last 50 messages, newest first. Repeats are collapsed, so a progress figure that
 updates many times a second does not crowd out everything else.
 
-## Pause, resume and moving about
+## 🛠️ Build from source
 
-Pause holds the audio device and Resume carries on from the same place. Synthesis keeps a few
-seconds of lookahead and then waits, so pausing does not quietly race ahead generating the
-rest of the book. Stop gives up on the run entirely; pressing it while paused releases the
-pause first, so nothing is left waiting.
+Building takes about a minute and needs only the .NET 6 SDK.
 
-There is no scrub bar, because the audio does not exist yet: it is synthesised as it plays.
-Moving about is done by line instead, and Stop is no longer part of it. While a reading is in
-flight, **Read** becomes **Restart** and starts the same reading again from where it began.
-**Read from here**, and a double click in the line list, move the reading to that line without
-stopping first. Each of these stops the current run, waits for it to unwind, and starts the
-next one.
+```powershell
+# 1. Download voices (about 490 MB for the three permissively licensed defaults).
+.\scripts\FetchVoices.ps1 -Default
 
-A restart also sounds the same as the reading it replaces. The voice draws its prosody from a
-random generator that runs on from one sentence to the next, so reading a passage twice with
-the same voice gives two different deliveries. Every run therefore begins by winding the voice
-back to the state it loaded in, which takes about three quarters of a second on a Piper medium
-model and is reported as *Preparing the voice*. The same applies to a repeat and to each entry
-in the queue: a passage read twice is read identically.
+# 2. Build the portable executable into dist\TtsUtilWin.
+.\scripts\BuildPortable.ps1
 
-## Reading from a line
+# 3. Run it.
+.\dist\TtsUtilWin\TtsUtilWin.exe
+```
 
-The Text tab shows a numbered line list beside the editor. Double click a line, or select it
-and press **Read from here**, to start there instead of at the top. With nothing selected,
-**Read from here** uses the line the cursor is on, so you can click into the text and carry
-on from there, whether or not something is already playing.
+The installer needs [Inno Setup 6](https://jrsoftware.org/isinfo.php) as well:
+`winget install JRSoftware.InnoSetup`. The build script finds it automatically, whether winget
+installed it per user or per machine.
 
-The list follows what you are hearing, not what has been synthesised: audio is generated
-several seconds ahead of the speaker, so following synthesis left the highlight a line or two
-early. The reading is marked as it is queued and the list follows the marks as they play. That
-makes Stop and **Read from here** a resume, since the selection is left on the line playback
-reached. Untick **Lines** to hide the list and give the editor the full width.
+```powershell
+.\scripts\BuildPortable.ps1                 # portable folder only
+.\scripts\BuildPortable.ps1 -Installer      # portable folder and the setup program
+.\scripts\BuildPortable.ps1 -Installer -IncludeVoices   # also copy the voice models in
+```
 
-## PDFs
+| What | Path | Size |
+| --- | --- | --- |
+| Portable folder | `dist\TtsUtilWin\` | 70 MB, plus voices |
+| Portable executable | `dist\TtsUtilWin\TtsUtilWin.exe` | 70 MB |
+| Installer | `dist\TtsUtilWin-<version>-setup.exe` | 65 MB |
 
-The File tab takes a PDF as well as a text file. **Import to Text tab** puts the extracted
-text in the Text tab so you can read it over and edit it before listening; **Read file** and
-**Convert to WAV** go straight through.
+| Switch | Effect |
+| --- | --- |
+| `-Installer` | Compiles `installer\TtsUtilWin.iss` after publishing |
+| `-IncludeVoices` | Copies `voices\` into the portable folder, so it can be zipped and handed over whole |
+| `-SkipTests` | Skips both test suites. The build normally refuses to publish if any test fails |
+| `-OutputDirectory <path>` | Publishes somewhere other than `dist\TtsUtilWin` |
+| `-Configuration`, `-Runtime` | Default to `Release` and `win-x64` |
 
-Text comes from the PDF's own text layer, read with PdfPig, which covers anything produced
-by a word processor or a typesetter. A page with no text layer is a scan, and its images are
-passed to the OCR engine built into Windows, so nothing is downloaded and nothing leaves the
-machine. A file is judged by its header rather than its extension, so a text file named
-`.pdf` is still read as text.
+The version in the installer filename, in its Apps entry and in the executable's file
+properties all come from `Directory.Build.props`. Nothing needs editing in two places. To
+publish a build for other people, attach the artifacts to a GitHub release:
 
-The status line reports how many pages had no text layer and which pages yielded nothing, so
-a partial read is visible rather than silent. If Windows has no OCR language pack installed,
-scanned pages are reported as unreadable instead of failing.
+```powershell
+gh release create v0.2.0-alpha `
+  dist\TtsUtilWin-0.2.0-alpha-setup.zip `
+  dist\TtsUtilWin-0.2.0-alpha-portable.zip `
+  --title "0.2.0-alpha" --notes-file dist\RELEASE_NOTES_v0.2.0-alpha.md
+```
 
-## Requirements
-
-* Windows 10 or 11, x64. OCR of scanned PDFs uses the Windows OCR engine, which needs a
-  language pack Windows installs with its display languages.
-* .NET 6 SDK to build, plus Inno Setup 6 for the installer. The published executable is
-  self contained and needs no runtime on the machine that runs it.
-
-## Developing and testing
+## 🧪 Develop and test
 
 ```powershell
 dotnet build TtsUtilWin.sln
@@ -358,26 +376,24 @@ dotnet test tests\TtsUtil.App.Tests -p:SkipTests=true
 ```
 
 `TtsUtil.Core` targets plain `net6.0` and holds the text and audio logic, so it is testable
-without a UI. `TtsUtil.App` is the WPF front end.
-
-There are two test projects: `TtsUtil.Core.Tests` for the platform neutral half, and
-`TtsUtil.App.Tests`, which builds the real `MainWindow` on an STA dispatcher thread and
-raises Click events on its actual buttons. The UI tests need no display and no voice model,
-and the whole suite runs in under a second.
+without a UI. `TtsUtil.App` is the WPF front end. There are two test projects to match:
+`TtsUtil.Core.Tests` for the platform neutral half, and `TtsUtil.App.Tests`, which builds the
+real `MainWindow` on an STA dispatcher thread and raises Click events on its actual buttons.
+The UI tests need no display and no voice model, and the whole suite runs in under a second.
 
 **The tests gate every build of the app.** A `BeforeTargets="BeforeBuild"` target in
 `TtsUtil.App.csproj` runs the core tests first and fails the build if any test fails, so a
-broken pipeline can never reach a published executable. `BuildPortable.ps1` runs both
-suites up front and refuses to publish on a failure. The UI tests are deliberately not in
-the csproj target, since building the app under test from inside its own build would
-collide. To bypass the gate during a fast edit loop:
+broken pipeline can never reach a published executable. `BuildPortable.ps1` runs both suites up
+front and refuses to publish on a failure. The UI tests are deliberately not in the csproj
+target, since building the app under test from inside its own build would collide. To bypass
+the gate during a fast edit loop:
 
 ```powershell
 dotnet build src\TtsUtil.App -p:SkipTests=true
 .\scripts\BuildPortable.ps1 -SkipTests
 ```
 
-## Git hooks
+### Git hooks
 
 Run once per clone:
 
@@ -394,26 +410,40 @@ rather than stranded in `.git\hooks`. Each is a small shell shim over a PowerShe
 | `commit-msg` | Conventional Commits subject in lowercase with no trailing period, 72 character subject, blank line before the body, body of 200 words or fewer, no tool attribution line | instant |
 | `pre-push` | the whole suite, user interface tests included | about 15 s |
 
-`pre-commit` also runs `scripts\TestInstaller.ps1` when an `.iss` file is staged. That
-compiles `installer\VersionTests.iss`, which includes the same `installer\Version.iss` the
-real installer uses, runs it silently and checks 14 version comparison cases, so the
-upgrade, repair and downgrade decisions are tested rather than assumed.
+`pre-commit` also runs `scripts\TestInstaller.ps1` when an `.iss` file is staged. That compiles
+`installer\VersionTests.iss`, which includes the same `installer\Version.iss` the real installer
+uses, runs it silently and checks 14 version comparison cases, so the upgrade, repair and
+downgrade decisions are tested rather than assumed.
 
 The heavy UI tests sit on push rather than commit so that committing stays quick. Bypass a
 single run with `git commit --no-verify` or `git push --no-verify`, and a whole session with
-`$env:SKIP_HOOKS = 1`. `.editorconfig` holds the formatting rules that `dotnet format`
-enforces, so an editor and the hook agree.
+`$env:SKIP_HOOKS = 1`. `.editorconfig` holds the formatting rules that `dotnet format` enforces,
+so an editor and the hook agree.
 
-## Versioning
+### Versioning
 
 Two numbers, the same split the Android original uses: a semantic **version name**
-(`0.1.0-alpha`) and a monotonic **version code** (`1`) that increases on every release and is
-never reused. Both live in `Directory.Build.props`, both are compiled into the executable,
-and the About tab shows them. Git tags match the version name, prefixed with `v`.
+(`0.2.0-alpha`) and a monotonic **version code** (`5`) that increases on every release and is
+never reused. Both live in `Directory.Build.props`, both are compiled into the executable, and
+the About tab shows them. Git tags match the version name, prefixed with `v`.
 
-See `DECISIONS.md` for the rules and for the open questions about cross platform support.
+## 🤝 Contributing and feedback
 
-## Licence
+Bug reports, voice suggestions and pull requests are welcome through
+[issues](https://github.com/jsphgei-dot/tts-util-win/issues). A report that names the voice, the
+setting and the text that misbehaved is worth a great deal, since most of the awkward cases live
+in the text rather than in the code. Run `.\scripts\InstallHooks.ps1` before your first commit so
+the formatting and test gates run locally rather than surprising you later.
 
-Apache 2.0, the same licence as the original TTS Util by Dane Finlay and as sherpa-onnx.
-See `LICENSE` and `NOTICE`. Voice models carry their own licences, listed above.
+## 📚 Further reading
+
+* `SPEC.md`, what is built, what is tested and what is left.
+* `DECISIONS.md`, why the awkward choices were made the way they were.
+* [TTS Util](https://github.com/jdanefinlay/tts-util-app), the Android original.
+* [sherpa-onnx](https://github.com/k2-fsa/sherpa-onnx), the engine, and its
+  [voice catalogue](https://github.com/k2-fsa/sherpa-onnx/releases/tag/tts-models).
+
+## ⚖️ Licence
+
+Apache 2.0, the same licence as the original TTS Util by Dane Finlay and as sherpa-onnx. See
+`LICENSE` and `NOTICE`. Voice models carry their own licences, listed above.
