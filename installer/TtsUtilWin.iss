@@ -91,7 +91,7 @@ Name: "desktopicon"; Description: "Create a &desktop shortcut"; GroupDescription
 Source: "{#SourceDir}\{#AppExeName}"; DestDir: "{app}"; Components: app; Flags: ignoreversion
 Source: "..\LICENSE";                 DestDir: "{app}"; Components: app; Flags: ignoreversion
 Source: "..\NOTICE";                  DestDir: "{app}"; Components: app; Flags: ignoreversion
-Source: "..\README.md";               DestDir: "{app}"; Components: app; Flags: ignoreversion
+Source: "..\distribution\README.md"; DestDir: "{app}"; Components: app; Flags: ignoreversion
 Source: "..\THIRD-PARTY-NOTICES.txt"; DestDir: "{app}"; Components: app; Flags: ignoreversion
 Source: "..\scripts\FetchVoices.ps1"; DestDir: "{app}\scripts"; Components: app; Flags: ignoreversion
 

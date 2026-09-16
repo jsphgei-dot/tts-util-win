@@ -86,10 +86,15 @@ if ($IncludeVoices) {
 }
 
 # Apache 2.0 asks for the licence and the notices to travel with the program, so the portable
-# copy carries the same four files the installer lays down.
-foreach ($doc in 'README.md', 'LICENSE', 'NOTICE', 'THIRD-PARTY-NOTICES.txt') {
+# copy carries the same files the installer lays down.
+foreach ($doc in 'LICENSE', 'NOTICE', 'THIRD-PARTY-NOTICES.txt') {
     Copy-Item -Path (Join-Path $root $doc) -Destination $OutputDirectory -Force
 }
+
+# The README that ships is the one written for people running the program, not the one about
+# building it. The top level README stays where it is, for this repository.
+Copy-Item -Path (Join-Path $root 'distribution\README.md') `
+    -Destination (Join-Path $OutputDirectory 'README.md') -Force
 
 # FetchVoices.ps1 works out its default destination from its parent folder, so it has to sit
 # in scripts\ for models to land in this folder's voices directory rather than beside it.
