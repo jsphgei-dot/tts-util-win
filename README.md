@@ -398,6 +398,22 @@ The manifest is pushed **after** the assets, so nobody is pointed at a download 
 there yet. The seed files for that public repository, its README and the changelog, live in
 `distribution\` here.
 
+### Code signing
+
+The build is unsigned by default, which is why SmartScreen warns the first time a setup runs.
+Both scripts take a certificate thumbprint and sign with it when one is given:
+
+```powershell
+.\scripts\Publish.ps1 -Publish -NotesFile dist\notes.md -CertThumbprint ABC123DEF456
+```
+
+The certificate is looked up in the current user's store by thumbprint, so nothing secret is
+written down here. `TtsUtilWin.exe` is signed before the installer is compiled, so the
+installed copy carries the signature too, and the setup is signed after Inno Setup builds it.
+Both signatures are timestamped, which keeps them valid after the certificate expires, and
+both are verified with `signtool verify /pa` before the build is allowed to finish. Leave
+`-CertThumbprint` off and the build is unsigned exactly as before.
+
 ## 🧪 Develop and test
 
 ```powershell

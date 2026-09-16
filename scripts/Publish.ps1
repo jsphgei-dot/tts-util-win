@@ -12,6 +12,9 @@
 
 .EXAMPLE
     .\Publish.ps1 -Publish -NotesFile dist\RELEASE_NOTES_v0.3.0-beta.md
+
+.EXAMPLE
+    .\Publish.ps1 -Publish -NotesFile dist\notes.md -CertThumbprint ABC123DEF456
 #>
 [CmdletBinding()]
 param(
@@ -21,7 +24,11 @@ param(
 
     [switch]$Publish,
 
-    [switch]$SkipTests
+    [switch]$SkipTests,
+
+    [string]$CertThumbprint,
+
+    [string]$TimestampUrl = 'http://timestamp.digicert.com'
 )
 
 $ErrorActionPreference = 'Stop'
@@ -38,8 +45,14 @@ $version = if ($suffix) { "$prefix-$suffix" } else { $prefix }
 $tag = "v$version"
 
 Write-Host "Packaging $version (version code $code)" -ForegroundColor Cyan
+if (-not $CertThumbprint) {
+    Write-Host 'No certificate given, so this release is unsigned and SmartScreen will warn.' -ForegroundColor Yellow
+}
 
-& (Join-Path $PSScriptRoot 'BuildPortable.ps1') -Installer -SkipTests:$SkipTests
+# The exe and the setup are both signed inside the build, before either is zipped, so the
+# hashes written below belong to the signed files.
+& (Join-Path $PSScriptRoot 'BuildPortable.ps1') -Installer -SkipTests:$SkipTests `
+    -CertThumbprint $CertThumbprint -TimestampUrl $TimestampUrl
 if ($LASTEXITCODE -ne 0) { throw 'Build failed.' }
 
 $portableZip = Join-Path $dist "TtsUtilWin-$version-portable.zip"

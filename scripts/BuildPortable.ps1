@@ -12,6 +12,9 @@
 
 .EXAMPLE
     .\BuildPortable.ps1 -IncludeVoices
+
+.EXAMPLE
+    .\BuildPortable.ps1 -Installer -CertThumbprint ABC123DEF456
 #>
 [CmdletBinding()]
 param(
@@ -20,10 +23,14 @@ param(
     [string]$OutputDirectory,
     [switch]$IncludeVoices,
     [switch]$SkipTests,
-    [switch]$Installer
+    [switch]$Installer,
+    [string]$CertThumbprint,
+    [string]$TimestampUrl = 'http://timestamp.digicert.com'
 )
 
 $ErrorActionPreference = 'Stop'
+
+. (Join-Path $PSScriptRoot 'CodeSigning.ps1')
 
 $root = Split-Path -Parent $PSScriptRoot
 $project = Join-Path $root 'src\TtsUtil.App\TtsUtil.App.csproj'
@@ -91,6 +98,11 @@ New-Item -ItemType Directory -Force -Path $scriptsTarget | Out-Null
 Copy-Item -Path (Join-Path $root 'scripts\FetchVoices.ps1') -Destination $scriptsTarget -Force
 
 $exe = Join-Path $OutputDirectory 'TtsUtilWin.exe'
+
+# Signing happens before the installer is compiled, so the installed copy carries the signature
+# too. With no thumbprint this does nothing and the build is unsigned, as it has always been.
+Invoke-CodeSign -Path $exe -Thumbprint $CertThumbprint -TimestampUrl $TimestampUrl
+
 $sizeMb = [math]::Round((Get-Item $exe).Length / 1MB, 1)
 Write-Host "Built $exe ($sizeMb MB)." -ForegroundColor Green
 Write-Host 'Copy the whole folder to run it anywhere; settings.json is written beside the exe.' -ForegroundColor Cyan
@@ -128,6 +140,8 @@ if ($Installer) {
     if ($LASTEXITCODE -ne 0) { throw 'Inno Setup compilation failed.' }
 
     $setup = Join-Path $root "dist\TtsUtilWin-$appVersion-setup.exe"
+    Invoke-CodeSign -Path $setup -Thumbprint $CertThumbprint -TimestampUrl $TimestampUrl
+
     $setupMb = [math]::Round((Get-Item $setup).Length / 1MB, 1)
     Write-Host "Built $setup ($setupMb MB)." -ForegroundColor Green
 }
