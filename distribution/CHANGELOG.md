@@ -2,6 +2,20 @@
 
 Newest first. Version codes are monotonic and never reused.
 
+## 0.10.0-beta (version code 16)
+
+* **Several files at once.** The File tab can open a pile of PDFs or text files as one tab each,
+  or save them all as scripts, named after the files they came from.
+* **Unsaved tabs say so.** A tab whose text has moved on from its last save wears a star, and
+  closing one asks first, with a **Don't show this again** box and a matching setting.
+* **Voices from anywhere.** Paste an https link to a voice archive and **Import voice library**
+  downloads and unpacks it beside the rest. The **?** beside it lists where those links live.
+* **Double click a script** to open it in a new tab, leaving what you had open alone.
+* **The wheel no longer sticks, or crashes.** A list or text box that has nothing left to scroll
+  hands the wheel to the page behind it.
+* **The File tab explains itself.** A **?** beside Browse spells out which files can be read in
+  and what happens to them.
+
 ## 0.9.2 (version code 15)
 
 * **Ctrl+Shift+S writes the audio.** The save icon under the text keeps working as it did, and
