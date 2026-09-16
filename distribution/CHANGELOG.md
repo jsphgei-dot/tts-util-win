@@ -2,6 +2,17 @@
 
 Newest first. Version codes are monotonic and never reused.
 
+## 0.9.1 (version code 14)
+
+* **The installer says the Windows voices are already there.** Microsoft David, Microsoft Zira
+  and Microsoft Mark sit at the top of the components page as ticked, greyed out rows, and the
+  page says in words that no voice model has to be downloaded at all. Both READMEs say the same.
+* **The plus on the Text tab stays where it was.** Adding a tab walks the strip to its right
+  end, so the plus can be pressed again without scrolling the headers by hand.
+* **One sound for a finished file, not two.** The notification setting played the Windows
+  asterisk on top of the sound Windows plays for the popup itself, and documents written side by
+  side made a sound each.
+
 ## 0.9.0-beta (version code 13)
 
 * **Alias rules save as a ruleset of your own.** Name the rules on show and press save: the name
