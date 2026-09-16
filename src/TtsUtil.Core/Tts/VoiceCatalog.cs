@@ -11,7 +11,8 @@ public static class VoiceCatalog
 {
     private static readonly string[] VocoderMarkers = { "vocos", "hifigan", "vocoder" };
 
-    /// <summary>Returns every usable voice directory under the given root, sorted by name.</summary>
+    /// <summary>Returns every usable voice directory under the given root, oldest folder first,
+    /// which is the order they were downloaded in.</summary>
     public static IReadOnlyList<VoiceDescriptor> Scan(string rootDirectory)
     {
         var results = new List<VoiceDescriptor>();
@@ -23,7 +24,11 @@ public static class VoiceCatalog
             if (voice is not null) results.Add(voice);
         }
 
-        results.Sort((a, b) => string.Compare(a.Name, b.Name, StringComparison.OrdinalIgnoreCase));
+        results.Sort((a, b) =>
+        {
+            var installed = a.InstalledUtc.CompareTo(b.InstalledUtc);
+            return installed != 0 ? installed : string.Compare(a.Name, b.Name, StringComparison.OrdinalIgnoreCase);
+        });
         return results;
     }
 
@@ -72,6 +77,7 @@ public static class VoiceCatalog
         {
             Name = name,
             Directory = directory,
+            InstalledUtc = System.IO.Directory.GetCreationTimeUtc(directory),
             Kind = kind,
             ModelPath = model,
             TokensPath = tokens,

@@ -39,6 +39,9 @@ public sealed class VoiceDescriptor
 
     public string Directory { get; init; } = string.Empty;
 
+    /// <summary>When the model folder appeared, which orders the picker by download.</summary>
+    public DateTime InstalledUtc { get; init; }
+
     public VoiceModelKind Kind { get; init; }
 
     /// <summary>The acoustic model, or the single model for vits and kokoro.</summary>

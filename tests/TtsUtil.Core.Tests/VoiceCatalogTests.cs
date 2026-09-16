@@ -133,21 +133,26 @@ public sealed class VoiceCatalogTests : IDisposable
         Assert.EndsWith("large.onnx", voice.ModelPath);
     }
 
+    /// <summary>The picker follows the order voices arrived in, not the alphabet.</summary>
     [Fact]
-    public void ScanReturnsEveryVoiceSortedByName()
+    public void ScanReturnsEveryVoiceOldestFolderFirst()
     {
+        var stamp = new DateTime(2026, 1, 1, 9, 0, 0, DateTimeKind.Utc);
+
         foreach (var name in new[] { "zebra", "alpha", "middle" })
         {
             var dir = NewVoiceDirectory(name);
             WriteFile(dir, "tokens.txt");
             WriteFile(dir, "model.onnx", 1024);
+            Directory.SetCreationTimeUtc(dir, stamp);
+            stamp = stamp.AddMinutes(5);
         }
 
         NewVoiceDirectory("not-a-voice");
 
         var voices = VoiceCatalog.Scan(_root);
 
-        Assert.Equal(new[] { "alpha", "middle", "zebra" }, voices.Select(v => v.Name));
+        Assert.Equal(new[] { "zebra", "alpha", "middle" }, voices.Select(v => v.Name));
     }
 
     private string NewVoiceDirectory(string name)
