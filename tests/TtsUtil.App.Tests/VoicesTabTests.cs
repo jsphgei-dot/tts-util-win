@@ -158,6 +158,39 @@ public sealed class VoicesTabTests : IDisposable
         });
     }
 
+    /// <summary>Ticking more than one voice makes Install work through them in turn.</summary>
+    [Fact]
+    public void TickedVoicesInstallOneAfterAnother()
+    {
+        var first = DownloadableVoices.All[0];
+        var second = DownloadableVoices.All[1];
+        var waiting = new Queue<string>(new[] { first.Id, second.Id });
+        var window = CreateWindow();
+
+        _wpf.Invoke(() =>
+        {
+            window.VoiceInstallerFactory = () => new VoiceInstaller(
+                new StubDownloader(),
+                new StubExtractor(() => CreateFakeVoice(waiting.Dequeue())),
+                _root);
+
+            foreach (var row in Rows(window).Where(r => r.Id == first.Id || r.Id == second.Id))
+            {
+                row.Ticked = true;
+            }
+        });
+
+        Click(window.InstallVoiceButton);
+        WaitUntil(window, () => _wpf.Invoke(() => window.InstallVoiceButton.IsEnabled) && waiting.Count == 0);
+
+        _wpf.Invoke(() =>
+        {
+            Assert.Equal("Installed", Rows(window).First(r => r.Id == first.Id).Status);
+            Assert.Equal("Installed", Rows(window).First(r => r.Id == second.Id).Status);
+            Assert.Empty(window.VoiceInstallQueue());
+        });
+    }
+
     [Fact]
     public void InstallingAVoiceThatIsAlreadyThereIsRefused()
     {

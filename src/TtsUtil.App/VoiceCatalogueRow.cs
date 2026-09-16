@@ -10,9 +10,11 @@ using TtsUtil.Core.Tts;
 namespace TtsUtil.App;
 
 /// <summary>One row of the Voices tab.</summary>
-public sealed class VoiceCatalogueRow : INotifyPropertyChanged
+public sealed class VoiceCatalogueRow : INotifyPropertyChanged, ITickable
 {
     private string _status = string.Empty;
+
+    private bool _ticked;
 
     public VoiceCatalogueRow(DownloadableVoice voice)
     {
@@ -28,6 +30,19 @@ public sealed class VoiceCatalogueRow : INotifyPropertyChanged
     public string Size => $"{Voice.SizeMb} MB";
 
     public string Licence => Voice.Licence;
+
+    /// <summary>Whether Install should take this voice in its batch.</summary>
+    public bool Ticked
+    {
+        get => _ticked;
+        set
+        {
+            if (_ticked == value) return;
+
+            _ticked = value;
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Ticked)));
+        }
+    }
 
     public string Status
     {

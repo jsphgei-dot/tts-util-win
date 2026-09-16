@@ -1526,27 +1526,41 @@ public partial class MainWindow : Window
 
     private VoiceCatalogueRow? SelectedCatalogueRow => VoiceCatalogueList.SelectedItem as VoiceCatalogueRow;
 
+    /// <summary>The voices Install works through: every ticked one, or the selected row when
+    /// nothing is ticked.</summary>
+    internal List<VoiceCatalogueRow> VoiceInstallQueue()
+    {
+        var ticked = _catalogueRows.Where(row => row.Ticked).ToList();
+        if (ticked.Count > 0) return ticked;
+
+        var selected = SelectedCatalogueRow;
+        return selected is null ? new List<VoiceCatalogueRow>() : new List<VoiceCatalogueRow> { selected };
+    }
+
     private async void OnInstallVoice(object sender, RoutedEventArgs e)
     {
-        var row = SelectedCatalogueRow;
-
-        if (row is null)
-        {
-            VoiceInstallStatus.Text = "Select a voice to install.";
-            return;
-        }
-
         if (_installing)
         {
             VoiceInstallStatus.Text = "Already installing. Press Cancel first.";
             return;
         }
 
-        var directory = VoiceInstallDirectory;
+        var queue = VoiceInstallQueue();
 
-        if (VoiceInstaller.IsInstalled(row.Voice, directory))
+        if (queue.Count == 0)
         {
-            VoiceInstallStatus.Text = $"{row.Id} is already installed. Remove it first to download it again.";
+            VoiceInstallStatus.Text = "Select a voice to install.";
+            return;
+        }
+
+        var directory = VoiceInstallDirectory;
+        var waiting = queue.Where(row => !VoiceInstaller.IsInstalled(row.Voice, directory)).ToList();
+
+        if (waiting.Count == 0)
+        {
+            VoiceInstallStatus.Text = queue.Count == 1
+                ? $"{queue[0].Id} is already installed. Remove it first to download it again."
+                : "Every ticked voice is already installed.";
             return;
         }
 
@@ -1555,6 +1569,42 @@ public partial class MainWindow : Window
         InstallVoiceButton.IsEnabled = false;
         RemoveVoiceButton.IsEnabled = false;
         CancelVoiceButton.IsEnabled = true;
+        foreach (var row in waiting) row.Status = "Queued";
+
+        var done = 0;
+
+        try
+        {
+            foreach (var row in waiting)
+            {
+                if (_installCancellation.Token.IsCancellationRequested) break;
+
+                await InstallOneVoice(row, directory, done + 1, waiting.Count, _installCancellation.Token);
+                done++;
+            }
+        }
+        catch (OperationCanceledException)
+        {
+            VoiceProgress.Value = 0;
+            VoiceInstallStatus.Text = waiting.Count == 1
+                ? $"{waiting[0].Id} canceled; nothing was kept."
+                : $"Canceled after {done} of {waiting.Count}; the rest were left alone.";
+        }
+        finally
+        {
+            _installCancellation?.Dispose();
+            _installCancellation = null;
+            _installing = false;
+            LockPlaybackSettings(_busy);
+            CancelVoiceButton.IsEnabled = false;
+            RefreshVoiceCatalogue();
+        }
+    }
+
+    private async Task InstallOneVoice(VoiceCatalogueRow row, string directory, int place, int of,
+        CancellationToken cancellationToken)
+    {
+        var run = of == 1 ? string.Empty : $" ({place} of {of})";
         VoiceProgress.Value = 0;
         row.Status = "Installing";
 
@@ -1567,43 +1617,32 @@ public partial class MainWindow : Window
             {
                 case VoiceInstallPhase.Downloading:
                     VoiceProgress.Value = report.Percent;
-                    VoiceInstallStatus.Text = $"Downloading {row.Id}: {report.Percent}% of {row.Voice.SizeMb} MB";
+                    VoiceInstallStatus.Text =
+                        $"Downloading {row.Id}{run}: {report.Percent}% of {row.Voice.SizeMb} MB";
                     break;
 
                 case VoiceInstallPhase.Extracting:
                     VoiceProgress.Value = 100;
-                    VoiceInstallStatus.Text = $"Unpacking {row.Id}...";
+                    VoiceInstallStatus.Text = $"Unpacking {row.Id}{run}...";
                     break;
             }
         });
 
         try
         {
-            await VoiceInstallerFactory().InstallAsync(row.Voice, directory, progress, _installCancellation.Token);
+            await VoiceInstallerFactory().InstallAsync(row.Voice, directory, progress, cancellationToken);
 
             VoiceProgress.Value = 100;
-            VoiceInstallStatus.Text = $"{row.Id} installed. License: {row.Licence}{ScriptWarning(row.Voice)}";
+            VoiceInstallStatus.Text = $"{row.Id} installed{run}. License: {row.Licence}{ScriptWarning(row.Voice)}";
+            row.Ticked = false;
             DisposeEngine();
             RefreshVoices();
         }
-        catch (OperationCanceledException)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             VoiceProgress.Value = 0;
-            VoiceInstallStatus.Text = $"{row.Id} canceled; nothing was kept.";
-        }
-        catch (Exception ex)
-        {
-            VoiceProgress.Value = 0;
-            VoiceInstallStatus.Text = $"{row.Id} failed: {ex.Message}";
-        }
-        finally
-        {
-            _installCancellation?.Dispose();
-            _installCancellation = null;
-            _installing = false;
-            LockPlaybackSettings(_busy);
-            CancelVoiceButton.IsEnabled = false;
-            RefreshVoiceCatalogue();
+            VoiceInstallStatus.Text = $"{row.Id} failed{run}: {ex.Message}";
+            row.Status = "Not installed";
         }
     }
 

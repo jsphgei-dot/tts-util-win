@@ -1,6 +1,7 @@
 <Window x:Class="TtsUtil.App.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:local="clr-namespace:TtsUtil.App"
         Title="TTS Util Win" Height="660" Width="940" MinHeight="480" MinWidth="720"
         WindowStartupLocation="CenterScreen"
         Closing="OnWindowClosing" Deactivated="OnWindowDeactivated"
@@ -308,6 +309,7 @@
                                     Click="OnConvertScripts" />
                         </WrapPanel>
                         <ListBox x:Name="ScriptList" SelectionChanged="OnScriptSelected"
+                                 local:RowTicking.Enabled="True"
                                  HorizontalContentAlignment="Stretch">
                             <ListBox.ItemTemplate>
                                 <DataTemplate>
@@ -447,9 +449,19 @@
                                    TextTrimming="CharacterEllipsis" />
                     </StackPanel>
 
-                    <ListView x:Name="VoiceCatalogueList" SelectionMode="Single">
+                    <ListView x:Name="VoiceCatalogueList" SelectionMode="Single"
+                              local:RowTicking.Enabled="True">
                         <ListView.View>
                             <GridView>
+                                <GridViewColumn Header="Install" Width="52">
+                                    <GridViewColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <CheckBox IsChecked="{Binding Ticked, Mode=TwoWay}"
+                                                      HorizontalAlignment="Center"
+                                                      AutomationProperties.Name="Install this voice" />
+                                        </DataTemplate>
+                                    </GridViewColumn.CellTemplate>
+                                </GridViewColumn>
                                 <GridViewColumn Header="Voice" Width="250" DisplayMemberBinding="{Binding Id}" />
                                 <GridViewColumn Header="Language" Width="190" DisplayMemberBinding="{Binding Language}" />
                                 <GridViewColumn Header="Size" Width="70" DisplayMemberBinding="{Binding Size}" />

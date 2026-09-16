@@ -10,7 +10,7 @@ using TtsUtil.Core.Settings;
 namespace TtsUtil.App;
 
 /// <summary>A saved script in the list, with the tick that puts it in a batch conversion.</summary>
-public sealed class ScriptRow : INotifyPropertyChanged
+public sealed class ScriptRow : INotifyPropertyChanged, ITickable
 {
     private bool _chosen;
 
@@ -32,6 +32,12 @@ public sealed class ScriptRow : INotifyPropertyChanged
             _chosen = value;
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Chosen)));
         }
+    }
+
+    bool ITickable.Ticked
+    {
+        get => Chosen;
+        set => Chosen = value;
     }
 
     public event PropertyChangedEventHandler? PropertyChanged;

@@ -3,7 +3,7 @@
 ![version](https://img.shields.io/badge/version-0.7.0--beta-blue)
 ![platform](https://img.shields.io/badge/platform-Windows%2010%20%7C%2011%20x64-0078D6)
 ![built with](https://img.shields.io/badge/.NET-6.0-512BD4)
-![tests](https://img.shields.io/badge/tests-420%20passing-brightgreen)
+![tests](https://img.shields.io/badge/tests-422%20passing-brightgreen)
 ![license](https://img.shields.io/badge/license-Apache%202.0-lightgrey)
 
 > Read anything you can type, paste or open out loud, entirely on your own machine.
@@ -110,8 +110,11 @@ pack, the kind Windows installs with its display languages.
 ### Voices
 
 The **Voices** tab lists the curated models with their size, license and whether they are
-installed. Select one and press **Install**: it is downloaded, checked and unpacked, with a
-progress bar and a Cancel button. **Remove** deletes one again, and a canceled or failed
+installed. Tick the ones you want and press **Install**: they are downloaded, checked and
+unpacked one at a time, with a progress bar counting the batch and a Cancel button that stops
+the current download and leaves the rest alone. With nothing ticked, Install takes the selected
+row. Clicking anywhere on a row moves its tick, here and on the Scripts tab. **Remove** deletes
+an installed voice again, and a canceled or failed
 install leaves nothing behind. When the configured voices directory cannot be written, which
 happens for an all users installation under Program Files, the download goes to
 `%LOCALAPPDATA%\TtsUtilWin\voices` instead and the tab says so.
