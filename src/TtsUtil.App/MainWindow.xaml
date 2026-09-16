@@ -47,7 +47,7 @@
                 <StackPanel x:Name="SpeakerPanel" Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="6"
                             Orientation="Horizontal" Margin="0,6,0,0">
                     <Label x:Name="SpeakerLabel" Content="Speaker" VerticalAlignment="Center" />
-                    <TextBox x:Name="SpeakerSearchBox" Width="150" Margin="4,0,6,0" Padding="3,2"
+                    <TextBox x:Name="SpeakerSearchBox" Tag="Filter speakers" Width="150" Margin="4,0,6,0" Padding="3,2"
                              VerticalAlignment="Center" ToolTip="Filter speakers by name or number"
                              TextChanged="OnSpeakerSearchChanged" />
                     <ComboBox x:Name="SpeakerBox" MinWidth="200" MaxDropDownHeight="360"
@@ -96,7 +96,7 @@
                                             Click="OnHistoryOlder" ToolTip="One page further back" />
                                     <TextBlock Text="page" VerticalAlignment="Center" Foreground="#555"
                                                Margin="8,0,4,0" />
-                                    <TextBox x:Name="HistoryPageBox" Width="42" Padding="2,1"
+                                    <TextBox x:Name="HistoryPageBox" Tag="Page" Width="42" Padding="2,1"
                                              TextAlignment="Center" VerticalContentAlignment="Center"
                                              KeyDown="OnHistoryPageTyped" LostFocus="OnHistoryPageBoxLost"
                                              ToolTip="Type a page number and press Enter" />
@@ -152,7 +152,7 @@
                                 Style="{StaticResource IconButton}" Content="&#xE792;"
                                 AutomationProperties.Name="Save script" Click="OnSaveScript"
                                 ToolTip="Save as a script (Ctrl+S)" Margin="6,0,0,0" />
-                        <TextBox x:Name="TextTitleBox" Padding="6,4" FontSize="14"
+                        <TextBox x:Name="TextTitleBox" Tag="The name this text is saved under" Padding="6,4" FontSize="14"
                                  VerticalContentAlignment="Center"
                                  ToolTip="The name this text is saved under in the Scripts tab" />
                     </DockPanel>
@@ -215,7 +215,7 @@
 
                     <DockPanel x:Name="FindPanel" DockPanel.Dock="Top" Margin="0,0,0,6" Visibility="Collapsed">
                         <TextBlock Text="Find" VerticalAlignment="Center" Margin="0,0,6,0" Foreground="#555" />
-                        <TextBox x:Name="FindBox" DockPanel.Dock="Left" Width="160" Padding="4,3"
+                        <TextBox x:Name="FindBox" Tag="Find" DockPanel.Dock="Left" Width="160" Padding="4,3"
                                  VerticalContentAlignment="Center" />
                         <TextBlock Text="Replace with" VerticalAlignment="Center" Margin="10,0,6,0"
                                    Foreground="#555" DockPanel.Dock="Left" />
@@ -223,7 +223,7 @@
                                 Click="OnReplaceAll" Margin="8,0,0,0" />
                         <CheckBox x:Name="MatchCaseBox" DockPanel.Dock="Right" Content="Match case"
                                   VerticalAlignment="Center" Margin="10,0,0,0" />
-                        <TextBox x:Name="ReplaceBox" Padding="4,3" VerticalContentAlignment="Center" />
+                        <TextBox x:Name="ReplaceBox" Tag="Replace with" Padding="4,3" VerticalContentAlignment="Center" />
                     </DockPanel>
 
                     <StackPanel DockPanel.Dock="Bottom" Orientation="Horizontal" Margin="0,10,0,0">
@@ -330,7 +330,7 @@
                             </Grid.ColumnDefinitions>
                             <TextBlock Grid.Column="0" Text="Title" VerticalAlignment="Center" Margin="0,0,8,0" />
                             <!-- One title, shown in both tabs, so saving from either uses the same name. -->
-                            <TextBox x:Name="ScriptTitleBox" Grid.Column="1" Padding="4,4"
+                            <TextBox x:Name="ScriptTitleBox" Tag="The name this script is saved under" Grid.Column="1" Padding="4,4"
                                      VerticalContentAlignment="Center"
                                      Text="{Binding Text, ElementName=TextTitleBox, Mode=TwoWay,
                                                     UpdateSourceTrigger=PropertyChanged}" />
@@ -404,7 +404,7 @@
                             <ColumnDefinition Width="*" />
                             <ColumnDefinition Width="Auto" />
                         </Grid.ColumnDefinitions>
-                        <TextBox x:Name="FilePathBox" Grid.Column="0" Padding="4,4" VerticalContentAlignment="Center" />
+                        <TextBox x:Name="FilePathBox" Tag="The file to read from" Grid.Column="0" Padding="4,4" VerticalContentAlignment="Center" />
                         <Button Grid.Column="1" Content="Browse" Margin="8,0,0,0" Click="OnBrowseInputFile" />
                     </Grid>
                     <StackPanel Orientation="Horizontal">
@@ -474,8 +474,10 @@
                                 <ColumnDefinition Width="Auto" />
                             </Grid.ColumnDefinitions>
                             <TextBox x:Name="AliasMatchBox" Grid.Column="0" Padding="6,4" Margin="0,0,6,0"
+                                     Tag="The word or symbol to look for"
                                      ToolTip="The word or symbol to look for" />
                             <TextBox x:Name="AliasSayAsBox" Grid.Column="1" Padding="6,4" Margin="0,0,6,0"
+                                     Tag="What the voice should say instead"
                                      ToolTip="What the voice should say instead" />
                             <Button x:Name="AddAliasButton" Grid.Column="2" Content="Add" Width="90"
                                     Click="OnAddAlias" />
@@ -495,13 +497,16 @@
                                        Margin="12,0,0,0" />
                         </StackPanel>
 
+                        <TextBlock x:Name="AliasClashText" Foreground="#A05000" TextWrapping="Wrap"
+                                   Visibility="Collapsed" Margin="0,0,0,8" />
+
                         <TextBlock Text="Lists that come with the program" Foreground="#555"
                                    Margin="0,0,0,4" />
                         <WrapPanel x:Name="AliasPackPanel" Margin="0,0,0,4" />
                         <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
-                            <Button x:Name="CopyAliasPackButton" Content="Copy ticked lists into my rules"
+                            <Button x:Name="CopyAliasPackButton" Content="Make their rules mine"
                                     MinWidth="220" Click="OnCopyAliasPacks"
-                                    ToolTip="Add their rules above, where they can be edited or turned off one by one" />
+                                    ToolTip="Keep the rules a ticked list added, even after the list is unticked" />
                             <TextBlock x:Name="AliasPackText" VerticalAlignment="Center" Foreground="#777"
                                        Margin="12,0,0,0" TextWrapping="Wrap" />
                         </StackPanel>
@@ -510,13 +515,17 @@
                                   Margin="0,0,0,8" Click="OnUseAliasesChanged" />
 
                         <TextBlock Text="Try it" Foreground="#555" Margin="0,0,0,4" />
-                        <TextBox x:Name="AliasTryBox" Padding="6,4" TextChanged="OnAliasTryChanged"
+                        <TextBox x:Name="AliasTryBox" Tag="Type a line here to see what the voice would be given" Padding="6,4" TextChanged="OnAliasTryChanged"
                                  ToolTip="Type a line here to see what the voice would be given" />
                         <Border Background="#F4F4F4" BorderBrush="#DDD" BorderThickness="1" Padding="6,4"
                                 Margin="0,4,0,0">
                             <TextBlock x:Name="AliasResultText" TextWrapping="Wrap" MinHeight="18" />
                         </Border>
                     </StackPanel>
+
+                    <TabControl x:Name="AliasGroupTabs" DockPanel.Dock="Top" Margin="0,0,0,-1"
+                                Style="{StaticResource HeaderOnlyTabs}"
+                                SelectionChanged="OnAliasGroupChanged" />
 
                     <DataGrid x:Name="AliasList" AutoGenerateColumns="False" CanUserAddRows="False"
                               CanUserSortColumns="False" SelectionMode="Single" HeadersVisibility="Column"
@@ -625,7 +634,7 @@
 
                         <TextBlock Grid.Row="9" Grid.Column="0" Text="Also read these characters"
                                    Style="{StaticResource SettingLabel}" />
-                        <TextBox x:Name="AllowedExtraBox" Grid.Row="9" Grid.Column="1"
+                        <TextBox x:Name="AllowedExtraBox" Tag="Characters to let through" Grid.Row="9" Grid.Column="1"
                                  Style="{StaticResource SettingBox}"
                                  ToolTip="Type the characters themselves, with nothing between them. Press ? for examples." />
                         <Button Grid.Row="9" Grid.Column="3" Tag="allowed-extra"
@@ -633,7 +642,7 @@
 
                         <TextBlock Grid.Row="10" Grid.Column="0" Text="Voices directory"
                                    Style="{StaticResource SettingLabel}" />
-                        <TextBox x:Name="VoicesDirBox" Grid.Row="10" Grid.Column="1"
+                        <TextBox x:Name="VoicesDirBox" Tag="Where voice models are kept" Grid.Row="10" Grid.Column="1"
                                  Style="{StaticResource SettingBox}" />
                         <Button Grid.Row="10" Grid.Column="2" Content="Browse" Margin="8,0,0,8"
                                 Click="OnBrowseVoicesDir" />
@@ -642,7 +651,7 @@
 
                         <TextBlock Grid.Row="11" Grid.Column="0" Text="Default output directory"
                                    Style="{StaticResource SettingLabel}" />
-                        <TextBox x:Name="OutputDirBox" Grid.Row="11" Grid.Column="1"
+                        <TextBox x:Name="OutputDirBox" Tag="Where finished audio is written" Grid.Row="11" Grid.Column="1"
                                  Style="{StaticResource SettingBox}" />
                         <Button Grid.Row="11" Grid.Column="2" Content="Browse" Margin="8,0,0,8"
                                 Click="OnBrowseOutputDir" />

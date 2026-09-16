@@ -15,7 +15,7 @@
             <Setter Property="VerticalAlignment" Value="Center" />
             <Setter Property="Margin" Value="0,0,10,8" />
         </Style>
-        <Style x:Key="SettingBox" TargetType="TextBox">
+        <Style x:Key="SettingBox" TargetType="TextBox" BasedOn="{StaticResource {x:Type TextBox}}">
             <Setter Property="Margin" Value="0,0,0,8" />
             <Setter Property="Padding" Value="4,3" />
         </Style>
@@ -83,7 +83,61 @@
         </Style>
         <!-- Tab headers stay on one line and scroll sideways, rather than wrapping into rows
              that reshuffle as tabs are closed. -->
-        <Style x:Key="ScrollingTabs" TargetType="TabControl">
+        <!-- Every box shows what it is for in grey until it is typed in. The line is its Tag. -->
+    <Style TargetType="TextBox">
+        <Setter Property="Background" Value="White" />
+        <Setter Property="BorderBrush" Value="#ABADB3" />
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="TextBox">
+                    <Border Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="{TemplateBinding BorderThickness}" SnapsToDevicePixels="True">
+                        <Grid>
+                            <ScrollViewer x:Name="PART_ContentHost" Margin="{TemplateBinding Padding}" />
+                            <TextBlock x:Name="Hint" Text="{TemplateBinding Tag}" Foreground="#999"
+                                       Margin="{TemplateBinding Padding}" IsHitTestVisible="False"
+                                       VerticalAlignment="Center" Visibility="Collapsed" />
+                        </Grid>
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <MultiTrigger>
+                            <MultiTrigger.Conditions>
+                                <Condition Property="Text" Value="" />
+                                <Condition Property="IsKeyboardFocusWithin" Value="False" />
+                            </MultiTrigger.Conditions>
+                            <Setter TargetName="Hint" Property="Visibility" Value="Visible" />
+                        </MultiTrigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+        <Style.Triggers>
+            <Trigger Property="IsKeyboardFocusWithin" Value="True">
+                <Setter Property="BorderBrush" Value="#569DE5" />
+            </Trigger>
+            <Trigger Property="IsEnabled" Value="False">
+                <Setter Property="Background" Value="#F0F0F0" />
+                <Setter Property="Foreground" Value="#888" />
+            </Trigger>
+        </Style.Triggers>
+    </Style>
+
+    <!-- Headers only, for a strip of tabs that sits straight on top of a grid it filters. -->
+    <Style x:Key="HeaderOnlyTabs" TargetType="TabControl">
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="TabControl">
+                    <ScrollViewer Focusable="False" HorizontalScrollBarVisibility="Auto"
+                                  VerticalScrollBarVisibility="Disabled">
+                        <StackPanel IsItemsHost="True" Orientation="Horizontal" Margin="2,2,2,0" />
+                    </ScrollViewer>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style x:Key="ScrollingTabs" TargetType="TabControl">
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="TabControl">

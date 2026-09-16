@@ -18,9 +18,19 @@ public sealed class AliasPack
 
     public IReadOnlyList<AliasRule> Rules { get; init; } = Array.Empty<AliasRule>();
 
-    /// <summary>A copy of the rules, for adding them to a list the reader can edit.</summary>
-    public AliasDictionary ToDictionary() =>
-        new() { Name = Name, Rules = Rules.Select(rule => rule.Copy()).ToList() };
+    /// <summary>A copy of the rules, each marked as this list's, for the grid the reader edits.</summary>
+    public AliasDictionary ToDictionary() => new() { Name = Name, Rules = Copies().ToList() };
+
+    /// <summary>Copies of the rules, each one saying which list it came from.</summary>
+    public IEnumerable<AliasRule> Copies()
+    {
+        foreach (var rule in Rules)
+        {
+            var copy = rule.Copy();
+            copy.Source = Id;
+            yield return copy;
+        }
+    }
 }
 
 /// <summary>The lists that ship with the program. None of them is on until it is ticked.</summary>
@@ -127,7 +137,7 @@ public static class AliasPacks
         foreach (var pack in All)
         {
             if (!wanted.Contains(pack.Id)) continue;
-            rules.AddRange(pack.Rules.Select(rule => rule.Copy()));
+            rules.AddRange(pack.Copies());
         }
 
         return rules;

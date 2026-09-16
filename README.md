@@ -3,7 +3,7 @@
 ![version](https://img.shields.io/badge/version-0.7.0--beta-blue)
 ![platform](https://img.shields.io/badge/platform-Windows%2010%20%7C%2011%20x64-0078D6)
 ![built with](https://img.shields.io/badge/.NET-6.0-512BD4)
-![tests](https://img.shields.io/badge/tests-406%20passing-brightgreen)
+![tests](https://img.shields.io/badge/tests-416%20passing-brightgreen)
 ![license](https://img.shields.io/badge/license-Apache%202.0-lightgrey)
 
 > Read anything you can type, paste or open out loud, entirely on your own machine.
@@ -376,11 +376,19 @@ Four lists come with the program, and none of them is on until it is ticked:
 | Units and measures | The short forms of everyday units, from kilometers to megabytes |
 | Everyday shorthand | The abbreviations prose is full of, such as e.g., i.e. and etc. |
 
+Ticking a list puts its rules straight into the grid, so every one of them can be read, edited,
+reordered or turned off like a rule of your own, and unticking takes those same rules back out.
+Each ticked list gets its own tab above the grid, next to **My rules**, so a list can be looked
+through without scrolling past the others. **Make their rules mine** drops the mark saying which
+list a rule came from, which keeps those rules when the list is unticked.
+
 Symbols that are also ordinary English words, among them `In`, `No`, `He` and `As`, arrive
 turned off inside the chemistry list, so a sentence starting with one of them is read as
-English. **Copy ticked lists into my rules** brings their rules into the list above, where any
-of them can be edited or turned on one at a time. Rules of your own always run first, so they
-beat anything a list that ships would have said.
+English.
+
+A rule that can never fire is named in orange under the grid, either because the same word is
+listed twice or because a rule above it matches inside it and takes the text first. The lists
+that ship are checked for the same thing by a test, so ticking one never quietly does nothing.
 
 ### Settings
 
@@ -512,7 +520,9 @@ there yet. The seed files for that public repository, its README and the changel
 
 ### Code signing
 
-The build is unsigned by default, which is why SmartScreen warns the first time a setup runs.
+The build is unsigned by default, which is why SmartScreen warns the first time a setup runs,
+and why it sometimes blocks the setup outright with no way through the dialog. The public README
+tells readers how to turn **Check apps and files** off in Windows Security when that happens.
 Both scripts take a certificate thumbprint and sign with it when one is given:
 
 ```powershell

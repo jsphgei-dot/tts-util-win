@@ -98,6 +98,19 @@ public sealed class AliasDictionaryTests
         Assert.Null(AliasDictionary.FromJson("{\"version\": 99, \"rules\": []}"));
     }
 
+    /// <summary>A hand written file can leave a field out, which used to throw on the first read.</summary>
+    [Fact]
+    public void AHandWrittenFileWithMissingFieldsStillReads()
+    {
+        var read = AliasDictionary.FromJson(
+            "{\"version\": 1, \"rules\": [{\"match\": \"SQL\"}, {\"sayAs\": \"jif\"}, null]}");
+
+        var rule = Assert.Single(read!.Rules);
+
+        Assert.Equal("SQL", rule.Match);
+        Assert.Equal(string.Empty, rule.SayAs);
+    }
+
     [Fact]
     public void MergingAddsWhatIsNewAndLeavesWhatIsAlreadyThere()
     {

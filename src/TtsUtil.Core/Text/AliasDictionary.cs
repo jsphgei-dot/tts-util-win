@@ -27,6 +27,9 @@ public sealed class AliasRule
 
     public bool Enabled { get; set; } = true;
 
+    /// <summary>The id of the list that ships this rule, or empty for a rule of your own.</summary>
+    public string Source { get; set; } = string.Empty;
+
     public AliasRule Copy() => new()
     {
         Match = Match,
@@ -34,6 +37,7 @@ public sealed class AliasRule
         WholeWord = WholeWord,
         MatchCase = MatchCase,
         Enabled = Enabled,
+        Source = Source,
     };
 }
 
@@ -117,7 +121,15 @@ public sealed class AliasDictionary
             var read = JsonSerializer.Deserialize<AliasDictionary>(json, JsonOptions);
             if (read is null || read.Version > CurrentVersion) return null;
 
-            read.Rules.RemoveAll(rule => rule is null || rule.Match.Length == 0);
+            read.Rules.RemoveAll(rule => rule is null || string.IsNullOrEmpty(rule.Match));
+
+            // A hand written file can leave a field out, and null would throw further in.
+            foreach (var rule in read.Rules)
+            {
+                rule.SayAs ??= string.Empty;
+                rule.Source ??= string.Empty;
+            }
+
             return read;
         }
         catch (JsonException)

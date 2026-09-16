@@ -30,8 +30,14 @@ script, and are roughly 60 to 300 MB each.
 
 ### A note on the warning you will see
 
-The installer is not code signed yet, so SmartScreen warns the first time you run it. Check the
-SHA256 against the release page if you want to be sure of what you have.
+The installer is not code signed yet, so SmartScreen warns the first time you run it. Click
+**More info**, then **Run anyway**.
+
+SmartScreen is also known to block the installer outright, with no **Run anyway** offered at
+all. If that happens, open **Windows Security**, go to **App & browser control**, then
+**Reputation-based protection settings**, turn **Check apps and files** off, run the installer,
+and turn it back on afterwards. Check the SHA256 against the release page first if you want to
+be sure of what you have.
 
 ## 🔄 Updates
 

@@ -8,6 +8,7 @@ using System.Collections.ObjectModel;
 using System.IO;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Data;
 using TtsUtil.Core.Settings;
 using TtsUtil.Core.Text;
 using CheckBox = System.Windows.Controls.CheckBox;
@@ -20,6 +21,9 @@ public partial class MainWindow
     private ObservableCollection<AliasRule> _aliasRules = new();
 
     private AliasStore _aliasStore = AliasStore.Beside(AppSettings.SettingsPath);
+
+    /// <summary>The list whose rules the grid is showing, empty for the rules of your own.</summary>
+    private string _aliasGroup = string.Empty;
 
     /// <summary>Where the list is kept. Tests point it somewhere temporary, which reloads it.</summary>
     internal AliasStore AliasStore
@@ -54,16 +58,13 @@ public partial class MainWindow
         return dialog.ShowDialog() == true ? dialog.FileName : null;
     };
 
-    /// <summary>The list a run should apply, or null when the setting is off. Rules of your own
-    /// run first, so they beat anything in a list that ships.</summary>
+    /// <summary>The list a run should apply, or null when the setting is off. Everything a run
+    /// uses is in the grid, including the rules a ticked list put there.</summary>
     internal AliasDictionary? ActiveAliases()
     {
-        if (!_settings.UseAliases) return null;
+        if (!_settings.UseAliases || _aliasRules.Count == 0) return null;
 
-        var rules = _aliasRules.ToList();
-        rules.AddRange(AliasPacks.RulesFor(_settings.AliasPacks));
-
-        return rules.Count > 0 ? new AliasDictionary { Rules = rules } : null;
+        return new AliasDictionary { Rules = _aliasRules.ToList() };
     }
 
     /// <summary>A tick box per list that ships, filled from the settings.</summary>
@@ -101,6 +102,8 @@ public partial class MainWindow
         ShowAliasPackCount();
     }
 
+    /// <summary>Ticking a list puts its rules in the grid, where they can be read and changed.
+    /// Unticking takes those same rules away again.</summary>
     private void OnAliasPackChanged(object sender, RoutedEventArgs e)
     {
         _settings.AliasPacks = AliasPackPanel.Children.OfType<CheckBox>()
@@ -109,38 +112,73 @@ public partial class MainWindow
             .ToList();
 
         _settings.Save();
-        ShowAliasPackCount();
-        ShowAliasPreview();
+
+        if (sender is not CheckBox box || box.Tag is not string id) return;
+
+        var message = box.IsChecked == true ? AddPackRules(id) : DropPackRules(id);
+        AfterAliasChange(message);
+    }
+
+    /// <summary>Adds a list's rules under the ones already there, skipping words already covered.</summary>
+    private string AddPackRules(string id)
+    {
+        var pack = AliasPacks.Find(id);
+        if (pack is null) return "That list is not one this version ships.";
+
+        var known = new HashSet<string>(
+            _aliasRules.Select(rule => rule.Match), StringComparer.OrdinalIgnoreCase);
+        var added = 0;
+
+        foreach (var rule in pack.Copies())
+        {
+            if (!known.Add(rule.Match)) continue;
+
+            _aliasRules.Add(rule);
+            added++;
+        }
+
+        return added == 0
+            ? $"Every rule in {pack.Name} was already here."
+            : $"Added {added} rules from {pack.Name}. They can be read and changed above.";
+    }
+
+    private string DropPackRules(string id)
+    {
+        var pack = AliasPacks.Find(id);
+        var going = _aliasRules.Where(rule =>
+            string.Equals(rule.Source, id, StringComparison.OrdinalIgnoreCase)).ToList();
+
+        foreach (var rule in going) _aliasRules.Remove(rule);
+
+        return going.Count == 0
+            ? "Nothing was taken away: those rules are your own now."
+            : $"Took {going.Count} rules from {pack?.Name ?? id} back out.";
     }
 
     private void ShowAliasPackCount()
     {
-        var rules = AliasPacks.RulesFor(_settings.AliasPacks).Count(rule => rule.Enabled);
+        var rules = _aliasRules.Count(rule => rule.Source.Length > 0);
 
         AliasPackText.Text = rules == 0
-            ? "None of them is on."
-            : $"{rules} rules from the ticked lists.";
+            ? "None of their rules is in the list above."
+            : $"{rules} of the rules above came from a ticked list.";
     }
 
-    /// <summary>Copies the ticked lists into the rules above, where every one can be edited.</summary>
+    /// <summary>Makes the rules a list put there your own, so unticking it leaves them alone.</summary>
     private void OnCopyAliasPacks(object sender, RoutedEventArgs e)
     {
-        var ticked = AliasPacks.RulesFor(_settings.AliasPacks);
+        var theirs = _aliasRules.Where(rule => rule.Source.Length > 0).ToList();
 
-        if (ticked.Count == 0)
+        if (theirs.Count == 0)
         {
             SetStatus("Tick a list that comes with the program first.");
             return;
         }
 
-        var mine = new AliasDictionary { Rules = _aliasRules.ToList() };
-        var added = mine.Merge(new AliasDictionary { Rules = ticked });
+        foreach (var rule in theirs) rule.Source = string.Empty;
 
-        foreach (var rule in mine.Rules.Skip(_aliasRules.Count)) _aliasRules.Add(rule);
-
-        AfterAliasChange(added == 0
-            ? "Every rule in the ticked lists was already here."
-            : $"Added {added} rule{(added == 1 ? string.Empty : "s")} from the ticked lists.");
+        AliasList.Items.Refresh();
+        AfterAliasChange($"{theirs.Count} rules are yours now, and stay when a list is unticked.");
     }
 
     private void LoadAliases()
@@ -148,9 +186,12 @@ public partial class MainWindow
         var stored = _aliasStore.Load();
         _aliasRules = new ObservableCollection<AliasRule>(stored.Rules);
         AliasList.ItemsSource = _aliasRules;
+        CollectionViewSource.GetDefaultView(_aliasRules).Filter = InGroup;
         UseAliasesBox.IsChecked = _settings.UseAliases;
         LoadAliasPacks();
+        ShowAliasGroups();
         ShowAliasCount();
+        ShowAliasClashes();
     }
 
     private void SaveAliases()
@@ -175,6 +216,7 @@ public partial class MainWindow
             return;
         }
 
+        ShowAliasGroup(string.Empty);
         _aliasRules.Add(rule);
         AliasMatchBox.Clear();
         AliasSayAsBox.Clear();
@@ -201,13 +243,16 @@ public partial class MainWindow
     /// <summary>Order decides which rule sees the text first, so it is worth being able to change.</summary>
     private void MoveAlias(int by)
     {
-        var from = AliasList.SelectedIndex;
-        var to = from + by;
+        if (AliasList.SelectedItem is not AliasRule rule) return;
 
-        if (from < 0 || to < 0 || to >= _aliasRules.Count) return;
+        var shown = AliasList.Items.OfType<AliasRule>().ToList();
+        var at = shown.IndexOf(rule);
+        var next = at + by;
 
-        _aliasRules.Move(from, to);
-        AliasList.SelectedIndex = to;
+        if (at < 0 || next < 0 || next >= shown.Count) return;
+
+        _aliasRules.Move(_aliasRules.IndexOf(rule), _aliasRules.IndexOf(shown[next]));
+        AliasList.SelectedItem = rule;
         AfterAliasChange(null);
     }
 
@@ -307,7 +352,10 @@ public partial class MainWindow
     private void AfterAliasChange(string? message)
     {
         SaveAliases();
+        ShowAliasGroups();
         ShowAliasCount();
+        ShowAliasPackCount();
+        ShowAliasClashes();
         ShowAliasPreview();
 
         if (message is not null) SetStatus(message);
@@ -317,5 +365,66 @@ public partial class MainWindow
     {
         var count = _aliasRules.Count;
         AliasCountText.Text = count == 1 ? "1 alias" : $"{count} aliases";
+    }
+
+    /// <summary>One tab for the rules of your own and one for each ticked list, so a list can be
+    /// read on its own rather than scrolled past.</summary>
+    private void ShowAliasGroups()
+    {
+        if (AliasGroupTabs is null) return;
+
+        var wanted = new List<(string Id, string Name)> { (string.Empty, "My rules") };
+
+        foreach (var pack in AliasPacks.All)
+        {
+            if (_aliasRules.Any(rule => string.Equals(rule.Source, pack.Id, StringComparison.OrdinalIgnoreCase)))
+            {
+                wanted.Add((pack.Id, pack.Name));
+            }
+        }
+
+        var shown = AliasGroupTabs.Items.OfType<TabItem>().Select(tab => (string)tab.Tag).ToList();
+        if (shown.SequenceEqual(wanted.Select(group => group.Id))) return;
+
+        AliasGroupTabs.Items.Clear();
+
+        foreach (var (id, name) in wanted)
+        {
+            AliasGroupTabs.Items.Add(new TabItem { Header = name, Tag = id });
+        }
+
+        ShowAliasGroup(wanted.Any(group => group.Id == _aliasGroup) ? _aliasGroup : string.Empty);
+    }
+
+    /// <summary>Puts the grid on one group, picking its tab as well.</summary>
+    private void ShowAliasGroup(string id)
+    {
+        _aliasGroup = id;
+
+        AliasGroupTabs.SelectedItem = AliasGroupTabs.Items.OfType<TabItem>()
+            .FirstOrDefault(tab => (string)tab.Tag == id);
+
+        CollectionViewSource.GetDefaultView(_aliasRules).Refresh();
+    }
+
+    private void OnAliasGroupChanged(object sender, SelectionChangedEventArgs e)
+    {
+        if (AliasGroupTabs.SelectedItem is not TabItem tab || (string)tab.Tag == _aliasGroup) return;
+
+        ShowAliasGroup((string)tab.Tag);
+    }
+
+    private bool InGroup(object item) =>
+        item is AliasRule rule && string.Equals(rule.Source, _aliasGroup, StringComparison.OrdinalIgnoreCase);
+
+    /// <summary>Names the rules an earlier rule already swallows, which is how a list ends up
+    /// quietly doing nothing.</summary>
+    private void ShowAliasClashes()
+    {
+        if (AliasClashText is null) return;
+
+        var clash = AliasConflicts.Summarize(_aliasRules);
+        AliasClashText.Text = clash ?? string.Empty;
+        AliasClashText.Visibility = clash is null ? Visibility.Collapsed : Visibility.Visible;
     }
 }

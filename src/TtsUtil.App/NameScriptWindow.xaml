@@ -5,7 +5,7 @@
         WindowStartupLocation="CenterOwner" ShowInTaskbar="False">
     <StackPanel Margin="16">
         <TextBlock Text="What should this script be called?" Margin="0,0,0,8" />
-        <TextBox x:Name="NameBox" Padding="6,4" FontSize="14" KeyDown="OnNameKeyDown" />
+        <TextBox x:Name="NameBox" Tag="A name for this script" Padding="6,4" FontSize="14" KeyDown="OnNameKeyDown" />
         <TextBlock x:Name="HintText" Foreground="#777" Margin="0,6,0,0" TextWrapping="Wrap"
                    Text="Saving under a name that already exists replaces it." />
         <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,14,0,0">

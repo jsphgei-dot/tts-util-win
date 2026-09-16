@@ -24,6 +24,22 @@ public sealed class AliasPackTests
         Assert.Equal("a can of ca", chemistry.Apply("a can of ca"));
     }
 
+    /// <summary>A list that ships must not carry a rule another rule in it already swallows.</summary>
+    [Fact]
+    public void NoListThatShipsHasARuleThatNeverFires()
+    {
+        foreach (var pack in AliasPacks.All)
+        {
+            Assert.Null(AliasConflicts.Summarize(pack.Rules));
+        }
+    }
+
+    [Fact]
+    public void ARuleKnowsWhichListItCameFrom()
+    {
+        Assert.All(AliasPacks.RulesFor(new[] { "math" }), rule => Assert.Equal("math", rule.Source));
+    }
+
     [Fact]
     public void OnlyTheListsThatAreAskedForContributeRules()
     {

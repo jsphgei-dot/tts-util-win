@@ -49,26 +49,95 @@ public sealed class AliasTabTests : IDisposable
         }
     }
 
-    /// <summary>A list that ships is off until it is ticked, and then it reads alongside the
-    /// rules of your own.</summary>
+    /// <summary>Ticking a list puts its rules in the grid, where they can be read and edited,
+    /// and unticking takes those same rules back out.</summary>
     [Fact]
-    public void AListThatShipsOnlyAppliesOnceItIsTicked()
+    public void TickingAListPutsItsRulesInTheGrid()
     {
         _wpf.Invoke(() =>
         {
             Assert.Empty(_window.Settings.AliasPacks);
             Assert.Null(_window.ActiveAliases());
 
-            var chemistry = _window.AliasPackPanel.Children
-                .OfType<System.Windows.Controls.CheckBox>()
-                .First(box => (string)box.Tag == "chemistry");
-
-            chemistry.IsChecked = true;
-            chemistry.RaiseEvent(new RoutedEventArgs(ButtonBase.ClickEvent));
+            Tick("chemistry", true);
 
             Assert.Equal(new[] { "chemistry" }, _window.Settings.AliasPacks);
+            Assert.Contains(_window.AliasRules, rule => rule.Match == "K" && rule.Source == "chemistry");
+            Assert.Equal("potassium", _window.ActiveAliases()!.Apply("K"));
+
+            Tick("chemistry", false);
+
+            Assert.Empty(_window.AliasRules);
+            Assert.Null(_window.ActiveAliases());
+        });
+    }
+
+    /// <summary>Rules made yours stay behind when the list that brought them is unticked.</summary>
+    [Fact]
+    public void RulesMadeMineSurviveUnticking()
+    {
+        _wpf.Invoke(() =>
+        {
+            Tick("chemistry", true);
+            _window.CopyAliasPackButton.RaiseEvent(new RoutedEventArgs(ButtonBase.ClickEvent));
+            Tick("chemistry", false);
+
             Assert.Equal("potassium", _window.ActiveAliases()!.Apply("K"));
         });
+    }
+
+    /// <summary>A rule an earlier one already swallows is named, rather than quietly doing
+    /// nothing.</summary>
+    [Fact]
+    public void ARuleThatNeverFiresIsNamedOnTheTab()
+    {
+        Add("GNU", "gnew");
+        Add("GNU", "guh noo");
+
+        _wpf.Invoke(() =>
+        {
+            Assert.Equal(Visibility.Visible, _window.AliasClashText.Visibility);
+            Assert.Contains("GNU", _window.AliasClashText.Text);
+        });
+    }
+
+    /// <summary>Each ticked list gets its own tab, and the grid shows that list on its own.</summary>
+    [Fact]
+    public void ATickedListGetsItsOwnTab()
+    {
+        Add("SQL", "sequel");
+
+        _wpf.Invoke(() =>
+        {
+            Assert.Equal(new[] { "My rules" }, Tabs());
+
+            Tick("chemistry", true);
+            Assert.Equal(new[] { "My rules", "Chemistry" }, Tabs());
+            Assert.Equal("SQL", Assert.Single(_window.AliasList.Items.OfType<AliasRule>()).Match);
+
+            _window.AliasGroupTabs.SelectedIndex = 1;
+
+            Assert.All(_window.AliasList.Items.OfType<AliasRule>(),
+                rule => Assert.Equal("chemistry", rule.Source));
+
+            Tick("chemistry", false);
+            Assert.Equal(new[] { "My rules" }, Tabs());
+        });
+    }
+
+    private string[] Tabs() => _window.AliasGroupTabs.Items
+        .OfType<System.Windows.Controls.TabItem>()
+        .Select(tab => (string)tab.Header)
+        .ToArray();
+
+    private void Tick(string id, bool on)
+    {
+        var box = _window.AliasPackPanel.Children
+            .OfType<System.Windows.Controls.CheckBox>()
+            .First(item => (string)item.Tag == id);
+
+        box.IsChecked = on;
+        box.RaiseEvent(new RoutedEventArgs(ButtonBase.ClickEvent));
     }
 
     [Fact]
