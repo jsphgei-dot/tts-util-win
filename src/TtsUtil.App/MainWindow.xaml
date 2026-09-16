@@ -805,8 +805,31 @@
 
                         <TextBlock TextWrapping="Wrap" Foreground="#555" Margin="0,0,0,8"
                                    Text="The check asks a single published file whether a newer release exists. Nothing about you is sent: no identifier, no text, no list of voices, and no request at all while the box is clear." />
-                        <TextBlock TextWrapping="Wrap" Foreground="#555"
+                        <TextBlock TextWrapping="Wrap" Foreground="#555" Margin="0,0,0,16"
                                    Text="An installed copy can offer to download the installer and run it, after checking the download against its published checksum. A portable copy is given the link instead, since replacing the folder it runs from is yours to do." />
+
+                        <TextBlock Text="What changed" FontSize="15" FontWeight="SemiBold"
+                                   Margin="0,0,0,2" />
+                        <TextBlock Foreground="#777" Margin="0,0,0,8"
+                                   Text="Newest first, as it stood when this build was made." />
+                        <ItemsControl x:Name="ChangelogList">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <StackPanel Margin="0,0,0,12">
+                                        <TextBlock Text="{Binding Title}" FontWeight="SemiBold"
+                                                   Margin="0,0,0,4" />
+                                        <ItemsControl ItemsSource="{Binding Notes}">
+                                            <ItemsControl.ItemTemplate>
+                                                <DataTemplate>
+                                                    <TextBlock Text="{Binding}" TextWrapping="Wrap"
+                                                               Foreground="#444" Margin="10,0,0,3" />
+                                                </DataTemplate>
+                                            </ItemsControl.ItemTemplate>
+                                        </ItemsControl>
+                                    </StackPanel>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
                     </StackPanel>
                 </ScrollViewer>
             </TabItem>

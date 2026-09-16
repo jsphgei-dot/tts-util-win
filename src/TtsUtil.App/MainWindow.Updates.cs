@@ -74,9 +74,26 @@ public partial class MainWindow
         UpdateVersionText.Text = $"You are running {AppVersion.Name}";
         UpdateStateText.Text = "Press Check now to ask the release page for a newer version.";
 
+        ShowChangelog();
+
         LastUpdateCheckText.Text = _settings.LastUpdateCheckUtc is DateTime last
             ? $"Last checked {last.ToLocalTime():d MMM yyyy, HH:mm}"
             : "Not checked yet";
+    }
+
+    /// <summary>The change history shipped inside this build, listed newest first.</summary>
+    internal void ShowChangelog()
+    {
+        ChangelogList.ItemsSource ??= Changelog.Parse(ReadChangelog());
+    }
+
+    private static string ReadChangelog()
+    {
+        using var stream = typeof(MainWindow).Assembly.GetManifestResourceStream("CHANGELOG.md");
+        if (stream is null) return string.Empty;
+
+        using var reader = new StreamReader(stream);
+        return reader.ReadToEnd();
     }
 
     /// <summary>The mark on the tab header, which is the only nagging a new version does.</summary>

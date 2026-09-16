@@ -23,6 +23,10 @@
     <ProjectReference Include="..\TtsUtil.Core\TtsUtil.Core.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <EmbeddedResource Include="..\..\distribution\CHANGELOG.md" LogicalName="CHANGELOG.md" />
+  </ItemGroup>
+
   <PropertyGroup>
     <CoreTestProject>$(MSBuildThisFileDirectory)../../tests/TtsUtil.Core.Tests/TtsUtil.Core.Tests.csproj</CoreTestProject>
   </PropertyGroup>

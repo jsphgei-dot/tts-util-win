@@ -137,6 +137,22 @@ public sealed class UpdateNoticeTests : IDisposable
         _wpf.Invoke(() => Assert.Equal(Visibility.Collapsed, window.UpdatesTabMark.Visibility));
     }
 
+    /// <summary>The tab lists the change history shipped inside this build.</summary>
+    [Fact]
+    public void TheUpdatesTabListsWhatChanged()
+    {
+        var window = CreateWindow(portable: true, accept: false);
+
+        _wpf.Invoke(() =>
+        {
+            var releases = window.ChangelogList.ItemsSource.Cast<ChangelogRelease>().ToList();
+
+            Assert.NotEmpty(releases);
+            Assert.StartsWith(AppVersion.Name, releases[0].Title);
+            Assert.NotEmpty(releases[0].Notes);
+        });
+    }
+
     private async Task CheckNow(MainWindow window)
     {
         _wpf.Invoke(() => window.CheckForUpdatesButton.RaiseEvent(

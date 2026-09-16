@@ -3,7 +3,7 @@
 ![version](https://img.shields.io/badge/version-0.7.0--beta-blue)
 ![platform](https://img.shields.io/badge/platform-Windows%2010%20%7C%2011%20x64-0078D6)
 ![built with](https://img.shields.io/badge/.NET-6.0-512BD4)
-![tests](https://img.shields.io/badge/tests-417%20passing-brightgreen)
+![tests](https://img.shields.io/badge/tests-420%20passing-brightgreen)
 ![license](https://img.shields.io/badge/license-Apache%202.0-lightgrey)
 
 > Read anything you can type, paste or open out loud, entirely on your own machine.
@@ -463,6 +463,9 @@ All of this lives on its own **Updates** tab, which holds the box **Look for a n
 the program starts**, a **Check now** button that looks straight away whatever the box says, the
 version you are running, and when the last check ran. While a newer version is out, the tab wears
 a red exclamation mark beside its name, which stays there even after an offer is turned down.
+
+The same tab carries the change history, newest first, read from the changelog built into the
+program rather than fetched, so it says what this build is and works with no network at all.
 
 ## 🛠️ Build from source
 
