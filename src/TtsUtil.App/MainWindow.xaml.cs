@@ -98,6 +98,7 @@ public partial class MainWindow : Window
 
         _documents.Clear();
         DocumentTabs.Items.Clear();
+        _plusTab = null;
 
         foreach (var document in documents) NewDocument(document.Title, document.Text, document.ScriptTitle);
 

@@ -17,6 +17,7 @@ namespace TtsUtil.App;
 public partial class MainWindow
 {
     private readonly List<TextDocument> _documents = new();
+    private TabItem? _plusTab;
 
     /// <summary>The open documents, in tab order.</summary>
     internal IReadOnlyList<TextDocument> Documents => _documents;
@@ -64,9 +65,15 @@ public partial class MainWindow
         tab.Tag = document;
         tab.Header = BuildTabHeader(document);
 
+        EnsurePlusTab();
         _documents.Add(document);
-        DocumentTabs.Items.Add(tab);
-        DocumentTabs.SelectedItem ??= tab;
+        DocumentTabs.Items.Insert(DocumentTabs.Items.Count - 1, tab);
+
+        if (DocumentTabs.SelectedItem is null || ReferenceEquals(DocumentTabs.SelectedItem, _plusTab))
+        {
+            DocumentTabs.SelectedItem = tab;
+        }
+
         return document;
     }
 
@@ -89,7 +96,11 @@ public partial class MainWindow
             return;
         }
 
+        var index = _documents.IndexOf(document);
         _documents.Remove(document);
+
+        // Picking the neighbour first keeps the plus from being selected, and opening a tab.
+        DocumentTabs.SelectedItem = _documents[Math.Min(index, _documents.Count - 1)].Tab;
         DocumentTabs.Items.Remove(document.Tab);
     }
 
@@ -103,7 +114,17 @@ public partial class MainWindow
     /// <summary>The line list and the script name follow whichever document is in front.</summary>
     private void OnDocumentTabChanged(object sender, SelectionChangedEventArgs e)
     {
-        if (!ReferenceEquals(e.OriginalSource, DocumentTabs) || _initialising || InputText is null) return;
+        if (!ReferenceEquals(e.OriginalSource, DocumentTabs)) return;
+
+        if (ReferenceEquals(DocumentTabs.SelectedItem, _plusTab) && _plusTab is not null)
+        {
+            var added = NewDocument();
+            DocumentTabs.SelectedItem = added.Tab;
+            added.Box.Focus();
+            return;
+        }
+
+        if (_initialising || InputText is null) return;
 
         _spokenLine = -1;
         RebuildLineList();
@@ -117,6 +138,20 @@ public partial class MainWindow
         box.IsReadOnly = locked;
         box.Background = locked ? SystemColors.ControlBrush : SystemColors.WindowBrush;
         box.Foreground = locked ? SystemColors.GrayTextBrush : SystemColors.WindowTextBrush;
+    }
+
+    /// <summary>The plus sits at the end of the strip, and opens a tab when it is picked.</summary>
+    private void EnsurePlusTab()
+    {
+        if (_plusTab is not null) return;
+
+        _plusTab = new TabItem
+        {
+            Header = new TextBlock { Text = "+", FontWeight = FontWeights.Bold, Margin = new Thickness(4, 0, 4, 0) },
+            ToolTip = "Another text tab, written to audio alongside this one",
+        };
+
+        DocumentTabs.Items.Add(_plusTab);
     }
 
     private void Rename(TextDocument document, string title)
@@ -140,10 +175,7 @@ public partial class MainWindow
         var close = new Button
         {
             Content = "×",
-            Width = 16,
-            Height = 16,
-            Padding = new Thickness(0),
-            Margin = new Thickness(8, 0, 0, 0),
+            Style = (Style)FindResource("TabCloseButton"),
             Focusable = false,
             ToolTip = "Close this text tab",
         };

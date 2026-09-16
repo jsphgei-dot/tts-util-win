@@ -69,6 +69,26 @@ public sealed class DocumentTabsTests : IDisposable
         });
     }
 
+    [Fact]
+    public void PickingThePlusOpensATabAndBringsItForward()
+    {
+        var window = CreateWindow();
+
+        _wpf.Invoke(() =>
+        {
+            window.DocumentTabs.SelectedItem = window.DocumentTabs.Items[window.DocumentTabs.Items.Count - 1];
+
+            Assert.Equal(2, window.Documents.Count);
+            Assert.Same(window.Documents[1], window.ActiveDocument);
+
+            window.CloseDocument(window.Documents[1]);
+            Assert.Single(window.Documents);
+            Assert.Same(window.Documents[0], window.ActiveDocument);
+
+            window.Close();
+        });
+    }
+
     private MainWindow CreateWindow() => _wpf.Invoke(() =>
     {
         var settings = AppSettings.LoadFrom(Path.Combine(_root, Guid.NewGuid().ToString("N") + ".json"));
