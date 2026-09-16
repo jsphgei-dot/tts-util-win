@@ -68,6 +68,7 @@ public partial class MainWindow : Window
 
     internal MainWindow(AppSettings settings, bool loadVoiceOnSelection = true)
     {
+        WheelScrolling.Enable();
         _settings = settings;
         _loadVoiceOnSelection = loadVoiceOnSelection;
         Draft = TextDraft.Beside(settings.SourcePath);
