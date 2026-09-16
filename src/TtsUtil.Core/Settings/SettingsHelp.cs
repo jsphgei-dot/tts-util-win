@@ -25,6 +25,10 @@ public static class SettingsHelp
     public const string Mp3BitRate = "mp3-bit-rate";
     public const string CheckForUpdates = "check-for-updates";
 
+    public const string KeepLastMessages = "keep-last-messages";
+
+    public const string ShowLastMessages = "show-last-messages";
+
     /// <summary>The blank line the other topics write inline as an escape.</summary>
     private const string NewParagraph = "\n\n";
 
@@ -141,6 +145,22 @@ public static class SettingsHelp
             + "replacing the folder it is running from is yours to do." + NewParagraph
             + "Check now looks straight away, whether or not the box is ticked and whether or not "
             + "you have already turned down the version it finds."),
+
+        new(
+            KeepLastMessages,
+            "Keep last messages",
+            "How many past messages the history holds on to. Older ones are dropped as new ones "
+            + "arrive, so a long session cannot fill memory with status text." + NewParagraph
+            + "This is what Copy all writes out. Lowering it throws away anything past the new "
+            + "number as soon as Apply is pressed."),
+
+        new(
+            ShowLastMessages,
+            "Show last messages",
+            "How many messages one page of the history shows. The rest are still kept and are a "
+            + "page away." + NewParagraph
+            + "Page 1 is always the newest, so the numbers count backwards in time and the double "
+            + "arrow is the way back to now."),
     };
 
     /// <summary>The topic for a key, or null when nothing matches it.</summary>

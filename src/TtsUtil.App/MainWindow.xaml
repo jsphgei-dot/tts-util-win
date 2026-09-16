@@ -83,15 +83,55 @@
                        Placement="Top" StaysOpen="False" AllowsTransparency="True"
                        Closed="OnStatusHistoryClosed">
                     <Border Background="White" BorderBrush="#BBB" BorderThickness="1" Padding="6"
-                            MaxWidth="620" MaxHeight="320">
+                            MaxWidth="620" MaxHeight="360" MinWidth="420">
                         <DockPanel>
                             <TextBlock DockPanel.Dock="Top" Text="Recent messages, newest first"
                                        Foreground="#555" Margin="2,0,2,6" />
-                            <!-- A text box rather than a list, so the messages can be selected and copied. -->
-                            <TextBox x:Name="StatusHistoryText" IsReadOnly="True" IsReadOnlyCaretVisible="True"
-                                     BorderThickness="0" Background="Transparent" Padding="2"
-                                     TextWrapping="Wrap" VerticalScrollBarVisibility="Auto"
-                                     HorizontalScrollBarVisibility="Disabled" />
+
+                            <!-- Page 1 is the newest, so the numbers count backwards in time. -->
+                            <Grid DockPanel.Dock="Bottom" Margin="2,6,2,0">
+                                <StackPanel Orientation="Horizontal" HorizontalAlignment="Left">
+                                    <Button x:Name="HistoryOlderButton" Content="&#x3C;" Width="28" Padding="0,1"
+                                            Click="OnHistoryOlder" ToolTip="One page further back" />
+                                    <TextBlock Text="page" VerticalAlignment="Center" Foreground="#555"
+                                               Margin="8,0,4,0" />
+                                    <TextBox x:Name="HistoryPageBox" Width="42" Padding="2,1"
+                                             TextAlignment="Center" VerticalContentAlignment="Center"
+                                             KeyDown="OnHistoryPageTyped" LostFocus="OnHistoryPageBoxLost"
+                                             ToolTip="Type a page number and press Enter" />
+                                    <TextBlock x:Name="HistoryPageCountText" VerticalAlignment="Center"
+                                               Foreground="#555" Margin="4,0,8,0" />
+                                    <Button x:Name="HistoryNewerButton" Content="&#x3E;" Width="28" Padding="0,1"
+                                            Click="OnHistoryNewer" ToolTip="One page towards the recent" />
+                                    <Button x:Name="HistoryNewestButton" Content="&#x3E;&#x3E;" Width="34"
+                                            Padding="0,1" Margin="4,0,0,0" Click="OnHistoryNewest"
+                                            ToolTip="Back to the newest" />
+                                </StackPanel>
+                                <Button x:Name="CopyHistoryButton" Content="Copy all" Padding="6,1"
+                                        HorizontalAlignment="Right" Click="OnCopyHistory"
+                                        ToolTip="Copy every kept message to the clipboard" />
+                            </Grid>
+
+                            <Grid>
+                                <TextBlock x:Name="HistoryEmptyText" Text="Nothing yet." Foreground="#777"
+                                           Margin="2" />
+                                <ScrollViewer VerticalScrollBarVisibility="Auto"
+                                              HorizontalScrollBarVisibility="Disabled">
+                                    <ItemsControl x:Name="HistoryRows">
+                                        <ItemsControl.ItemTemplate>
+                                            <DataTemplate>
+                                                <!-- One border per entry, so a wrapped line still reads as one. -->
+                                                <Border BorderBrush="#DDD" BorderThickness="1" CornerRadius="2"
+                                                        Background="#FAFAFA" Padding="6,4" Margin="0,0,0,4">
+                                                    <TextBox Text="{Binding Mode=OneWay}" IsReadOnly="True"
+                                                             BorderThickness="0" Background="Transparent"
+                                                             Padding="0" TextWrapping="Wrap" />
+                                                </Border>
+                                            </DataTemplate>
+                                        </ItemsControl.ItemTemplate>
+                                    </ItemsControl>
+                                </ScrollViewer>
+                            </Grid>
                         </DockPanel>
                     </Border>
                 </Popup>
@@ -483,6 +523,8 @@
                             <RowDefinition Height="Auto" />
                             <RowDefinition Height="Auto" />
                             <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
                         </Grid.RowDefinitions>
 
                         <TextBlock Grid.Row="0" Grid.Column="0" Text="Silence after line endings (ms)"
@@ -607,7 +649,21 @@
                             </Border>
                         </Popup>
 
-                        <StackPanel Grid.Row="17" Grid.Column="1" Orientation="Horizontal" Margin="0,8,0,0">
+                        <TextBlock Grid.Row="17" Grid.Column="0" Text="Keep last messages"
+                                   Style="{StaticResource SettingLabel}" />
+                        <TextBox x:Name="KeepLastMessagesBox" Grid.Row="17" Grid.Column="1"
+                                 Style="{StaticResource SettingBox}" />
+                        <Button Grid.Row="17" Grid.Column="3" Tag="keep-last-messages"
+                                Style="{StaticResource HelpButton}" Click="OnSettingsHelp" />
+
+                        <TextBlock Grid.Row="18" Grid.Column="0" Text="Show last messages"
+                                   Style="{StaticResource SettingLabel}" />
+                        <TextBox x:Name="ShowLastMessagesBox" Grid.Row="18" Grid.Column="1"
+                                 Style="{StaticResource SettingBox}" />
+                        <Button Grid.Row="18" Grid.Column="3" Tag="show-last-messages"
+                                Style="{StaticResource HelpButton}" Click="OnSettingsHelp" />
+
+                        <StackPanel Grid.Row="19" Grid.Column="1" Orientation="Horizontal" Margin="0,8,0,0">
                             <Button x:Name="ApplySettingsButton" Content="Apply" Click="OnApplySettings" />
                             <TextBlock x:Name="SettingsPathText" VerticalAlignment="Center" Foreground="#555"
                                        TextTrimming="CharacterEllipsis" />

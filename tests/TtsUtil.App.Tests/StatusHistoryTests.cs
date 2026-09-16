@@ -97,10 +97,8 @@ public sealed class StatusHistoryTests : IDisposable
             // never shown cannot hold one open. What matters is the list it is given.
             window.StatusHistoryButton.IsChecked = true;
 
-            var lines = window.StatusHistoryText.Text.Split(Environment.NewLine);
-
-            Assert.Equal("Nothing is playing.", lines[0]);
-            Assert.Equal("There is no text to read.", lines[1]);
+            Assert.Equal("Nothing is playing.", window.HistoryPageRows[0]);
+            Assert.Equal("There is no text to read.", window.HistoryPageRows[1]);
         });
     }
 

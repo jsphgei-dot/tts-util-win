@@ -134,6 +134,7 @@ public partial class MainWindow : Window
         PopulateOutputFormatChoices();
         LoadEditorToolbar();
         LoadAliases();
+        LoadHistorySettings();
         Mp3BitRateBox.Text = (_settings.Mp3BitRate / 1000).ToString();
         AllowedExtraBox.Text = _settings.AllowedExtraCharacters;
         VoicesDirBox.Text = _settings.ResolvedVoicesDirectory;
@@ -173,6 +174,7 @@ public partial class MainWindow : Window
         var voicesDir = VoicesDirBox.Text.Trim();
         var voicesChanged = !string.Equals(voicesDir, _settings.ResolvedVoicesDirectory, StringComparison.OrdinalIgnoreCase);
         _settings.VoicesDirectory = voicesDir.Length == 0 ? null : voicesDir;
+        ApplyHistorySettings();
 
         _settings.Save();
         LoadSettingsIntoUi();
@@ -1650,49 +1652,12 @@ public partial class MainWindow : Window
         ShowAction(ReadFileButton, running ? Glyph.Restart : Glyph.Play, running ? "Restart" : "Read file");
     }
 
-    /// <summary>How many past messages the history keeps before the oldest falls off.</summary>
-    internal const int StatusHistoryLimit = 50;
-
-    private readonly List<string> _statusHistory = new();
-
-    internal IReadOnlyList<string> StatusHistory => _statusHistory;
-
     private void SetStatus(string message)
     {
         StatusText.Inlines.Clear();
         StatusText.Text = message;
         RecordStatus(message);
     }
-
-    /// <summary>Keeps the last messages, since the bar shows one and loses the rest.</summary>
-    private void RecordStatus(string message)
-    {
-        if (string.IsNullOrWhiteSpace(message)) return;
-
-        // Progress overwrites itself many times a second, and none of it is worth keeping.
-        if (_statusHistory.Count > 0 && _statusHistory[^1] == message) return;
-
-        _statusHistory.Add(message);
-        if (_statusHistory.Count > StatusHistoryLimit) _statusHistory.RemoveAt(0);
-    }
-
-    private void OnShowStatusHistory(object sender, RoutedEventArgs e)
-    {
-        var newestFirst = Enumerable.Reverse(_statusHistory).ToList();
-
-        StatusHistoryText.Text = newestFirst.Count == 0
-            ? "Nothing yet."
-            : string.Join(Environment.NewLine, newestFirst);
-        StatusHistoryText.CaretIndex = 0;
-        StatusHistoryText.ScrollToHome();
-
-        StatusHistoryPopup.IsOpen = true;
-    }
-
-    private void OnHideStatusHistory(object sender, RoutedEventArgs e) => StatusHistoryPopup.IsOpen = false;
-
-    /// <summary>Clicking away closes the popup, and the button must not stay pressed.</summary>
-    private void OnStatusHistoryClosed(object? sender, EventArgs e) => StatusHistoryButton.IsChecked = false;
 
     /// <summary>Says what was written and makes the folder a link, since a path alone is not.</summary>
     private void SetStatusWithFileLink(string message, string path)

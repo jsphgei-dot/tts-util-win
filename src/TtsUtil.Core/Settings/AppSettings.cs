@@ -102,6 +102,12 @@ public sealed class AppSettings
     /// <summary>Whether the alias list is applied to text on its way to the voice.</summary>
     public bool UseAliases { get; set; } = true;
 
+    /// <summary>How many past messages the history keeps before the oldest falls off.</summary>
+    public int KeepLastMessages { get; set; } = 200;
+
+    /// <summary>How many messages one page of the history shows.</summary>
+    public int ShowLastMessages { get; set; } = 10;
+
     [JsonIgnore]
     public string ResolvedVoicesDirectory => InstallPaths.ResolveVoicesDirectory(
         VoicesDirectory,
