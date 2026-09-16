@@ -1,6 +1,6 @@
 ﻿# TTS Util Win
 
-![version](https://img.shields.io/badge/version-0.8.0--beta-blue)
+![version](https://img.shields.io/badge/version-0.9.0--beta-blue)
 ![platform](https://img.shields.io/badge/platform-Windows%2010%20%7C%2011%20x64-0078D6)
 ![built with](https://img.shields.io/badge/.NET-6.0-512BD4)
 ![tests](https://img.shields.io/badge/tests-429%20passing-brightgreen)

@@ -2,6 +2,22 @@
 
 Newest first. Version codes are monotonic and never reused.
 
+## 0.9.0-beta (version code 13)
+
+* **Alias rules save as a ruleset of your own.** Name the rules on show and press save: the name
+  appears as a tick box beside the lists that ship, puts those rules back in the grid under a tab
+  of its own, and the bin icon forgets it again.
+* **A rule you changed stays yours.** Unticking a list takes back only the rules still as the
+  list wrote them, so an edit is never thrown away. The old Make their rules mine button is gone,
+  since nothing needs it now.
+* **Rules that can never fire show in red.** The clashing row is colored in the grid and says on
+  hover which rule above it stands in the way.
+* **Reset aliases.** A button on the Settings tab empties the alias list, after asking and after
+  copying the old list to aliases.json.bak beside it.
+* **Install update.** The Updates tab has a button for the version the last check found, grey
+  until there is one, so the update can be taken from the tab rather than only from the popup.
+* The startup box is now called Update prompt popup box on startup.
+
 ## 0.8.0-beta (version code 12)
 
 * **The lists that ship are real rules now.** Ticking chemistry, math symbols, units or everyday
