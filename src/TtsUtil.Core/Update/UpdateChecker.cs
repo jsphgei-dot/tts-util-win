@@ -9,9 +9,6 @@ namespace TtsUtil.Core.Update;
 /// <summary>Fetches the published manifest. Every failure is silent, since this is a courtesy.</summary>
 public sealed class UpdateChecker : IDisposable
 {
-    /// <summary>How long a copy waits before asking again, so a restart is not a request.</summary>
-    public static readonly TimeSpan Interval = TimeSpan.FromHours(24);
-
     private readonly HttpClient _client;
     private readonly bool _ownsClient;
 
@@ -21,9 +18,8 @@ public sealed class UpdateChecker : IDisposable
         _ownsClient = client is null;
     }
 
-    /// <summary>True when the copy is due a check, given when it last managed one.</summary>
-    public static bool IsDue(bool enabled, DateTime? lastCheckUtc, DateTime nowUtc) =>
-        enabled && (lastCheckUtc is null || nowUtc - lastCheckUtc.Value >= Interval);
+    /// <summary>True when this start should look, which is every start the setting is on for.</summary>
+    public static bool IsDue(bool enabled) => enabled;
 
     /// <summary>Reads the manifest, or null when it cannot be had or does not parse.</summary>
     public async Task<UpdateManifest?> FetchAsync(string manifestUrl, CancellationToken cancellationToken)

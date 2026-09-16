@@ -15,8 +15,8 @@ using TtsUtil.Core.Update;
 namespace TtsUtil.App;
 
 /// <summary>
-/// The once a day look at the published manifest. A portable copy is pointed at the release
-/// page; an installed copy can be offered the setup program, which upgrades in place.
+/// The look at the published manifest, made once each time the program starts. A portable copy
+/// is pointed at the release page; an installed copy can be offered the setup program.
 /// </summary>
 public partial class MainWindow
 {
@@ -52,11 +52,11 @@ public partial class MainWindow
     /// <summary>The check that runs at startup, kept so tests can wait for it.</summary>
     internal Task UpdateCheck { get; private set; } = Task.CompletedTask;
 
-    /// <summary>Looks for a newer release, at most once a day, and never in a way that blocks.</summary>
+    /// <summary>Looks for a newer release on the way in, and never in a way that blocks.</summary>
     internal void StartUpdateCheck(DateTime? nowUtc = null)
     {
         var now = nowUtc ?? DateTime.UtcNow;
-        if (!UpdateChecker.IsDue(_settings.CheckForUpdates, _settings.LastUpdateCheckUtc, now)) return;
+        if (!UpdateChecker.IsDue(_settings.CheckForUpdates)) return;
 
         UpdateCheck = RunUpdateCheckAsync(now, asked: false);
     }

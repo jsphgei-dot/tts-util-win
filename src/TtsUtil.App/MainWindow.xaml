@@ -683,7 +683,7 @@
                                 Style="{StaticResource HelpButton}" Click="OnSettingsHelp" />
 
                         <CheckBox x:Name="CheckForUpdatesBox" Grid.Row="16" Grid.Column="0" Grid.ColumnSpan="2"
-                                  Content="Look for a new version once a day" Margin="0,4,0,8"
+                                  Content="Look for a new version when the program starts" Margin="0,4,0,8"
                                   VerticalAlignment="Center" />
                         <Button x:Name="CheckForUpdatesButton" Grid.Row="16" Grid.Column="2"
                                 Content="Check now" Margin="8,0,0,8" Click="OnCheckForUpdates"

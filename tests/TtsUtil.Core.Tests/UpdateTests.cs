@@ -37,14 +37,10 @@ public sealed class UpdateTests
     }
 
     [Fact]
-    public void ACopyChecksOnceADayAndNotOnEveryStart()
+    public void ACopyChecksOnEveryStartTheSettingIsOnFor()
     {
-        var now = new DateTime(2026, 9, 15, 12, 0, 0, DateTimeKind.Utc);
-
-        Assert.True(UpdateChecker.IsDue(enabled: true, lastCheckUtc: null, now));
-        Assert.True(UpdateChecker.IsDue(true, now.AddDays(-2), now));
-        Assert.False(UpdateChecker.IsDue(true, now.AddHours(-1), now));
-        Assert.False(UpdateChecker.IsDue(enabled: false, lastCheckUtc: null, now));
+        Assert.True(UpdateChecker.IsDue(enabled: true));
+        Assert.False(UpdateChecker.IsDue(enabled: false));
     }
 
     [Theory]

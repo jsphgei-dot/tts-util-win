@@ -35,7 +35,7 @@ SHA256 against the release page if you want to be sure of what you have.
 
 ## 🔄 Updates
 
-The program asks this repository once a day whether a newer release exists, by reading
+The program asks this repository at each start whether a newer release exists, by reading
 `latest.json`. Nothing is sent: no identifier, no text, no telemetry. An installed copy can
 offer to download the installer and run it, after checking the download against its published
 hash. A portable copy is given the link and left to unpack it where it likes. The whole thing

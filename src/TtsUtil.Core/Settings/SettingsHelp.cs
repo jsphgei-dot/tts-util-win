@@ -143,7 +143,7 @@ public static class SettingsHelp
         new SettingsHelpTopic(
             CheckForUpdates,
             "Look for a new version",
-            "Once a day, at most, the program asks a single published file whether a newer release "
+            "Each time the program starts, it asks a single published file whether a newer release "
             + "exists. Nothing about you is sent: no identifier, no text, no list of voices, and no "
             + "request at all while this is off." + NewParagraph
             + "An installed copy can offer to download the installer and run it, after checking the "

@@ -103,10 +103,10 @@ public sealed class AppSettings
     /// <summary>Whether a finished reading starts again, and whether the queue wraps.</summary>
     public RepeatMode Repeat { get; set; } = RepeatMode.Off;
 
-    /// <summary>Whether the program asks once a day whether a newer release has been published.</summary>
+    /// <summary>Whether the program asks at each start whether a newer release is published.</summary>
     public bool CheckForUpdates { get; set; } = true;
 
-    /// <summary>When a check last succeeded, so a restart does not mean another request.</summary>
+    /// <summary>When a check last succeeded, kept as a record of the last one that worked.</summary>
     public DateTime? LastUpdateCheckUtc { get; set; }
 
     /// <summary>A release the reader said no to, so the same one is not offered again.</summary>

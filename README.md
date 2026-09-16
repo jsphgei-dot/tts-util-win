@@ -12,7 +12,7 @@
 
 * **Offline, always.** The voice runs locally. Nothing is uploaded, nothing is fetched while
   you read, and no system speech engine is involved. It reaches the network twice only: to
-  download a voice you asked for, and for the once a day update check, which sends nothing and
+  download a voice you asked for, and for the update check on the way in, which sends nothing and
   can be switched off.
 * **Real neural voices.** Piper, Kokoro and Matcha models through
   [sherpa-onnx](https://github.com/k2-fsa/sherpa-onnx), including one with over 900 speakers.
@@ -435,7 +435,7 @@ updates many times a second does not crowd out everything else.
 
 ### Updates
 
-Once a day at most, the program reads one published file,
+Each time it starts, the program reads one published file,
 `latest.json` in the public distribution repository, and compares its version code with the
 running build. Nothing is sent with the request: no identifier, no text, no list of voices, and
 no request at all while the setting is off.
@@ -447,7 +447,7 @@ over to it, since setup already knows how to upgrade in place and keep settings 
 it may be running from is not the program's business. Saying no to a version means that version,
 not every version after it.
 
-Turn it off with **Look for a new version once a day** in Settings. **Check now**, beside that
+Turn it off with **Look for a new version when the program starts** in Settings. **Check now**, beside that
 box, looks straight away whatever the box says, and says so when there is nothing newer.
 
 ## 🛠️ Build from source
