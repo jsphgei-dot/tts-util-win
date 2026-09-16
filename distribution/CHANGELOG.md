@@ -2,6 +2,17 @@
 
 Newest first. Version codes are monotonic and never reused.
 
+## 0.9.2 (version code 15)
+
+* **Ctrl+Shift+S writes the audio.** The save icon under the text keeps working as it did, and
+  the keyboard now reaches the same thing.
+* **The update box turns off every popup.** With **Update prompt popup box on startup** left
+  unticked no update dialog opens anywhere: **Check now** answers on the status line, and
+  **Install update** treats the press as the answer.
+* **The Name this script window fits its buttons.** It grows to its contents and can be resized.
+* **The Aliases tab keeps its grid.** The list of rules holds a usable height and the tab
+  scrolls when the window is too short for everything on it.
+
 ## 0.9.1 (version code 14)
 
 * **The installer says the Windows voices are already there.** Microsoft David, Microsoft Zira
