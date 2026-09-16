@@ -1,4 +1,4 @@
-<#
+﻿<#
 .SYNOPSIS
     Packages a release and writes the manifest the program checks for updates.
 
@@ -112,7 +112,7 @@ foreach ($hash in @($manifest.setup.sha256, $manifest.portable.sha256)) {
 }
 
 Write-Host "Creating $tag in $DistributionRepo" -ForegroundColor Cyan
-gh release create $tag $setupZip $portableZip --repo $DistributionRepo --title $version `
+gh release create $tag $setupZip $portableZip --repo $DistributionRepo --title "Tts Win App $version" `
     --notes-file $NotesFile --prerelease
 if ($LASTEXITCODE -ne 0) { throw 'Creating the release failed.' }
 
