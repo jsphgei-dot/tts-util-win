@@ -37,13 +37,30 @@ internal static class WheelScrolling
     {
         if (sender is not ScrollViewer view || e.Delta == 0) return;
         if (!OutOfRoom(view.VerticalOffset, view.ScrollableHeight, e.Delta)) return;
-        if (VisualTreeHelper.GetParent(view) is not UIElement parent) return;
 
+        var outer = OuterScrollerWithRoom(view, e.Delta);
+        if (outer is null) return;
+
+        // The outer one is moved itself rather than sent another wheel event, which would come
+        // straight back here.
         e.Handled = true;
-        parent.RaiseEvent(new MouseWheelEventArgs(e.MouseDevice, e.Timestamp, e.Delta)
+        outer.ScrollToVerticalOffset(outer.VerticalOffset - e.Delta);
+    }
+
+    /// <summary>The nearest scroller further out that can still move the way the wheel is asking,
+    /// or null when the page is already at its end.</summary>
+    private static ScrollViewer? OuterScrollerWithRoom(DependencyObject view, int delta)
+    {
+        for (var node = VisualTreeHelper.GetParent(view); node is not null;
+             node = VisualTreeHelper.GetParent(node))
         {
-            RoutedEvent = UIElement.MouseWheelEvent,
-            Source = view,
-        });
+            if (node is ScrollViewer outer &&
+                !OutOfRoom(outer.VerticalOffset, outer.ScrollableHeight, delta))
+            {
+                return outer;
+            }
+        }
+
+        return null;
     }
 }
