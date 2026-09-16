@@ -2,6 +2,24 @@
 
 Newest first. Version codes are monotonic and never reused.
 
+## 0.8.0-beta (version code 12)
+
+* **The lists that ship are real rules now.** Ticking chemistry, math symbols, units or everyday
+  shorthand puts those rules straight into the grid, each list under a tab of its own, so they
+  can be read, reordered and edited like any other rule. Unticking takes them out again.
+* **Rules that can never fire are named.** A rule an earlier one already covers is called out
+  under the grid rather than quietly doing nothing.
+* **A new version waits on the Updates tab.** Updates have a tab of their own, marked with a red
+  exclamation while a newer release is out, naming the version and listing what changed in it.
+  The old dialog at startup is now a box you can turn on.
+* **The change history is in the program.** The Updates tab lists it newest first, built into
+  the build, so it needs no network.
+* **Voices install as a batch.** Tick as many voices as you want and Install works through them
+  one at a time. A press anywhere on a row moves its tick, on the Voices and Scripts lists
+  alike, and holding Shift carries that tick across a run of rows.
+* Empty boxes throughout the program show in grey what they are for until they are typed in.
+* The Text tab strip stays on one scrolling row instead of wrapping.
+
 ## 0.7.0-beta (version code 11)
 
 * **Lists that ship with the program.** The Aliases tab now offers chemistry, math symbols,

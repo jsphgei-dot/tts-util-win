@@ -1,6 +1,6 @@
 ﻿# TTS Util Win
 
-![version](https://img.shields.io/badge/version-0.7.0--beta-blue)
+![version](https://img.shields.io/badge/version-0.8.0--beta-blue)
 ![platform](https://img.shields.io/badge/platform-Windows%2010%20%7C%2011%20x64-0078D6)
 ![built with](https://img.shields.io/badge/.NET-6.0-512BD4)
 ![tests](https://img.shields.io/badge/tests-425%20passing-brightgreen)
@@ -461,17 +461,17 @@ the version number is named, and what changed in it is listed there. Nothing int
 were doing. The box **Ask about a new version in a dialog at startup** turns the older behavior
 back on, and **Check now** always answers in a dialog whatever that box says.
 
-What happens next when the dialog is asked for depends on how the program was installed. An **installed** copy offers to
-download the setup program, checks it against the SHA256 published in the manifest, and hands
+What happens next when the dialog is asked for depends on how the program was installed. An
+**installed** copy offers to download the setup program, checks it against the SHA256 published in the manifest, and hands
 over to it, since setup already knows how to upgrade in place and keep settings and voices. A
 **portable** copy is told where the release is and left to unpack it, because replacing a folder
 it may be running from is not the program's business. Saying no to a version means that version,
 not every version after it.
 
-All of this lives on its own **Updates** tab, which holds the boxes **Look for a new version when
-the program starts** and **Ask about a new version in a dialog at startup**, a **Check now** button that looks straight away whatever the box says, the
-version you are running, and when the last check ran. While a newer version is out, the tab wears
-a red exclamation mark beside its name, which stays there even after an offer is turned down.
+All of this lives on its own **Updates** tab, which holds the boxes **Look for a new version
+when the program starts** and **Ask about a new version in a dialog at startup**, a **Check
+now** button that looks straight away whatever the boxes say, the version you are running, and
+when the last check ran. The mark stays there even after an offer is turned down.
 
 The same tab carries the change history, newest first, read from the changelog built into the
 program rather than fetched, so it says what this build is and works with no network at all. When
