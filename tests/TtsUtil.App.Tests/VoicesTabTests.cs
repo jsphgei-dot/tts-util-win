@@ -129,6 +129,45 @@ public sealed class VoicesTabTests : IDisposable
         });
     }
 
+    /// <summary>A link of the reader's own is unpacked beside the voices from the list.</summary>
+    [Fact]
+    public void ImportingAVoiceFromALinkUnpacksItAndPicksItUp()
+    {
+        var window = CreateWindow();
+
+        _wpf.Invoke(() =>
+        {
+            window.VoiceInstallerFactory = () => new VoiceInstaller(
+                new StubDownloader(),
+                new StubExtractor(() => CreateFakeVoice("my-voice")),
+                _root);
+
+            window.VoiceLinkBox.Text = "https://example.com/my-voice.tar.bz2";
+        });
+
+        Click(window.ImportVoiceButton);
+        WaitUntil(window, () => _wpf.Invoke(() => window.VoiceInstallStatus.Text.Contains("imported", StringComparison.OrdinalIgnoreCase)));
+
+        _wpf.Invoke(() =>
+        {
+            Assert.Contains(window.Voices, v => v.Name == "my-voice");
+            Assert.Equal(string.Empty, window.VoiceLinkBox.Text);
+            Assert.True(window.ImportVoiceButton.IsEnabled);
+        });
+    }
+
+    /// <summary>Anything that is not a link to an archive is turned away before anything is
+    /// downloaded.</summary>
+    [Fact]
+    public async Task ALinkThatIsNotAnArchiveIsTurnedAway()
+    {
+        var window = CreateWindow();
+
+        await _wpf.Invoke(() => window.ImportVoiceFromLinkAsync("https://example.com/a-voice.onnx"));
+
+        _wpf.Invoke(() => Assert.Contains("archive", window.VoiceInstallStatus.Text, StringComparison.Ordinal));
+    }
+
     [Fact]
     public void AFailedInstallReportsTheReasonAndLeavesNothingBehind()
     {

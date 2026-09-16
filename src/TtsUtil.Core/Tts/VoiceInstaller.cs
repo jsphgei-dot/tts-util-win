@@ -120,6 +120,50 @@ public sealed class VoiceInstaller
         }
     }
 
+    /// <summary>Takes a voice in from a link of the reader's own rather than the built in list,
+    /// unpacking it beside the others. Returns its directory.</summary>
+    public async Task<string> InstallFromLinkAsync(
+        string url,
+        string voicesDirectory,
+        IProgress<VoiceInstallProgress>? progress = null,
+        CancellationToken cancellationToken = default)
+    {
+        var name = VoiceArchiveLink.NameFrom(url) ?? throw new InvalidOperationException(
+            "That is not an https link to a voice archive (" +
+            string.Join(", ", VoiceArchiveLink.Endings) + ").");
+
+        Directory.CreateDirectory(voicesDirectory);
+
+        var archive = Path.Combine(_temporaryDirectory, VoiceArchiveLink.FileNameFrom(url)!);
+        var before = Directory.GetDirectories(voicesDirectory).ToHashSet(StringComparer.OrdinalIgnoreCase);
+
+        try
+        {
+            await _downloader.DownloadAsync(url, archive, progress, cancellationToken).ConfigureAwait(false);
+
+            progress?.Report(new VoiceInstallProgress { Phase = VoiceInstallPhase.Extracting });
+            await _extractor.ExtractAsync(archive, voicesDirectory, cancellationToken).ConfigureAwait(false);
+
+            var added = Directory.GetDirectories(voicesDirectory).Where(d => !before.Contains(d)).ToList();
+            var installed = added.Prepend(Path.Combine(voicesDirectory, name))
+                .FirstOrDefault(d => Directory.Exists(d) && VoiceCatalog.TryLoad(d) is not null);
+
+            if (installed is null)
+            {
+                foreach (var folder in added) Remove(Path.GetFileName(folder), voicesDirectory);
+                throw new InvalidOperationException(
+                    $"Nothing in {name} looked like a voice model, so nothing was kept.");
+            }
+
+            progress?.Report(new VoiceInstallProgress { Phase = VoiceInstallPhase.Finished });
+            return installed;
+        }
+        finally
+        {
+            TryDelete(archive);
+        }
+    }
+
     /// <summary>Deletes an installed voice. Silent when it is not there.</summary>
     public static void Remove(DownloadableVoice voice, string voicesDirectory) =>
         Remove(voice.Id, voicesDirectory);

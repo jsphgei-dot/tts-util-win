@@ -470,6 +470,16 @@
                             <Button x:Name="RescanVoicesButton" Content="Rescan" Width="110"
                                     Click="OnRescanVoices" />
                         </StackPanel>
+                        <StackPanel Orientation="Horizontal" Margin="0,8,0,0">
+                            <TextBox x:Name="VoiceLinkBox" Width="340" Padding="4,4"
+                                     VerticalContentAlignment="Center"
+                                     Tag="Link to a voice archive, ending .tar.bz2" />
+                            <Button x:Name="ImportVoiceButton" Content="Import voice library" Width="150"
+                                    Margin="8,0,0,0" Click="OnImportVoiceLibrary"
+                                    ToolTip="Download the archive at that link and unpack it beside the other voices" />
+                            <Button x:Name="VoiceSourcesButton" Style="{StaticResource HelpButton}"
+                                    Click="OnVoiceSources" ToolTip="Where to find more voices" />
+                        </StackPanel>
 
                         <ProgressBar x:Name="VoiceProgress" Height="16" Margin="0,8,0,0" Minimum="0" Maximum="100" />
                         <TextBlock x:Name="VoiceInstallStatus" Margin="0,6,0,0" Foreground="#555"

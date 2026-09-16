@@ -56,6 +56,48 @@ public sealed class VoiceInstallerTests : IDisposable
     }
 
     [Fact]
+    public void ALinkIsOnlyTakenWhenItPointsAtAnArchiveOverHttps()
+    {
+        Assert.Equal("my-voice", VoiceArchiveLink.NameFrom("https://example.com/models/my-voice.tar.bz2"));
+        Assert.Equal("my-voice.tar.bz2",
+            VoiceArchiveLink.FileNameFrom("https://example.com/models/my-voice.tar.bz2?download=true"));
+        Assert.Equal("a voice", VoiceArchiveLink.NameFrom("https://example.com/a%20voice.zip"));
+
+        Assert.Null(VoiceArchiveLink.NameFrom("http://example.com/my-voice.tar.bz2"));
+        Assert.Null(VoiceArchiveLink.NameFrom("https://example.com/my-voice.onnx"));
+        Assert.Null(VoiceArchiveLink.NameFrom("not a link"));
+        Assert.Null(VoiceArchiveLink.NameFrom(null));
+    }
+
+    [Fact]
+    public async Task ALinkedArchiveIsUnpackedBesideTheOtherVoices()
+    {
+        var installer = new VoiceInstaller(
+            new FakeDownloader(),
+            new FakeExtractor(_ => WriteUsableVoice(Path.Combine(Voices, "my-voice"))),
+            _root);
+
+        var directory = await installer.InstallFromLinkAsync("https://example.com/my-voice.tar.bz2", Voices);
+
+        Assert.Equal(Path.Combine(Voices, "my-voice"), directory);
+    }
+
+    [Fact]
+    public async Task ALinkedArchiveWithNoModelInItKeepsNothing()
+    {
+        var installer = new VoiceInstaller(
+            new FakeDownloader(),
+            new FakeExtractor(_ => Directory.CreateDirectory(Path.Combine(Voices, "my-voice"))),
+            _root);
+
+        await Assert.ThrowsAsync<InvalidOperationException>(() =>
+            installer.InstallFromLinkAsync("https://example.com/my-voice.tar.bz2", Voices));
+
+        Assert.False(Directory.Exists(Path.Combine(Voices, "my-voice")));
+        Assert.False(File.Exists(Path.Combine(_root, "my-voice.tar.bz2")));
+    }
+
+    [Fact]
     public void TheTargetDirectoryFallsBackWhenThePreferredOneIsReadOnly()
     {
         Assert.Equal(@"C:\preferred", VoiceInstaller.ChooseTargetDirectory(@"C:\preferred", @"C:\fallback", _ => true));

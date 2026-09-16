@@ -130,6 +130,14 @@ install leaves nothing behind. When the configured voices directory cannot be wr
 happens for an all users installation under Program Files, the download goes to
 `%LOCALAPPDATA%\TtsUtilWin\voices` instead and the tab says so.
 
+Voices from elsewhere can be brought in too. Paste an https link to a voice archive in the box
+under the list and press **Import voice library**: the archive is downloaded, unpacked beside the
+other voices and picked up straight away, with the same progress bar and Cancel button. Links
+ending `.tar.bz2`, `.tar.gz`, `.tar.xz`, `.tar`, `.tgz` and `.zip` are understood. If nothing in
+the archive looks like a voice model, nothing is kept. The **?** beside the button lists the
+repositories where those links are found, and is a reminder to read each voice's license before
+publishing or selling what it reads.
+
 The voice picker along the top lists downloaded voices in the order they arrived, oldest
 first, so a voice installed just now sits at the bottom of that group. The Windows voices,
 Microsoft David, Microsoft Zira and Microsoft Mark, follow them whenever **Also offer the voices
