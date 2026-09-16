@@ -2,6 +2,14 @@
 
 Newest first. Version codes are monotonic and never reused.
 
+## 0.10.1-beta (version code 17)
+
+* **The title box belongs to the tab in front.** Switching tabs brings that tab's name back, and
+  a new tab starts with an empty box, so fresh text is never saved over the script the last tab
+  came from.
+* **Repeat sits under the text as well.** The repeat button now appears beside the media buttons
+  on the Text tab, showing the same mode as the one on the queue.
+
 ## 0.10.0-beta (version code 16)
 
 * **Several files at once.** The File tab can open a pile of PDFs or text files as one tab each,
