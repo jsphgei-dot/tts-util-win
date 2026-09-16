@@ -45,7 +45,7 @@ public partial class MainWindow : Window
     private bool _restarting;
     private int _spokenLine = -1;
     private bool _readingFromText;
-    private string? _textScriptTitle;
+    private TextDocument? _runDocument;
     private IReadOnlyList<SpeakerInfo> _speakers = Array.Empty<SpeakerInfo>();
     private string? _speakerVoiceName;
     private int _speakerId;
@@ -75,6 +75,7 @@ public partial class MainWindow : Window
         AudioPathPicker = AskForAudioPath;
         EntryPlayer = PlayEntryAsync;
         InitializeComponent();
+        NewDocument();
         LoadSettingsIntoUi();
         _initialising = false;
         RefreshVoices();
@@ -89,23 +90,36 @@ public partial class MainWindow : Window
     /// <summary>Where the Text tab is kept between sittings, beside the settings it belongs to.</summary>
     internal TextDraft Draft { get; }
 
-    /// <summary>Puts back the text the window closed on, so nothing typed is lost.</summary>
+    /// <summary>Puts back the documents the window closed on, so nothing typed is lost.</summary>
     private void RestoreDraft()
     {
-        var text = Draft.Read();
-        if (text.Length == 0) return;
+        var documents = Draft.Read();
+        if (documents.Count == 0) return;
 
-        InputText.Text = text;
-        InputText.CaretIndex = text.Length;
-        _textScriptTitle = _settings.TextScriptTitle;
+        _documents.Clear();
+        DocumentTabs.Items.Clear();
+
+        foreach (var document in documents) NewDocument(document.Title, document.Text, document.ScriptTitle);
+
+        DocumentTabs.SelectedIndex = 0;
+        InputText.CaretIndex = InputText.Text.Length;
         RebuildLineList();
     }
 
     /// <summary>Keeps the Text tab for next time, on the way out.</summary>
     protected override void OnClosing(System.ComponentModel.CancelEventArgs e)
     {
-        Draft.Write(InputText.Text);
-        _settings.TextScriptTitle = _textScriptTitle;
+        foreach (var job in _writeJobs.ToList()) job.Cancellation.Cancel();
+
+        Draft.Write(_documents
+            .Select(document => new DraftDocument
+            {
+                Title = document.Title,
+                ScriptTitle = document.ScriptTitle,
+                Text = document.Box.Text,
+            })
+            .ToList());
+
         _settings.Save();
         base.OnClosing(e);
     }
@@ -581,6 +595,7 @@ public partial class MainWindow : Window
 
         LastReadStartOffset = offset;
         _readingFromText = true;
+        _runDocument = ActiveDocument;
         _rerun = () => ReadFrom(offset);
         CurrentRun = ReadRepeatedlyAsync(remainder, offset, startPaused);
     }
@@ -884,26 +899,23 @@ public partial class MainWindow : Window
         LineList.ScrollIntoView(LineList.Items[line]);
     }
 
+    /// <summary>Writes the open document to audio in the background, so other tabs and the
+    /// reading are left alone.</summary>
     private void OnSaveTextToWave(object sender, RoutedEventArgs e)
     {
+        var document = ActiveDocument;
         var text = InputText.Text;
-        if (string.IsNullOrWhiteSpace(text))
+        if (document is null || string.IsNullOrWhiteSpace(text))
         {
             SetStatus("There is no text to write.");
             return;
         }
 
-        var path = AudioPathPicker(AudioStem(_textScriptTitle));
+        var path = AudioPathPicker(AudioStem(ActiveScriptTitle));
         if (path is null) return;
 
         KeepTextAsScript(text, path);
-
-        PendingWork = SaveThenResumeAsync(() =>
-        {
-            _rerun = null;
-            _readingFromText = false;
-            return CurrentRun = RunSynthesisAsync(() => new StringReader(text), path, text.Length);
-        });
+        PendingWork = WriteInBackgroundAsync(document, text, path);
     }
 
     /// <summary>Whether the run in flight is reading the text box. Tests set up a reading with it.</summary>
@@ -1020,7 +1032,7 @@ public partial class MainWindow : Window
         }
 
         InputText.Text = text;
-        _textScriptTitle = null;
+        ActiveScriptTitle = null;
         RebuildLineList();
         Tabs.SelectedIndex = 0;
         SetStatus($"Imported {text.Length:N0} character(s) from {Path.GetFileName(path)}.");
@@ -1164,7 +1176,7 @@ public partial class MainWindow : Window
         {
             var existed = Scripts.Exists(title);
             var saved = Scripts.Save(title, text);
-            _textScriptTitle = saved.Title;
+            ActiveScriptTitle = saved.Title;
             RefreshScripts();
             ScriptList.SelectedItem = ScriptList.Items.Cast<ScriptRow>()
                 .FirstOrDefault(s => s.Title == saved.Title);
@@ -1189,7 +1201,7 @@ public partial class MainWindow : Window
         try
         {
             InputText.Text = Scripts.Load(script.Title);
-            _textScriptTitle = script.Title;
+            ActiveScriptTitle = script.Title;
             RebuildLineList();
             Tabs.SelectedIndex = 0;
             SetStatus($"Opened {script.Title}.");
@@ -1338,14 +1350,14 @@ public partial class MainWindow : Window
             return;
         }
 
-        _textScriptTitle = null;
+        ActiveScriptTitle = null;
         InputText.Text = Clipboard.GetText();
         InputText.CaretIndex = InputText.Text.Length;
     }
 
     private void OnClearText(object sender, RoutedEventArgs e)
     {
-        _textScriptTitle = null;
+        ActiveScriptTitle = null;
         InputText.Clear();
     }
 
@@ -1745,9 +1757,11 @@ public partial class MainWindow : Window
     /// still be scrolled and copied from.</summary>
     private void LockText(bool locked)
     {
-        InputText.IsReadOnly = locked;
-        InputText.Background = locked ? System.Windows.SystemColors.ControlBrush : System.Windows.SystemColors.WindowBrush;
-        InputText.Foreground = locked ? System.Windows.SystemColors.GrayTextBrush : System.Windows.SystemColors.WindowTextBrush;
+        var document = _runDocument ?? ActiveDocument;
+        if (document is null) return;
+
+        LockBox(document.Box, locked);
+        if (!locked) _runDocument = null;
     }
 
     /// <summary>Read becomes Restart while a reading is in flight, so Stop is not needed first.</summary>
@@ -1811,7 +1825,7 @@ public partial class MainWindow : Window
         try
         {
             var saved = Scripts.Save(title, text);
-            _textScriptTitle = saved.Title;
+            ActiveScriptTitle = saved.Title;
             ScriptTitleBox.Text = saved.Title;
             RefreshScripts();
         }
@@ -1829,8 +1843,8 @@ public partial class MainWindow : Window
     /// <summary>The script the Text tab holds, which names the audio written from it.</summary>
     internal string? TextScriptTitle
     {
-        get => _textScriptTitle;
-        set => _textScriptTitle = value;
+        get => ActiveScriptTitle;
+        set => ActiveScriptTitle = value;
     }
 
     /// <summary>Offers a file name in the configured format, inside the output folder.</summary>
@@ -1872,12 +1886,15 @@ public partial class MainWindow : Window
     }
 
     /// <summary>The sink a run writes to, chosen by the file's own extension.</summary>
-    private ISampleSink CreateFileSink(string path, int sampleRate, Action<string> progress)
+    private ISampleSink CreateFileSink(string path, int sampleRate, Action<string> progress) =>
+        CreateFileSink(path, sampleRate, _settings.Mp3BitRate, progress);
+
+    private static ISampleSink CreateFileSink(string path, int sampleRate, int bitRate, Action<string> progress)
     {
         var isMp3 = string.Equals(Path.GetExtension(path), ".mp3", StringComparison.OrdinalIgnoreCase);
         if (!isMp3) return new WaveFileSink(path, sampleRate);
 
-        return new Mp3FileSink(path, sampleRate, _settings.Mp3BitRate, progress);
+        return new Mp3FileSink(path, sampleRate, bitRate, progress);
     }
 
     private static string? AskForDirectory(string? current)

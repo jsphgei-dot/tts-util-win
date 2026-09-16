@@ -31,7 +31,7 @@ public sealed class DraftTests : IDisposable
     }
 
     [Fact]
-    public void TheTextTabComesBackAsItWasLeft()
+    public void EveryTextTabComesBackAsItWasLeft()
     {
         var first = CreateWindow();
 
@@ -39,6 +39,7 @@ public sealed class DraftTests : IDisposable
         {
             first.InputText.Text = "Where I left off.";
             first.TextScriptTitle = "Act One";
+            first.NewDocument().Box.Text = "The other one.";
             first.Close();
         });
 
@@ -46,8 +47,10 @@ public sealed class DraftTests : IDisposable
 
         _wpf.Invoke(() =>
         {
+            Assert.Equal(new[] { "Act One", "Text 1" }, second.Documents.Select(document => document.Title));
             Assert.Equal("Where I left off.", second.InputText.Text);
             Assert.Equal("Act One", second.TextScriptTitle);
+            Assert.Equal("The other one.", second.Documents[1].Box.Text);
             second.Close();
         });
     }

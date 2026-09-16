@@ -4,21 +4,25 @@
  * Licensed under the Apache License, Version 2.0.
  */
 
+using System.Text.Json;
+
 namespace TtsUtil.Core.Settings;
 
 /// <summary>
-/// The Text tab as the user last left it, kept in its own file beside the settings so that a
-/// whole chapter of pasted text does not have to live inside settings.json.
+/// The Text tab as the user last left it, every open document in its own file beside the settings
+/// so that a whole chapter of pasted text does not have to live inside settings.json.
 /// </summary>
 public sealed class TextDraft
 {
-    public const string FileName = "draft.txt";
+    public const string FileName = "drafts.json";
+
+    private static readonly JsonSerializerOptions Format = new() { WriteIndented = true };
 
     private readonly string _path;
 
     public TextDraft(string path) => _path = path;
 
-    /// <summary>The draft that belongs with a settings file.</summary>
+    /// <summary>The drafts that belong with a settings file.</summary>
     public static TextDraft Beside(string? settingsPath)
     {
         var folder = string.IsNullOrWhiteSpace(settingsPath)
@@ -29,35 +33,49 @@ public sealed class TextDraft
     }
 
     /// <summary>What was left behind, or nothing at all when there is no draft to read.</summary>
-    public string Read()
+    public IReadOnlyList<DraftDocument> Read()
     {
         try
         {
-            return File.Exists(_path) ? File.ReadAllText(_path) : string.Empty;
+            if (!File.Exists(_path)) return Array.Empty<DraftDocument>();
+
+            return JsonSerializer.Deserialize<List<DraftDocument>>(File.ReadAllText(_path))
+                ?? (IReadOnlyList<DraftDocument>)Array.Empty<DraftDocument>();
         }
-        catch (Exception exception) when (exception is IOException or UnauthorizedAccessException)
+        catch (Exception exception) when (exception is IOException or UnauthorizedAccessException or JsonException)
         {
-            return string.Empty;
+            return Array.Empty<DraftDocument>();
         }
     }
 
-    /// <summary>Keeps the text for next time. An empty box leaves no file behind.</summary>
-    public void Write(string? text)
+    /// <summary>Keeps the documents for next time. Empty boxes leave no file behind.</summary>
+    public void Write(IReadOnlyList<DraftDocument> documents)
     {
         try
         {
-            if (string.IsNullOrEmpty(text))
+            var worth = documents.Where(document => !string.IsNullOrEmpty(document.Text)).ToList();
+            if (worth.Count == 0)
             {
                 if (File.Exists(_path)) File.Delete(_path);
                 return;
             }
 
             Directory.CreateDirectory(Path.GetDirectoryName(_path)!);
-            File.WriteAllText(_path, text);
+            File.WriteAllText(_path, JsonSerializer.Serialize(worth, Format));
         }
         catch (Exception exception) when (exception is IOException or UnauthorizedAccessException)
         {
             // A draft is a convenience, and a read only folder is not worth an error.
         }
     }
+}
+
+/// <summary>One text document as it was left: its tab name, the script it holds and the words.</summary>
+public sealed class DraftDocument
+{
+    public string Title { get; set; } = string.Empty;
+
+    public string? ScriptTitle { get; set; }
+
+    public string Text { get; set; } = string.Empty;
 }

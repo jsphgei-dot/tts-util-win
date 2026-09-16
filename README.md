@@ -22,9 +22,12 @@
 * **Listen or keep it.** Play it back, or write the same input to an MP3 or a wave file.
 * **Queue and repeat.** Line up a run of scripts, loop one of them, or loop the lot.
 * **Batch conversion.** Tick several saved scripts and write them all to audio files at once.
-* **It keeps your place.** The Text tab is still there when you open the program again, audio
+* **It keeps your place.** Every text tab is still there when you open the program again, audio
   written from a script is offered that script's title as its file name, and the words behind a
   recording are saved as a script under the name you gave the file.
+* **Several texts at once.** New tab gives you another text window, and each one writes its audio
+  in the background on a voice of its own, so you can set several recordings going and carry on
+  reading in another tab.
 * **Installer or portable.** One build gives both, and the portable copy touches nothing
   outside its own folder.
 

@@ -237,6 +237,8 @@
                                 ToolTip="Save audio" Margin="12,0,4,0" />
                         <Button x:Name="PasteButton" Content="Paste" Click="OnPasteClipboard" />
                         <Button x:Name="ClearButton" Content="Clear" Click="OnClearText" />
+                        <Button x:Name="NewDocumentButton" Content="New tab" Click="OnNewDocument"
+                                Margin="6,0,0,0" ToolTip="Another text tab, written to audio alongside this one" />
                         <CheckBox x:Name="ReadAsYouTypeBox" Content="Read as I type" VerticalAlignment="Center"
                                   Margin="10,0,0,0" Checked="OnReadAsYouTypeChanged" Unchecked="OnReadAsYouTypeChanged" />
                         <CheckBox x:Name="ShowLinesBox" Content="Lines" VerticalAlignment="Center" IsChecked="True"
@@ -250,9 +252,8 @@
                             <ColumnDefinition x:Name="LineListColumn" Width="300" />
                         </Grid.ColumnDefinitions>
 
-                        <TextBox x:Name="InputText" Grid.Column="0" AcceptsReturn="True" AcceptsTab="True"
-                                 TextWrapping="Wrap" VerticalScrollBarVisibility="Auto"
-                                 FontSize="14" Padding="6" TextChanged="OnInputTextChanged" />
+                        <TabControl x:Name="DocumentTabs" Grid.Column="0" Padding="0"
+                                    SelectionChanged="OnDocumentTabChanged" />
 
                         <GridSplitter x:Name="LineSplitter" Grid.Column="1" Width="6"
                                       HorizontalAlignment="Stretch" Background="Transparent" />
