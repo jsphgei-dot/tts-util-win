@@ -44,6 +44,12 @@ $code = [int][regex]::Match($props, '<VersionCode>([^<]+)</VersionCode>').Groups
 $version = if ($suffix) { "$prefix-$suffix" } else { $prefix }
 $tag = "v$version"
 
+# Checked before the build rather than after it, so a missing file costs a second, not a build.
+if ($Publish) {
+    if (-not $NotesFile) { throw 'Publishing needs -NotesFile pointing at the release notes.' }
+    if (-not (Test-Path $NotesFile)) { throw "No notes at $NotesFile." }
+}
+
 Write-Host "Packaging $version (version code $code)" -ForegroundColor Cyan
 if (-not $CertThumbprint) {
     Write-Host 'No certificate given, so this release is unsigned and SmartScreen will warn.' -ForegroundColor Yellow
@@ -98,9 +104,6 @@ if (-not $Publish) {
     Write-Host 'Nothing published. Re-run with -Publish when the notes are ready.' -ForegroundColor Yellow
     return
 }
-
-if (-not $NotesFile) { throw 'Publishing needs -NotesFile pointing at the release notes.' }
-if (-not (Test-Path $NotesFile)) { throw "No notes at $NotesFile." }
 
 Write-Host "Creating $tag in $DistributionRepo" -ForegroundColor Cyan
 gh release create $tag $setupZip $portableZip --repo $DistributionRepo --title $version `

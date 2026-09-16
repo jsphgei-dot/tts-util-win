@@ -2,6 +2,22 @@
 
 Newest first. Version codes are monotonic and never reused.
 
+## 0.4.0-beta (version code 7)
+
+* **A script title above the text**, with a save icon beside it and **Ctrl+S**. The Scripts tab
+  shows the same title, so saving from either place uses one name.
+* **An editing toolbar.** Undo and redo, cut, copy and paste, bulleted and numbered lists,
+  indent and outdent, upper, lower, sentence and title case, and find and replace on Ctrl+H.
+  A tool with text selected works on whole lines; with nothing selected it works on everything.
+* **Clean up.** Join wrapped lines, collapse blank lines and tidy spacing, for text pasted out
+  of a PDF or an email.
+* **Editor size and wrapping**, remembered between sessions. Neither changes a saved file.
+* **The media keys work.** Play, pause and stop on a keyboard drive the reading, and the
+  Windows media overlay shows the script title with the same three buttons.
+
+Scripts are plain text files, so the toolbar carries no bold, italic or colour: everything in
+it changes the words themselves and survives being saved.
+
 ## 0.3.0-beta (version code 6)
 
 First public release. Earlier versions were private alphas, so their downloads are not
