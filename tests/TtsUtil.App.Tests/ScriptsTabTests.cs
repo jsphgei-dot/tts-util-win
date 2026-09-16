@@ -1,6 +1,7 @@
 using System.IO;
 using System.Windows;
 using System.Windows.Controls.Primitives;
+using System.Windows.Input;
 using TtsUtil.Core.Settings;
 using Xunit;
 
@@ -143,6 +144,23 @@ public sealed class ScriptsTabTests : IDisposable
         Click(window.SaveWaveButton);
 
         Assert.False(File.Exists(Path.Combine(_scriptsDir, "Scene Three.txt")));
+    }
+
+    /// <summary>Ctrl+Shift+S writes the audio without reaching for the icon.</summary>
+    [Fact]
+    public void TheKeyboardSaveAudioWritesTheOpenDocument()
+    {
+        var window = CreateWindow();
+
+        _wpf.Invoke(() =>
+        {
+            window.AudioPathPicker = _ => Path.Combine(_root, "Scene Four.mp3");
+            window.InputText.Text = "The words behind it.";
+
+            ApplicationCommands.SaveAs.Execute(null, window);
+
+            Assert.Equal("The words behind it.", File.ReadAllText(Path.Combine(_scriptsDir, "Scene Four.txt")));
+        });
     }
 
     [Fact]

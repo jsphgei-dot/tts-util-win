@@ -9,10 +9,12 @@
     <Window.CommandBindings>
         <CommandBinding Command="ApplicationCommands.Save" Executed="OnSaveScriptCommand" />
         <CommandBinding Command="ApplicationCommands.Replace" Executed="OnToggleFindCommand" />
+        <CommandBinding Command="ApplicationCommands.SaveAs" Executed="OnSaveAudioCommand" />
     </Window.CommandBindings>
     <Window.InputBindings>
         <KeyBinding Modifiers="Control" Key="S" Command="ApplicationCommands.Save" />
         <KeyBinding Modifiers="Control" Key="H" Command="ApplicationCommands.Replace" />
+        <KeyBinding Modifiers="Control+Shift" Key="S" Command="ApplicationCommands.SaveAs" />
     </Window.InputBindings>
     <DockPanel Margin="12">
 
@@ -239,7 +241,7 @@
                                 Click="OnResumeFromStop" ToolTip="Carry on from where you stopped" />
                         <Button x:Name="SaveWaveButton" Style="{StaticResource IconButton}" Content="&#xE74E;"
                                 AutomationProperties.Name="Save audio" Click="OnSaveTextToWave"
-                                ToolTip="Save audio" Margin="12,0,4,0" />
+                                ToolTip="Save audio (Ctrl+Shift+S)" Margin="12,0,4,0" />
                         <Button x:Name="PasteButton" Content="Paste" Click="OnPasteClipboard" />
                         <Button x:Name="ClearButton" Content="Clear" Click="OnClearText" />
                         <Button x:Name="NewDocumentButton" Content="New tab" Click="OnNewDocument"
@@ -474,7 +476,11 @@
             </TabItem>
 
             <TabItem Header="Aliases">
-                <DockPanel Margin="12">
+                <!-- The grid keeps a usable height and the page scrolls once the window is shorter
+                     than the rules, the rulesets and the try it box together. -->
+                <ScrollViewer x:Name="AliasScroll" VerticalScrollBarVisibility="Auto">
+                <DockPanel Margin="12" MinHeight="620"
+                           Height="{Binding ViewportHeight, ElementName=AliasScroll}">
                     <TextBlock DockPanel.Dock="Top" TextWrapping="Wrap" Foreground="#555" Margin="0,0,0,8"
                                Text="An alias tells the voice to say one thing when it reads another. Rules run from the top down, and what one rule writes is left alone by the rules under it. Nothing here changes a saved script." />
 
@@ -553,7 +559,7 @@
                                 Style="{StaticResource HeaderOnlyTabs}"
                                 SelectionChanged="OnAliasGroupChanged" />
 
-                    <DataGrid x:Name="AliasList" AutoGenerateColumns="False" CanUserAddRows="False"
+                    <DataGrid x:Name="AliasList" AutoGenerateColumns="False" CanUserAddRows="False" MinHeight="150"
                               CanUserSortColumns="False" SelectionMode="Single" HeadersVisibility="Column"
                               GridLinesVisibility="All" CellEditEnding="OnAliasRuleEdited"
                               LoadingRow="OnAliasRowLoaded">
@@ -570,6 +576,7 @@
                         </DataGrid.Columns>
                     </DataGrid>
                 </DockPanel>
+                </ScrollViewer>
             </TabItem>
 
             <TabItem Header="Settings">

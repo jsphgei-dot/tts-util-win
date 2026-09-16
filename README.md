@@ -315,6 +315,9 @@ scanned pages are reported as unreadable instead of failing.
 
 ### Saving audio
 
+The save icon sits beside Stop under the text, and **Ctrl+Shift+S** does the same thing from
+the keyboard: both ask where the file should go and then write it in the background.
+
 Save audio writes MP3 by default, which is roughly a tenth the size of the equivalent wave file
 and plays in anything. Switch to WAV in Settings if you want uncompressed audio, and set the
 MP3 bit rate there too. The file type actually written follows the extension you choose in the

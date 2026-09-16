@@ -920,9 +920,13 @@ public partial class MainWindow : Window
         LineList.ScrollIntoView(LineList.Items[line]);
     }
 
+    private void OnSaveTextToWave(object sender, RoutedEventArgs e) => SaveTextToWave();
+
+    private void OnSaveAudioCommand(object sender, ExecutedRoutedEventArgs e) => SaveTextToWave();
+
     /// <summary>Writes the open document to audio in the background, so other tabs and the
     /// reading are left alone.</summary>
-    private void OnSaveTextToWave(object sender, RoutedEventArgs e)
+    private void SaveTextToWave()
     {
         var document = ActiveDocument;
         var text = InputText.Text;
