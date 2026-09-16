@@ -115,6 +115,13 @@ public partial class MainWindow : Window
     /// <summary>Keeps the Text tab for next time, on the way out.</summary>
     protected override void OnClosing(System.ComponentModel.CancelEventArgs e)
     {
+        if (_settings.CloseToTray && !_quitting)
+        {
+            e.Cancel = true;
+            HideToTray();
+            return;
+        }
+
         foreach (var job in _writeJobs.ToList()) job.Cancellation.Cancel();
 
         Draft.Write(_documents
@@ -127,6 +134,7 @@ public partial class MainWindow : Window
             .ToList());
 
         _settings.Save();
+        _tray?.Dispose();
         base.OnClosing(e);
     }
 
@@ -203,6 +211,7 @@ public partial class MainWindow : Window
         UseWindowsVoicesBox.IsChecked = _settings.UseWindowsVoices;
         SaveScriptWithAudioBox.IsChecked = _settings.SaveScriptWithAudio;
         WarnOnClosingUnsavedBox.IsChecked = _settings.WarnOnClosingUnsaved;
+        CloseToTrayBox.IsChecked = _settings.CloseToTray;
         SpeedSlider.Value = Math.Clamp(_settings.Speed, 0.5, 2.0);
         SpeedText.Text = $"{_settings.Speed:0.00}x";
         SettingsPathText.Text = $"Settings file: {AppSettings.SettingsPath}";
@@ -229,6 +238,7 @@ public partial class MainWindow : Window
         _settings.CheckForUpdates = CheckForUpdatesBox.IsChecked == true;
         _settings.SaveScriptWithAudio = SaveScriptWithAudioBox.IsChecked == true;
         _settings.WarnOnClosingUnsaved = WarnOnClosingUnsavedBox.IsChecked == true;
+        _settings.CloseToTray = CloseToTrayBox.IsChecked == true;
         _settings.Speed = ReadSpeed();
 
         var outputDir = OutputDirBox.Text.Trim();

@@ -3,7 +3,7 @@
 ![version](https://img.shields.io/badge/version-0.10.1--beta-blue)
 ![platform](https://img.shields.io/badge/platform-Windows%2010%20%7C%2011%20x64-0078D6)
 ![built with](https://img.shields.io/badge/.NET-6.0-512BD4)
-![tests](https://img.shields.io/badge/tests-447%20passing-brightgreen)
+![tests](https://img.shields.io/badge/tests-448%20passing-brightgreen)
 ![license](https://img.shields.io/badge/license-Apache%202.0-lightgrey)
 
 > Read anything you can type, paste or open out loud, entirely on your own machine.
@@ -469,6 +469,13 @@ either place moves the other. **Reset to defaults** puts every setting back to a
 after asking. Scripts, aliases and saved audio are left alone. **Reset aliases** empties the
 alias list, after asking and after copying the list to `aliases.json.bak` beside it, so a list
 built up over months is never lost to one press.
+
+**Close to the notification area instead of quitting** keeps the program running when the
+window is closed. The window hides among the hidden icons by the clock, and whatever it was
+doing carries on, so a long reading finishes and a file being written is not cut off. Double
+click the icon to bring the window back, or use its menu, which has **Open** and **Quit**.
+Quitting from that menu ends the program the way closing the window normally would. The
+setting is off to begin with, and takes effect once **Save settings** is pressed.
 
 Two groups are worth knowing about before you go looking. **Silence** sets how long a pause
 follows a line ending, a sentence, a question and an exclamation, in milliseconds, and can be

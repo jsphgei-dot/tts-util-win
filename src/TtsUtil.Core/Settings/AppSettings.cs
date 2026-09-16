@@ -144,6 +144,9 @@ public sealed class AppSettings
     /// <summary>Whether closing a text tab with unsaved changes asks first.</summary>
     public bool WarnOnClosingUnsaved { get; set; } = true;
 
+    /// <summary>Whether closing the window hides it in the notification area instead of quitting.</summary>
+    public bool CloseToTray { get; set; }
+
     [JsonIgnore]
     public string ResolvedVoicesDirectory => InstallPaths.ResolveVoicesDirectory(
         VoicesDirectory,

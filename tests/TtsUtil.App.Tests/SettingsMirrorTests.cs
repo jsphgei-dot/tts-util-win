@@ -65,6 +65,30 @@ public sealed class SettingsMirrorTests : IDisposable
         });
     }
 
+    /// <summary>With the setting on, closing puts the window in the notification area and leaves
+    /// the program running, so a reading carries on.</summary>
+    [Fact]
+    public void ClosingCanHideTheWindowRatherThanEndTheProgram()
+    {
+        _wpf.Invoke(() =>
+        {
+            _window.Show();
+            _window.Settings.CloseToTray = true;
+            _window.Close();
+
+            Assert.True(_window.InTray);
+            Assert.False(_window.IsVisible);
+
+            _window.RestoreFromTray();
+
+            Assert.False(_window.InTray);
+            Assert.True(_window.IsVisible);
+
+            _window.Settings.CloseToTray = false;
+            _window.Hide();
+        });
+    }
+
     [Fact]
     public void TickingASettingOnEitherTabMovesTheOther()
     {
