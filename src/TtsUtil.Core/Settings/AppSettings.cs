@@ -102,6 +102,9 @@ public sealed class AppSettings
     /// <summary>Whether the alias list is applied to text on its way to the voice.</summary>
     public bool UseAliases { get; set; } = true;
 
+    /// <summary>Whether the voices Windows already has are offered alongside downloaded ones.</summary>
+    public bool UseWindowsVoices { get; set; } = true;
+
     /// <summary>How many past messages the history keeps before the oldest falls off.</summary>
     public int KeepLastMessages { get; set; } = 200;
 

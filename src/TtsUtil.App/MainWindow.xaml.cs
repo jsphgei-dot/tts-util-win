@@ -143,6 +143,7 @@ public partial class MainWindow : Window
         ChunkLengthBox.Text = _settings.MaxChunkLength.ToString();
         ReadAsYouTypeBox.IsChecked = _settings.ReadAsYouType;
         CheckForUpdatesBox.IsChecked = _settings.CheckForUpdates;
+        UseWindowsVoicesBox.IsChecked = _settings.UseWindowsVoices;
         SpeedSlider.Value = Math.Clamp(_settings.Speed, 0.5, 2.0);
         SpeedText.Text = $"{_settings.Speed:0.00}x";
         SettingsPathText.Text = $"Settings file: {AppSettings.SettingsPath}";
@@ -184,14 +185,17 @@ public partial class MainWindow : Window
     private void RefreshVoices()
     {
         var directory = _settings.ResolvedVoicesDirectory;
-        _voices = VoiceCatalog.Scan(directory);
+        var downloaded = VoiceCatalog.Scan(directory);
+        var windows = _settings.UseWindowsVoices ? WindowsVoiceScanner() : Array.Empty<VoiceDescriptor>();
+        _voices = downloaded.Concat(windows).ToList();
 
         _initialising = true;
         VoiceBox.Items.Clear();
-        foreach (var voice in _voices) VoiceBox.Items.Add($"{voice.Name}  ({voice.Kind})");
+        foreach (var voice in _voices) VoiceBox.Items.Add(VoiceLabel(voice));
         _initialising = false;
 
-        AboutVoicesText.Text = $"Voices directory: {directory}\n{_voices.Count} voice(s) found.";
+        AboutVoicesText.Text = $"Voices directory: {directory}\n{downloaded.Count} downloaded, "
+            + $"{windows.Count} from Windows.";
 
         if (_voices.Count == 0)
         {
@@ -229,7 +233,7 @@ public partial class MainWindow : Window
         try
         {
             var threads = _settings.NumThreads;
-            var engine = await Task.Run(() => SherpaTtsEngine.Load(voice, threads));
+            var engine = await Task.Run(() => LoadEngine(voice, threads));
             _engine = engine;
             _loadedVoiceName = voice.Name;
             PopulateSpeakers(voice, engine.SpeakerCount);

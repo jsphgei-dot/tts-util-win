@@ -525,6 +525,8 @@
                             <RowDefinition Height="Auto" />
                             <RowDefinition Height="Auto" />
                             <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
                         </Grid.RowDefinitions>
 
                         <TextBlock Grid.Row="0" Grid.Column="0" Text="Silence after line endings (ms)"
@@ -627,6 +629,12 @@
                         <Button Grid.Row="15" Grid.Column="3" Tag="mp3-bit-rate"
                                 Style="{StaticResource HelpButton}" Click="OnSettingsHelp" />
 
+                        <CheckBox x:Name="UseWindowsVoicesBox" Grid.Row="19" Grid.Column="0" Grid.ColumnSpan="2"
+                                  Content="Also offer the voices Windows already has" Margin="0,4,0,8"
+                                  VerticalAlignment="Center" Click="OnUseWindowsVoicesChanged" />
+                        <Button Grid.Row="19" Grid.Column="3" Tag="use-windows-voices"
+                                Style="{StaticResource HelpButton}" Click="OnSettingsHelp" />
+
                         <CheckBox x:Name="CheckForUpdatesBox" Grid.Row="16" Grid.Column="0" Grid.ColumnSpan="2"
                                   Content="Look for a new version once a day" Margin="0,4,0,8"
                                   VerticalAlignment="Center" />
@@ -663,7 +671,7 @@
                         <Button Grid.Row="18" Grid.Column="3" Tag="show-last-messages"
                                 Style="{StaticResource HelpButton}" Click="OnSettingsHelp" />
 
-                        <StackPanel Grid.Row="19" Grid.Column="1" Orientation="Horizontal" Margin="0,8,0,0">
+                        <StackPanel Grid.Row="20" Grid.Column="1" Orientation="Horizontal" Margin="0,8,0,0">
                             <Button x:Name="ApplySettingsButton" Content="Apply" Click="OnApplySettings" />
                             <TextBlock x:Name="SettingsPathText" VerticalAlignment="Center" Foreground="#555"
                                        TextTrimming="CharacterEllipsis" />

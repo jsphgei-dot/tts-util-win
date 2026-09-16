@@ -25,6 +25,8 @@ public static class SettingsHelp
     public const string Mp3BitRate = "mp3-bit-rate";
     public const string CheckForUpdates = "check-for-updates";
 
+    public const string UseWindowsVoices = "use-windows-voices";
+
     public const string KeepLastMessages = "keep-last-messages";
 
     public const string ShowLastMessages = "show-last-messages";
@@ -145,6 +147,17 @@ public static class SettingsHelp
             + "replacing the folder it is running from is yours to do." + NewParagraph
             + "Check now looks straight away, whether or not the box is ticked and whether or not "
             + "you have already turned down the version it finds."),
+
+        new(
+            UseWindowsVoices,
+            "Also offer the voices Windows already has",
+            "Every Windows machine ships with at least one speech voice, and more can be added "
+            + "through Settings, Time and language, Speech. Turning this on lists them beside the "
+            + "downloaded ones, so the program can read something before anything is installed."
+            + NewParagraph
+            + "They are more robotic than the downloaded voices, which is what the downloads are "
+            + "for. Both run on this machine and neither sends anything anywhere. A Windows voice "
+            + "has one speaker, so the speaker picker does nothing for it."),
 
         new(
             KeepLastMessages,

@@ -112,7 +112,7 @@ public sealed class MainWindowTests : IDisposable
         _wpf.Invoke(() =>
         {
             Assert.Contains(_voicesDir, window.AboutVoicesText.Text);
-            Assert.Contains("1 voice(s) found", window.AboutVoicesText.Text);
+            Assert.Contains("1 downloaded", window.AboutVoicesText.Text);
         });
     }
 
@@ -577,6 +577,9 @@ public sealed class MainWindowTests : IDisposable
             var settings = AppSettings.LoadFrom(_settingsPath);
             settings.VoicesDirectory = _voicesDir;
             settings.OutputDirectory = _root;
+
+            // These cover the downloaded voices, so the machine's own voices stay out of the list.
+            settings.UseWindowsVoices = false;
             configure?.Invoke(settings);
 
             var created = new MainWindow(settings, loadVoiceOnSelection: false)

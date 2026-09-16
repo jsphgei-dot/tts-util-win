@@ -13,10 +13,29 @@ public enum VoiceModelKind
     Kokoro,
 }
 
-/// <summary>A sherpa model directory that can be loaded as a voice.</summary>
+/// <summary>Where a voice comes from.</summary>
+public enum VoiceSource
+{
+    /// <summary>A downloaded sherpa model directory.</summary>
+    Sherpa,
+
+    /// <summary>A speech voice Windows already has.</summary>
+    Windows,
+}
+
+/// <summary>A voice that can be loaded. The path properties belong to sherpa models and are
+/// empty for a Windows voice, which carries an Id instead.</summary>
 public sealed class VoiceDescriptor
 {
     public string Name { get; init; } = string.Empty;
+
+    public VoiceSource Source { get; init; } = VoiceSource.Sherpa;
+
+    /// <summary>What Windows calls this voice. Empty for a sherpa model.</summary>
+    public string Id { get; init; } = string.Empty;
+
+    /// <summary>Shown beside the name in the picker, for a Windows voice.</summary>
+    public string Language { get; init; } = string.Empty;
 
     public string Directory { get; init; } = string.Empty;
 
