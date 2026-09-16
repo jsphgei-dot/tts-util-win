@@ -1214,6 +1214,8 @@ public partial class MainWindow : Window
         var label = paused ? "Resume" : "Pause";
         ShowAction(PauseButton, glyph, label);
         ShowAction(PauseFileButton, glyph, label);
+
+        if (paused || _busy) ShowMediaState(paused ? MediaState.Paused : MediaState.Playing);
     }
 
     /// <summary>Icon buttons show no words, so the wording lives in the tooltip and the accessible name.</summary>
@@ -1620,6 +1622,7 @@ public partial class MainWindow : Window
         _player?.Stop();
         _settings.Save();
         DisposeEngine();
+        Media?.Dispose();
     }
 
     private void DisposeEngine()
@@ -1634,6 +1637,9 @@ public partial class MainWindow : Window
         _busy = busy;
         Cursor = busy ? System.Windows.Input.Cursors.AppStarting : null;
         ShowRestartState(busy && _rerun is not null);
+
+        if (busy) Media?.Describe(TextTitleBox.Text);
+        ShowMediaState(busy ? MediaState.Playing : MediaState.Stopped);
     }
 
     /// <summary>Read becomes Restart while a reading is in flight, so Stop is not needed first.</summary>

@@ -3,6 +3,7 @@ using System.Windows;
 using System.Windows.Controls.Primitives;
 using TtsUtil.Core.Settings;
 using TtsUtil.Core.Tts;
+using Windows.Media;
 using Xunit;
 
 namespace TtsUtil.App.Tests;
@@ -108,6 +109,42 @@ public sealed class PauseTests : IDisposable
 
         _windows.Add(window);
         return window;
+    }
+
+    [Fact]
+    public void TheMediaKeysPauseAndResumeTheSameReading()
+    {
+        var playback = new FakePlayback();
+        var window = CreateWindow();
+        _wpf.Invoke(() => window.ActivePlayback = playback);
+
+        _wpf.Invoke(() => window.OnMediaButton(SystemMediaTransportControlsButton.Pause));
+
+        _wpf.Invoke(() =>
+        {
+            Assert.True(playback.IsPaused);
+            Assert.Equal("Resume", window.PauseButton.ToolTip);
+        });
+
+        _wpf.Invoke(() => window.OnMediaButton(SystemMediaTransportControlsButton.Play));
+
+        _wpf.Invoke(() =>
+        {
+            Assert.False(playback.IsPaused);
+            Assert.Equal("Pause", window.PauseButton.ToolTip);
+        });
+    }
+
+    [Fact]
+    public void TheStopMediaKeyStopsTheRun()
+    {
+        var playback = new FakePlayback();
+        var window = CreateWindow();
+        _wpf.Invoke(() => window.ActivePlayback = playback);
+
+        _wpf.Invoke(() => window.OnMediaButton(SystemMediaTransportControlsButton.Stop));
+
+        Assert.True(playback.Stopped);
     }
 
     private sealed class FakePlayback : IAudioPlayback

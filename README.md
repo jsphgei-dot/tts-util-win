@@ -3,7 +3,7 @@
 ![version](https://img.shields.io/badge/version-0.3.0--beta-blue)
 ![platform](https://img.shields.io/badge/platform-Windows%2010%20%7C%2011%20x64-0078D6)
 ![built with](https://img.shields.io/badge/.NET-6.0-512BD4)
-![tests](https://img.shields.io/badge/tests-301%20passing-brightgreen)
+![tests](https://img.shields.io/badge/tests-326%20passing-brightgreen)
 ![licence](https://img.shields.io/badge/licence-Apache%202.0-lightgrey)
 
 > Read anything you can type, paste or open out loud, entirely on your own machine.
@@ -209,6 +209,14 @@ finish it, never single letters. The voice, the speaker and the speech rate sit 
 The playback buttons carry icons rather than words: play, pause, stop, save audio, and an arrow
 for **Read from here** above the line list. Resting the pointer on one names it, and screen
 readers get the same name, so nothing is lost by dropping the captions.
+
+### The media keys
+
+The play, pause and stop keys on a keyboard work while the program is running, and the Windows
+media overlay shows the script title with the same three buttons. They drive the reading that
+is already in flight, so pause from the keyboard is the same pause as the button. On a machine
+where Windows will not hand out the transport controls, the program carries on without them and
+says nothing.
 
 ### Moving about while it reads
 
