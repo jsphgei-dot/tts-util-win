@@ -159,6 +159,18 @@ unattended setup. The three defaults were chosen for clear, free licences:
 The installer offers these three plus `vits-piper-en_GB-alan-medium`,
 `vits-piper-en_US-amy-low` and `vits-piper-en_US-lessac-medium` as checkboxes.
 
+**Other languages.** The Voices tab also lists Spanish (Spain and Mexico), French, German,
+Italian, Portuguese (Brazil), Dutch, Polish, Swedish, Turkish, Vietnamese, Russian,
+Ukrainian, Greek, Arabic, Hindi and Chinese. None of them is installed by default and none is
+offered as a setup checkbox: they are there to install when you want one, and nothing is
+downloaded until you press Install.
+
+Anything outside the Latin alphabet, which is Russian, Ukrainian, Greek, Arabic, Hindi and
+Chinese here, needs **Characters read aloud** set to any letter or digit in Settings,
+otherwise the strict default removes the whole script before it reaches the voice. Installing
+one of those says so. Vietnamese is Latin but heavily accented: under the strict setting its
+accents fold away, so it wants the wider setting too.
+
 Run the script with `-List` for the rest of the catalogue, and `-Name <id>` to fetch one.
 On an all users installation the program folder is under Program Files, so running the
 script there needs an elevated PowerShell, or a `-Destination` you can write to.

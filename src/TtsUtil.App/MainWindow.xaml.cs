@@ -1150,7 +1150,7 @@ public partial class MainWindow : Window
             await VoiceInstallerFactory().InstallAsync(row.Voice, directory, progress, _installCancellation.Token);
 
             VoiceProgress.Value = 100;
-            VoiceInstallStatus.Text = $"{row.Id} installed. Licence: {row.Licence}";
+            VoiceInstallStatus.Text = $"{row.Id} installed. Licence: {row.Licence}{ScriptWarning(row.Voice)}";
             DisposeEngine();
             RefreshVoices();
         }
@@ -1174,6 +1174,17 @@ public partial class MainWindow : Window
             CancelVoiceButton.IsEnabled = false;
             RefreshVoiceCatalogue();
         }
+    }
+
+    /// <summary>The strict character setting would leave a non Latin voice with nothing to say.</summary>
+    internal string ScriptWarning(DownloadableVoice voice)
+    {
+        if (!voice.NonLatinScript || _settings.SpokenCharacters != SpokenCharacterPolicy.LatinOnly)
+        {
+            return string.Empty;
+        }
+
+        return " This script needs \"Characters read aloud\" set to any letter or digit in Settings.";
     }
 
     private void OnRemoveVoice(object sender, RoutedEventArgs e)
