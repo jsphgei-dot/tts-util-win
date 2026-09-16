@@ -40,6 +40,8 @@ public partial class MainWindow : Window
     private LineMap _lineMap = LineMap.Build(string.Empty);
     private DispatcherTimer? _lineRebuildTimer;
     private long _runStartOffset;
+    private Action? _rerun;
+    private bool _restarting;
     private int _spokenLine = -1;
     private IReadOnlyList<SpeakerInfo> _speakers = Array.Empty<SpeakerInfo>();
     private string? _speakerVoiceName;
@@ -437,14 +439,53 @@ public partial class MainWindow : Window
         }
     }
 
-    private void OnReadText(object sender, RoutedEventArgs e) => ReadFrom(0);
+    private void OnReadText(object sender, RoutedEventArgs e)
+    {
+        if (_busy && _rerun is not null)
+        {
+            _ = RestartAsync(_rerun);
+            return;
+        }
 
-    private void OnReadFromHere(object sender, RoutedEventArgs e) => ReadFrom(ChosenStartOffset());
+        ReadFrom(0);
+    }
+
+    private void OnReadFromHere(object sender, RoutedEventArgs e) => ReadOrRestartFrom(ChosenStartOffset());
 
     private void OnLineListDoubleClick(object sender, MouseButtonEventArgs e)
     {
         if (LineList.SelectedItem is not ScriptLineRow row) return;
-        ReadFrom(row.Start);
+        ReadOrRestartFrom(row.Start);
+    }
+
+    /// <summary>Picking a line while reading moves the reading there rather than refusing.</summary>
+    private void ReadOrRestartFrom(int offset)
+    {
+        if (_busy && _rerun is not null)
+        {
+            _ = RestartAsync(() => ReadFrom(offset));
+            return;
+        }
+
+        ReadFrom(offset);
+    }
+
+    /// <summary>Stops the run in flight and starts it again once it has unwound.</summary>
+    internal async Task RestartAsync(Action start)
+    {
+        if (_restarting) return;
+
+        _restarting = true;
+        try
+        {
+            StopRun("Restarting...");
+            await CurrentRun;
+            start();
+        }
+        finally
+        {
+            _restarting = false;
+        }
     }
 
     /// <summary>The line the user picked in the list, or failing that the caret's line.</summary>
@@ -475,7 +516,8 @@ public partial class MainWindow : Window
         }
 
         LastReadStartOffset = offset;
-        _ = RunSynthesisAsync(() => new StringReader(remainder), null, remainder.Length, offset);
+        _rerun = () => ReadFrom(offset);
+        CurrentRun = RunSynthesisAsync(() => new StringReader(remainder), null, remainder.Length, offset);
     }
 
     /// <summary>Where the last Read started, which is what "read from here" actually decides.</summary>
@@ -558,10 +600,20 @@ public partial class MainWindow : Window
         var path = AskForAudioPath("tts_output");
         if (path is null) return;
 
-        _ = RunSynthesisAsync(() => new StringReader(text), path, text.Length);
+        _rerun = null;
+        CurrentRun = RunSynthesisAsync(() => new StringReader(text), path, text.Length);
     }
 
-    private void OnReadFile(object sender, RoutedEventArgs e) => _ = ReadOrConvertFileAsync(null);
+    private void OnReadFile(object sender, RoutedEventArgs e)
+    {
+        if (_busy && _rerun is not null)
+        {
+            _ = RestartAsync(_rerun);
+            return;
+        }
+
+        CurrentRun = ReadOrConvertFileAsync(null);
+    }
 
     private void OnSaveFileToWave(object sender, RoutedEventArgs e)
     {
@@ -575,7 +627,7 @@ public partial class MainWindow : Window
         var outputPath = AskForAudioPath(Path.GetFileNameWithoutExtension(path));
         if (outputPath is null) return;
 
-        _ = ReadOrConvertFileAsync(outputPath);
+        CurrentRun = ReadOrConvertFileAsync(outputPath);
     }
 
     private async Task ReadOrConvertFileAsync(string? outputPath)
@@ -586,6 +638,9 @@ public partial class MainWindow : Window
             SetStatus("Choose an existing file first.");
             return;
         }
+
+        // Writing a file is not something Restart should turn into playback.
+        _rerun = outputPath is null ? () => CurrentRun = ReadOrConvertFileAsync(null) : null;
 
         if (!IsPdf(path))
         {
@@ -604,6 +659,9 @@ public partial class MainWindow : Window
 
     /// <summary>The last background task a click started, so tests can await it.</summary>
     internal Task PendingWork { get; private set; } = Task.CompletedTask;
+
+    /// <summary>The reading in flight, which Restart waits on before starting the next one.</summary>
+    internal Task CurrentRun { get; set; } = Task.CompletedTask;
 
     private async Task ImportFileToTextTabAsync()
     {
@@ -858,7 +916,9 @@ public partial class MainWindow : Window
         }
     }
 
-    private void OnStop(object sender, RoutedEventArgs e)
+    private void OnStop(object sender, RoutedEventArgs e) => StopRun("Stopping...");
+
+    private void StopRun(string message)
     {
         CancelTypingPlayback();
         _cancellation?.Cancel();
@@ -867,7 +927,7 @@ public partial class MainWindow : Window
         _player?.Resume();
         _player?.Stop();
         ShowPauseState(paused: false);
-        SetStatus("Stopping...");
+        SetStatus(message);
     }
 
     private void OnTogglePause(object sender, RoutedEventArgs e)
@@ -1297,6 +1357,14 @@ public partial class MainWindow : Window
     {
         _busy = busy;
         Cursor = busy ? System.Windows.Input.Cursors.AppStarting : null;
+        ShowRestartState(busy && _rerun is not null);
+    }
+
+    /// <summary>Read becomes Restart while a reading is in flight, so Stop is not needed first.</summary>
+    private void ShowRestartState(bool running)
+    {
+        ReadButton.Content = running ? "Restart" : "Read";
+        ReadFileButton.Content = running ? "Restart" : "Read file";
     }
 
     /// <summary>How many past messages the history keeps before the oldest falls off.</summary>

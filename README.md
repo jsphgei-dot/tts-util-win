@@ -267,15 +267,18 @@ rest of the book. Stop gives up on the run entirely; pressing it while paused re
 pause first, so nothing is left waiting.
 
 There is no scrub bar, because the audio does not exist yet: it is synthesised as it plays.
-Moving about is done by line instead. Stop, pick a line, and Read from here, which is why the
-line list follows the run and leaves the selection where playback reached.
+Moving about is done by line instead, and Stop is no longer part of it. While a reading is in
+flight, **Read** becomes **Restart** and starts the same reading again from where it began.
+**Read from here**, and a double click in the line list, move the reading to that line without
+stopping first. Each of these stops the current run, waits for it to unwind, and starts the
+next one.
 
 ## Reading from a line
 
 The Text tab shows a numbered line list beside the editor. Double click a line, or select it
 and press **Read from here**, to start there instead of at the top. With nothing selected,
 **Read from here** uses the line the cursor is on, so you can click into the text and carry
-on from there.
+on from there, whether or not something is already playing.
 
 The list follows the run: the line being spoken is selected and scrolled into view. That
 makes Stop and **Read from here** a resume, since the selection is left on the line playback
