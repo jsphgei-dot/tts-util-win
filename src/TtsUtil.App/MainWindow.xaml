@@ -3,7 +3,8 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         Title="TTS Util Win" Height="660" Width="940" MinHeight="480" MinWidth="720"
         WindowStartupLocation="CenterScreen"
-        Closing="OnWindowClosing">
+        Closing="OnWindowClosing" Deactivated="OnWindowDeactivated"
+        PreviewMouseLeftButtonDown="OnPreviewButtonPress">
     <Window.CommandBindings>
         <CommandBinding Command="ApplicationCommands.Save" Executed="OnSaveScriptCommand" />
         <CommandBinding Command="ApplicationCommands.Replace" Executed="OnToggleFindCommand" />
@@ -54,7 +55,7 @@
                     <ToggleButton x:Name="FavouriteSpeakerButton" Content="Star" Width="56" Margin="6,0,0,0"
                                   VerticalAlignment="Center" ToolTip="Keep this speaker at the top of the list"
                                   Click="OnToggleFavouriteSpeaker" />
-                    <Button x:Name="ShowFavouritesButton" Content="Favourites" Width="82" Margin="6,0,0,0"
+                    <Button x:Name="ShowFavouritesButton" Content="Favorites" Width="82" Margin="6,0,0,0"
                             VerticalAlignment="Center" ToolTip="Show only starred speakers"
                             Click="OnShowFavouriteSpeakers" />
                     <TextBlock x:Name="SpeakerCountText" VerticalAlignment="Center" Margin="10,0,0,0"
@@ -244,6 +245,10 @@
                                 Margin="6,0,0,0" ToolTip="Another text tab, written to audio alongside this one" />
                         <CheckBox x:Name="ReadAsYouTypeBox" Content="Read as I type" VerticalAlignment="Center"
                                   Margin="10,0,0,0" Checked="OnReadAsYouTypeChanged" Unchecked="OnReadAsYouTypeChanged" />
+                        <CheckBox x:Name="PauseWhenUnfocusedBox" Content="Pause when I click away"
+                                  VerticalAlignment="Center" Margin="10,0,0,0"
+                                  ToolTip="Hold the reading whenever another window takes over"
+                                  Checked="OnPauseWhenUnfocusedChanged" Unchecked="OnPauseWhenUnfocusedChanged" />
                         <CheckBox x:Name="ShowLinesBox" Content="Lines" VerticalAlignment="Center" IsChecked="True"
                                   Margin="10,0,0,0" Checked="OnShowLinesChanged" Unchecked="OnShowLinesChanged" />
                     </StackPanel>
@@ -421,7 +426,7 @@
             <TabItem Header="Voices">
                 <DockPanel Margin="12">
                     <TextBlock DockPanel.Dock="Top" TextWrapping="Wrap" Foreground="#555" Margin="0,0,0,8"
-                               Text="Voices are downloaded from the sherpa-onnx release page and unpacked into the voices directory. The licence shown here is a summary; the authoritative text ships inside each model folder." />
+                               Text="Voices are downloaded from the sherpa-onnx release page and unpacked into the voices directory. The license shown here is a summary; the authoritative text ships inside each model folder." />
 
                     <StackPanel DockPanel.Dock="Bottom" Margin="0,8,0,0">
                         <StackPanel Orientation="Horizontal">
@@ -448,7 +453,7 @@
                                 <GridViewColumn Header="Language" Width="190" DisplayMemberBinding="{Binding Language}" />
                                 <GridViewColumn Header="Size" Width="70" DisplayMemberBinding="{Binding Size}" />
                                 <GridViewColumn Header="Status" Width="90" DisplayMemberBinding="{Binding Status}" />
-                                <GridViewColumn Header="Licence" Width="230" DisplayMemberBinding="{Binding Licence}" />
+                                <GridViewColumn Header="License" Width="230" DisplayMemberBinding="{Binding Licence}" />
                             </GridView>
                         </ListView.View>
                     </ListView>
@@ -529,6 +534,12 @@
                             <ColumnDefinition Width="Auto" />
                         </Grid.ColumnDefinitions>
                         <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
                             <RowDefinition Height="Auto" />
                             <RowDefinition Height="Auto" />
                             <RowDefinition Height="Auto" />
@@ -701,8 +712,44 @@
                         <Button Grid.Row="20" Grid.Column="3" Tag="save-script-with-audio"
                                 Style="{StaticResource HelpButton}" Click="OnSettingsHelp" />
 
-                        <StackPanel Grid.Row="21" Grid.Column="1" Orientation="Horizontal" Margin="0,8,0,0">
+                        <CheckBox x:Name="SettingsReadAsYouTypeBox" Grid.Row="21" Grid.Column="0" Grid.ColumnSpan="2"
+                                  Content="Read each word as I type it" Margin="0,4,0,8"
+                                  VerticalAlignment="Center" Checked="OnSettingsReadAsYouTypeChanged"
+                                  Unchecked="OnSettingsReadAsYouTypeChanged" />
+
+                        <CheckBox x:Name="SettingsPauseWhenUnfocusedBox" Grid.Row="22" Grid.Column="0" Grid.ColumnSpan="2"
+                                  Content="Pause the reading when the window loses focus" Margin="0,4,0,8"
+                                  VerticalAlignment="Center" Checked="OnSettingsPauseWhenUnfocusedChanged"
+                                  Unchecked="OnSettingsPauseWhenUnfocusedChanged" />
+
+                        <CheckBox x:Name="SettingsUseAliasesBox" Grid.Row="23" Grid.Column="0" Grid.ColumnSpan="2"
+                                  Content="Use the alias list when reading" Margin="0,4,0,8"
+                                  VerticalAlignment="Center" Checked="OnSettingsUseAliasesChanged"
+                                  Unchecked="OnSettingsUseAliasesChanged" />
+
+                        <TextBlock Grid.Row="24" Grid.Column="0" Text="Reading speed"
+                                   Style="{StaticResource SettingLabel}" />
+                        <TextBox x:Name="SettingsSpeedBox" Grid.Row="24" Grid.Column="1"
+                                 Style="{StaticResource SettingBox}" />
+
+                        <TextBlock Grid.Row="25" Grid.Column="0" Text="Editor text size"
+                                   Style="{StaticResource SettingLabel}" />
+                        <ComboBox x:Name="SettingsFontSizeBox" Grid.Row="25" Grid.Column="1" Width="80"
+                                  HorizontalAlignment="Left" Margin="0,0,0,8"
+                                  SelectionChanged="OnSettingsFontSizeChanged" />
+
+                        <TextBlock Grid.Row="26" Grid.Column="0" Text="Repeat"
+                                   Style="{StaticResource SettingLabel}" />
+                        <ComboBox x:Name="SettingsRepeatBox" Grid.Row="26" Grid.Column="1" Width="160"
+                                  HorizontalAlignment="Left" Margin="0,0,0,8"
+                                  SelectionChanged="OnSettingsRepeatChanged" />
+
+                        <StackPanel Grid.Row="27" Grid.Column="0" Grid.ColumnSpan="3" Orientation="Horizontal"
+                                    Margin="0,8,0,0">
                             <Button x:Name="ApplySettingsButton" Content="Apply" Click="OnApplySettings" />
+                            <Button x:Name="ResetSettingsButton" Content="Reset to defaults"
+                                    Click="OnResetSettings" MinWidth="130"
+                                    ToolTip="Put every setting back to how it started" />
                             <TextBlock x:Name="SettingsPathText" VerticalAlignment="Center" Foreground="#555"
                                        TextTrimming="CharacterEllipsis" />
                         </StackPanel>
@@ -719,7 +766,7 @@
                                    Text="A Windows port of TTS Util that synthesises speech locally with sherpa-onnx. No network access and no system speech engine are required." />
                         <TextBlock x:Name="AboutVoicesText" TextWrapping="Wrap" Margin="0,0,0,10" />
                         <TextBlock TextWrapping="Wrap" Margin="0,0,0,10"
-                                   Text="TTS Util Win is a Windows port of TTS Util by Dane Finlay, and is not endorsed by that project. It is licensed under the Apache License 2.0, as are TTS Util and the sherpa-onnx library by the k2-fsa project. The NOTICE and THIRD-PARTY-NOTICES.txt files beside the program name every component it ships. Each voice model carries its own licence; see the LICENSE file inside the model folder." />
+                                   Text="TTS Util Win is a Windows port of TTS Util by Dane Finlay, and is not endorsed by that project. It is licensed under the Apache License 2.0, as are TTS Util and the sherpa-onnx library by the k2-fsa project. The NOTICE and THIRD-PARTY-NOTICES.txt files beside the program name every component it ships. Each voice model carries its own license; see the LICENSE file inside the model folder." />
                         <TextBlock x:Name="LicenseText" TextWrapping="Wrap" FontFamily="Consolas" Foreground="#444" />
                     </StackPanel>
                 </ScrollViewer>

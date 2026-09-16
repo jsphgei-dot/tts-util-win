@@ -50,7 +50,7 @@ public partial class MainWindow
 
     private void OnToggleFind(object sender, RoutedEventArgs e) => ToggleFind();
 
-    private void OnSaveScriptCommand(object sender, ExecutedRoutedEventArgs e) => SaveScriptFromText();
+    private void OnSaveScriptCommand(object sender, ExecutedRoutedEventArgs e) => SaveScriptWithPrompt();
 
     /// <summary>Fills the size list and matches the box to the size the settings remembered.</summary>
     private void LoadEditorToolbar()
@@ -69,6 +69,7 @@ public partial class MainWindow
 
         InputText.FontSize = size;
         _settings.EditorFontSize = size;
+        SettingsFontSizeBox.SelectedItem = size;
     }
 
     private void OnWrapChanged(object sender, RoutedEventArgs e)

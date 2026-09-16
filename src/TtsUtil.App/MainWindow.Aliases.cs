@@ -135,6 +135,7 @@ public partial class MainWindow
 
         _settings.UseAliases = UseAliasesBox.IsChecked == true;
         _settings.Save();
+        SettingsUseAliasesBox.IsChecked = UseAliasesBox.IsChecked;
         ShowAliasPreview();
     }
 

@@ -199,7 +199,7 @@ public sealed class SpeakerPickerTests : IDisposable
 
             Click(window.ShowFavouritesButton);
             Assert.Equal(10, window.SpeakerBox.Items.Count);
-            Assert.Equal("Favourites", window.ShowFavouritesButton.Content);
+            Assert.Equal("Favorites", window.ShowFavouritesButton.Content);
         });
     }
 
@@ -234,7 +234,7 @@ public sealed class SpeakerPickerTests : IDisposable
             Click(window.FavouriteSpeakerButton);
 
             Assert.Equal(10, window.SpeakerBox.Items.Count);
-            Assert.Equal("Favourites", window.ShowFavouritesButton.Content);
+            Assert.Equal("Favorites", window.ShowFavouritesButton.Content);
         });
     }
 

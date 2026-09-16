@@ -75,6 +75,9 @@ public sealed class AppSettings
 
     public bool ReadAsYouType { get; set; }
 
+    /// <summary>Whether clicking away from the window holds the reading where it got to.</summary>
+    public bool PauseWhenUnfocused { get; set; }
+
     public string? OutputDirectory { get; set; }
 
     /// <summary>The file type Save writes. MP3 is smaller and plays anywhere.</summary>
@@ -177,6 +180,21 @@ public sealed class AppSettings
     }
 
     public void Save() => SaveTo(SourcePath ?? SettingsPath);
+
+    /// <summary>Puts every setting back to what a first run would have, keeping the file it
+    /// was loaded from, and writes it out.</summary>
+    public void ResetToDefaults()
+    {
+        var fresh = new AppSettings();
+
+        foreach (var property in typeof(AppSettings).GetProperties())
+        {
+            if (!property.CanWrite || property.Name == nameof(SourcePath)) continue;
+            property.SetValue(this, property.GetValue(fresh));
+        }
+
+        Save();
+    }
 
     public void SaveTo(string path)
     {

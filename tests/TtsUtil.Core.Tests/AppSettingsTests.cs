@@ -152,4 +152,23 @@ public sealed class AppSettingsTests : IDisposable
         Assert.True(options.Filters.FilterMailToLinks);
         Assert.False(options.Filters.FilterWebLinks);
     }
+
+    [Fact]
+    public void ResettingPutsEverythingBackButKeepsTheFileItCameFrom()
+    {
+        var settings = AppSettings.LoadFrom(_path);
+        settings.Speed = 1.8f;
+        settings.MaxChunkLength = 512;
+        settings.PauseWhenUnfocused = true;
+        settings.SpeakerIds["piper"] = 4;
+
+        settings.ResetToDefaults();
+
+        Assert.Equal(1.0f, settings.Speed);
+        Assert.Equal(2000, settings.MaxChunkLength);
+        Assert.False(settings.PauseWhenUnfocused);
+        Assert.Empty(settings.SpeakerIds);
+        Assert.Equal(_path, settings.SourcePath);
+        Assert.Equal(1.0f, AppSettings.LoadFrom(_path).Speed);
+    }
 }

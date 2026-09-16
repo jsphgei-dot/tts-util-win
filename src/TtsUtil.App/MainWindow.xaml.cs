@@ -86,6 +86,7 @@ public partial class MainWindow : Window
         RefreshQueue();
         ShowRepeatMode();
         RestoreDraft();
+        LoadSettingsMirror();
     }
 
     /// <summary>Where the Text tab is kept between sittings, beside the settings it belongs to.</summary>
@@ -188,6 +189,7 @@ public partial class MainWindow : Window
         ThreadsBox.Text = _settings.NumThreads.ToString();
         ChunkLengthBox.Text = _settings.MaxChunkLength.ToString();
         ReadAsYouTypeBox.IsChecked = _settings.ReadAsYouType;
+        PauseWhenUnfocusedBox.IsChecked = _settings.PauseWhenUnfocused;
         CheckForUpdatesBox.IsChecked = _settings.CheckForUpdates;
         UseWindowsVoicesBox.IsChecked = _settings.UseWindowsVoices;
         SaveScriptWithAudioBox.IsChecked = _settings.SaveScriptWithAudio;
@@ -216,6 +218,7 @@ public partial class MainWindow : Window
         _settings.ReadAsYouType = ReadAsYouTypeBox.IsChecked == true;
         _settings.CheckForUpdates = CheckForUpdatesBox.IsChecked == true;
         _settings.SaveScriptWithAudio = SaveScriptWithAudioBox.IsChecked == true;
+        _settings.Speed = ReadSpeed();
 
         var outputDir = OutputDirBox.Text.Trim();
         _settings.OutputDirectory = outputDir.Length == 0 ? null : outputDir;
@@ -227,7 +230,16 @@ public partial class MainWindow : Window
 
         _settings.Save();
         LoadSettingsIntoUi();
+        LoadSettingsMirror();
         if (voicesChanged) RefreshVoices();
+    }
+
+    /// <summary>The speed typed on the Settings tab, held to what the slider can reach.</summary>
+    private float ReadSpeed()
+    {
+        if (!double.TryParse(SettingsSpeedBox.Text, out var speed)) return _settings.Speed;
+
+        return (float)Math.Clamp(speed, 0.5, 2.0);
     }
 
     private void RefreshVoices()
@@ -345,7 +357,7 @@ public partial class MainWindow : Window
         _speakerId = Math.Clamp(_settings.GetSpeakerId(_speakerVoiceName), 0, Math.Max(0, count - 1));
 
         _favouritesOnly = false;
-        ShowFavouritesButton.Content = "Favourites";
+        ShowFavouritesButton.Content = "Favorites";
         SpeakerSearchBox.Text = string.Empty;
         RefreshSpeakerList();
 
@@ -815,6 +827,7 @@ public partial class MainWindow : Window
         RepeatModeButton.Opacity = _settings.Repeat == RepeatMode.Off ? 0.45 : 1.0;
         RepeatModeText.Text = label;
         System.Windows.Automation.AutomationProperties.SetName(RepeatModeButton, label);
+        if (SettingsRepeatBox is not null) SettingsRepeatBox.SelectedIndex = Array.IndexOf(RepeatModes, _settings.Repeat);
     }
 
     // --- The line list ---
@@ -1181,6 +1194,39 @@ public partial class MainWindow : Window
 
     private void OnSaveScript(object sender, RoutedEventArgs e) => SaveScriptFromText();
 
+    /// <summary>Asks for the name, so a script is never quietly written over a stale title.
+    /// Tests swap it out.</summary>
+    internal Func<string, string?>? ScriptNamePrompt { get; set; }
+
+    /// <summary>Ctrl+S and the Save button on the Text tab arrive here.</summary>
+    internal void SaveScriptWithPrompt()
+    {
+        if (string.IsNullOrWhiteSpace(InputText.Text))
+        {
+            SetStatus("The Text tab is empty, so there is nothing to save.");
+            return;
+        }
+
+        var suggested = ScriptTitleBox.Text.Trim();
+        if (suggested.Length == 0) suggested = ActiveScriptTitle ?? string.Empty;
+
+        var chosen = (ScriptNamePrompt ?? AskForScriptName)(suggested);
+        if (chosen is null)
+        {
+            SetStatus("The script was not saved.");
+            return;
+        }
+
+        ScriptTitleBox.Text = chosen;
+        SaveScriptFromText();
+    }
+
+    private string? AskForScriptName(string suggested)
+    {
+        var dialog = new NameScriptWindow(suggested) { Owner = this };
+        return dialog.ShowDialog() == true ? dialog.ChosenName : null;
+    }
+
     /// <summary>Saves the Text tab under the title beside it. Ctrl+S arrives here too.</summary>
     internal void SaveScriptFromText()
     {
@@ -1208,6 +1254,7 @@ public partial class MainWindow : Window
             ScriptList.SelectedItem = ScriptList.Items.Cast<ScriptRow>()
                 .FirstOrDefault(s => s.Title == saved.Title);
 
+            ShowSaveConfirmation(existed);
             SetStatus(existed ? $"Replaced {saved.Title}." : $"Saved {saved.Title}.");
         }
         catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
@@ -1533,14 +1580,14 @@ public partial class MainWindow : Window
             await VoiceInstallerFactory().InstallAsync(row.Voice, directory, progress, _installCancellation.Token);
 
             VoiceProgress.Value = 100;
-            VoiceInstallStatus.Text = $"{row.Id} installed. Licence: {row.Licence}{ScriptWarning(row.Voice)}";
+            VoiceInstallStatus.Text = $"{row.Id} installed. License: {row.Licence}{ScriptWarning(row.Voice)}";
             DisposeEngine();
             RefreshVoices();
         }
         catch (OperationCanceledException)
         {
             VoiceProgress.Value = 0;
-            VoiceInstallStatus.Text = $"{row.Id} cancelled; nothing was kept.";
+            VoiceInstallStatus.Text = $"{row.Id} canceled; nothing was kept.";
         }
         catch (Exception ex)
         {
@@ -1552,8 +1599,7 @@ public partial class MainWindow : Window
             _installCancellation?.Dispose();
             _installCancellation = null;
             _installing = false;
-            InstallVoiceButton.IsEnabled = true;
-            RemoveVoiceButton.IsEnabled = true;
+            LockPlaybackSettings(_busy);
             CancelVoiceButton.IsEnabled = false;
             RefreshVoiceCatalogue();
         }
@@ -1648,7 +1694,7 @@ public partial class MainWindow : Window
         if (_favouritesOnly && _settings.GetFavouriteSpeakers(_speakerVoiceName).Count == 0)
         {
             _favouritesOnly = false;
-            ShowFavouritesButton.Content = "Favourites";
+            ShowFavouritesButton.Content = "Favorites";
         }
 
         RefreshSpeakerList();
@@ -1664,7 +1710,7 @@ public partial class MainWindow : Window
         }
 
         _favouritesOnly = !_favouritesOnly;
-        ShowFavouritesButton.Content = _favouritesOnly ? "Show all" : "Favourites";
+        ShowFavouritesButton.Content = _favouritesOnly ? "Show all" : "Favorites";
         RefreshSpeakerList();
     }
 
@@ -1680,6 +1726,32 @@ public partial class MainWindow : Window
         if (_initialising) return;
         _settings.ReadAsYouType = ReadAsYouTypeBox.IsChecked == true;
         if (!_settings.ReadAsYouType) CancelTypingPlayback();
+        SettingsReadAsYouTypeBox.IsChecked = ReadAsYouTypeBox.IsChecked;
+    }
+
+    private void OnPauseWhenUnfocusedChanged(object sender, RoutedEventArgs e)
+    {
+        if (_initialising) return;
+
+        _settings.PauseWhenUnfocused = PauseWhenUnfocusedBox.IsChecked == true;
+        _settings.Save();
+        SettingsPauseWhenUnfocusedBox.IsChecked = PauseWhenUnfocusedBox.IsChecked;
+    }
+
+    private void OnWindowDeactivated(object sender, EventArgs e) => HoldForLostFocus();
+
+    /// <summary>Another window taking over holds the reading, so nothing is missed while the
+    /// listener is away. It carries on when Resume is pressed.</summary>
+    internal void HoldForLostFocus()
+    {
+        if (!_settings.PauseWhenUnfocused) return;
+
+        var player = _player;
+        if (player is null || player.IsPaused) return;
+
+        player.Pause();
+        ShowPauseState(paused: true);
+        SetStatus("Paused, with the window no longer in front. Press Resume to carry on.");
     }
 
     private void OnInputTextChanged(object sender, TextChangedEventArgs e)
@@ -1780,6 +1852,7 @@ public partial class MainWindow : Window
         _busy = busy;
         Cursor = busy ? System.Windows.Input.Cursors.AppStarting : null;
         LockText(busy);
+        LockPlaybackSettings(busy);
         ShowRestartState(busy && _rerun is not null);
 
         if (busy) Media?.Describe(TextTitleBox.Text);

@@ -280,6 +280,89 @@ public sealed class ScriptsTabTests : IDisposable
         return window;
     }
 
+    /// <summary>Ctrl+S asks for the name, and the answer is what the file is called.</summary>
+    [Fact]
+    public void TheKeyboardSaveAsksForANameFirst()
+    {
+        var window = CreateWindow();
+        var suggested = "unset";
+
+        _wpf.Invoke(() =>
+        {
+            window.InputText.Text = "The script body.";
+            window.ScriptTitleBox.Text = "Chapter one";
+            window.ScriptNamePrompt = offered =>
+            {
+                suggested = offered;
+                return "Chapter two";
+            };
+
+            window.SaveScriptWithPrompt();
+        });
+
+        Assert.Equal("Chapter one", suggested);
+        Assert.Equal("The script body.", File.ReadAllText(Path.Combine(_scriptsDir, "Chapter two.txt")));
+    }
+
+    [Fact]
+    public void ClosingTheNameBoxLeavesTheScriptUnsaved()
+    {
+        var window = CreateWindow();
+
+        _wpf.Invoke(() =>
+        {
+            window.InputText.Text = "The script body.";
+            window.ScriptNamePrompt = _ => null;
+
+            window.SaveScriptWithPrompt();
+
+            Assert.Equal("The script was not saved.", window.StatusText.Text);
+        });
+
+        Assert.Empty(Directory.GetFiles(_scriptsDir));
+    }
+
+    /// <summary>The icon turns green on a new name and blue when a script is written over.</summary>
+    [Fact]
+    public void TheSaveIconMarksANewScriptApartFromAReplacedOne()
+    {
+        var window = CreateWindow();
+
+        _wpf.Invoke(() =>
+        {
+            window.InputText.Text = "The script body.";
+            window.ScriptTitleBox.Text = "Chapter one";
+        });
+
+        Click(window.SaveScriptButton);
+        _wpf.Invoke(() => Assert.Equal(MainWindow.SavedNewBrush, window.SaveScriptFromTextButton.Foreground));
+
+        Click(window.SaveScriptButton);
+        _wpf.Invoke(() =>
+        {
+            Assert.Equal(MainWindow.SavedOverBrush, window.SaveScriptFromTextButton.Foreground);
+
+            window.ClearSaveConfirmation();
+            Assert.NotEqual(MainWindow.SavedOverBrush, window.SaveScriptFromTextButton.Foreground);
+        });
+    }
+
+    /// <summary>A second press landing before the first has finished is dropped.</summary>
+    [Fact]
+    public void OnlyOnePressAtATimeIsTakenUp()
+    {
+        var window = CreateWindow();
+
+        _wpf.Invoke(() =>
+        {
+            Assert.True(window.ClaimClick());
+            Assert.False(window.ClaimClick());
+
+            window.ReleaseClick();
+            Assert.True(window.ClaimClick());
+        });
+    }
+
     private void Click(ButtonBase button) =>
         _wpf.Invoke(() => button.RaiseEvent(new RoutedEventArgs(ButtonBase.ClickEvent)));
 
