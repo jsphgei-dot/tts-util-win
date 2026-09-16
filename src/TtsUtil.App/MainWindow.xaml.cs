@@ -44,6 +44,7 @@ public partial class MainWindow : Window
     private Action? _rerun;
     private bool _restarting;
     private int _spokenLine = -1;
+    private bool _readingFromText;
     private IReadOnlyList<SpeakerInfo> _speakers = Array.Empty<SpeakerInfo>();
     private string? _speakerVoiceName;
     private int _speakerId;
@@ -342,7 +343,7 @@ public partial class MainWindow : Window
         _speakers.FirstOrDefault(speaker => speaker.Id == _speakerId)?.Label ?? _speakerId.ToString();
 
     private async Task<RunOutcome> RunSynthesisAsync(Func<TextReader> readerFactory, string? outputPath,
-        long? knownCharacters = null, long startOffset = 0)
+        long? knownCharacters = null, long startOffset = 0, bool startPaused = false)
     {
         if (_busy)
         {
@@ -371,7 +372,7 @@ public partial class MainWindow : Window
         var speed = (float)SpeedSlider.Value;
         _runStartOffset = startOffset;
         _spokenLine = -1;
-        ShowPauseState(paused: false);
+        ShowPauseState(startPaused);
         IProgress<string> encodeProgress = new Progress<string>(SetStatus);
 
         var progress = new Progress<SynthesisProgress>(p =>
@@ -399,6 +400,7 @@ public partial class MainWindow : Window
                 {
                     using var player = PlayerFactory(engine.SampleRate, token);
                     _player = player;
+                    if (startPaused) player.Pause();
                     try
                     {
                         runner.Run(reader, totalCharacters, player, progress, token);
@@ -528,7 +530,7 @@ public partial class MainWindow : Window
         return _lineMap.StartOf(_lineMap.LineAt(InputText.CaretIndex));
     }
 
-    private void ReadFrom(int startOffset)
+    private void ReadFrom(int startOffset, bool startPaused = false)
     {
         var text = InputText.Text;
         if (string.IsNullOrWhiteSpace(text))
@@ -547,17 +549,21 @@ public partial class MainWindow : Window
         }
 
         LastReadStartOffset = offset;
+        _readingFromText = true;
         _rerun = () => ReadFrom(offset);
-        CurrentRun = ReadRepeatedlyAsync(remainder, offset);
+        CurrentRun = ReadRepeatedlyAsync(remainder, offset, startPaused);
     }
 
     /// <summary>Reads the same text again while repeat is on, until something stops it.</summary>
-    private async Task ReadRepeatedlyAsync(string text, long offset)
+    private async Task ReadRepeatedlyAsync(string text, long offset, bool startPaused = false)
     {
         do
         {
-            var outcome = await RunSynthesisAsync(() => new StringReader(text), null, text.Length, offset);
+            var outcome = await RunSynthesisAsync(() => new StringReader(text), null, text.Length, offset, startPaused);
             if (outcome != RunOutcome.Finished) return;
+
+            // Only the reading that was interrupted waits. A repeat of it plays straight through.
+            startPaused = false;
         }
         while (_settings.Repeat != RepeatMode.Off);
     }
@@ -859,8 +865,44 @@ public partial class MainWindow : Window
         var path = AskForAudioPath("tts_output");
         if (path is null) return;
 
-        _rerun = null;
-        CurrentRun = RunSynthesisAsync(() => new StringReader(text), path, text.Length);
+        PendingWork = SaveThenResumeAsync(() =>
+        {
+            _rerun = null;
+            _readingFromText = false;
+            return CurrentRun = RunSynthesisAsync(() => new StringReader(text), path, text.Length);
+        });
+    }
+
+    /// <summary>Whether the run in flight is reading the text box. Tests set up a reading with it.</summary>
+    internal bool ReadingFromText
+    {
+        get => _readingFromText;
+        set => _readingFromText = value;
+    }
+
+    /// <summary>Writing audio needs the voice to itself, so a reading in flight gives way and is
+    /// set up again where the listener had got to, paused.</summary>
+    internal async Task SaveThenResumeAsync(Func<Task> save)
+    {
+        var resumeAt = ReadingSpot();
+        if (resumeAt is not null)
+        {
+            StopRun("Pausing the reading to write the file...");
+            await CurrentRun;
+        }
+
+        await save();
+
+        if (resumeAt is int offset) ReadFrom(offset, startPaused: true);
+    }
+
+    /// <summary>The start of the line being heard, or null when no text is being read aloud.</summary>
+    private int? ReadingSpot()
+    {
+        var player = _player;
+        if (!_readingFromText || player is null) return null;
+
+        return _lineMap.StartOf(_lineMap.LineAt(_runStartOffset + player.PlayedCharacters));
     }
 
     private void OnReadFile(object sender, RoutedEventArgs e)
@@ -886,7 +928,7 @@ public partial class MainWindow : Window
         var outputPath = AskForAudioPath(Path.GetFileNameWithoutExtension(path));
         if (outputPath is null) return;
 
-        CurrentRun = ReadOrConvertFileAsync(outputPath);
+        PendingWork = SaveThenResumeAsync(() => CurrentRun = ReadOrConvertFileAsync(outputPath));
     }
 
     private async Task ReadOrConvertFileAsync(string? outputPath)
@@ -900,6 +942,7 @@ public partial class MainWindow : Window
 
         // Writing a file is not something Restart should turn into playback.
         _rerun = outputPath is null ? () => CurrentRun = ReadOrConvertFileAsync(null) : null;
+        _readingFromText = false;
 
         if (!IsPdf(path))
         {
