@@ -2,6 +2,18 @@
 
 Newest first. Version codes are monotonic and never reused.
 
+## 0.6.0-beta (version code 10)
+
+* **Several texts at once.** The Text tab holds as many documents as you like, each on its own
+  tab with a plus at the end of the strip and a cross to close one. Each keeps its own words and
+  its own script name.
+* **Audio is written in the background.** Writing one tab to a file leaves the others alone, so
+  a second text can be typed, or read aloud, while the first is still rendering. The tab shows
+  how far along it is.
+* **Each script remembers its voice.** Saving a script keeps the voice, the speaker and the
+  speaking speed with it, and opening or converting that script sets them back.
+* Everything typed comes back when the program is opened again, every tab of it.
+
 ## 0.5.0-beta (version code 9)
 
 * **The voices Windows already has.** Every Microsoft voice installed in Windows appears in the
