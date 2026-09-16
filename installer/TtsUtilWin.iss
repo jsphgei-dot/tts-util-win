@@ -68,15 +68,24 @@ MinVersion=10.0
 [Languages]
 Name: "english"; MessagesFile: "compiler:Default.isl"
 
+[Messages]
+SelectComponentsLabel2=The three Microsoft voices that come with Windows are already on this computer and work with {#AppName} straight away, so no voice model has to be downloaded at all. Tick any neural voices you would also like, or none:
+
 [Types]
-Name: "recommended"; Description: "Program and the three recommended voices"
-Name: "minimal";     Description: "Program only, no voices"
+Name: "recommended"; Description: "Program and the three recommended neural voices"
+Name: "minimal";     Description: "Program only, nothing downloaded (the Windows voices still work)"
 Name: "custom";      Description: "Choose voices"; Flags: iscustom
 
 [Components]
 Name: "app"; Description: "{#AppName}"; Types: recommended minimal custom; Flags: fixed
 
-Name: "voices";          Description: "Voice models, downloaded during installation"; Types: recommended custom
+; Ticked and greyed out: Windows ships these and setup neither downloads nor installs them.
+Name: "windows";       Description: "Windows voices, already installed, nothing to download"; Types: recommended minimal custom; Flags: fixed
+Name: "windows\david"; Description: "Microsoft David, English (US), on this computer already"; Types: recommended minimal custom; Flags: fixed
+Name: "windows\zira";  Description: "Microsoft Zira, English (US), on this computer already"; Types: recommended minimal custom; Flags: fixed
+Name: "windows\mark";  Description: "Microsoft Mark, English (US), on this computer already"; Types: recommended minimal custom; Flags: fixed
+
+Name: "voices";          Description: "Neural voice models, downloaded during installation, none of them needed"; Types: recommended custom
 Name: "voices\ljspeech"; Description: "English (US), LJ Speech, high quality (110 MB, public domain)"; Types: recommended custom; ExtraDiskSpaceRequired: 115343360
 Name: "voices\libritts"; Description: "English (US), LibriTTS-R, 900+ speakers (78 MB, CC BY 4.0)"; Types: recommended custom; ExtraDiskSpaceRequired: 81788928
 Name: "voices\kokoro";   Description: "English, Kokoro, 11 voices (305 MB, Apache 2.0)"; Types: recommended custom; ExtraDiskSpaceRequired: 319815680

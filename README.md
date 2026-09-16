@@ -73,11 +73,18 @@ whether to install for all users (needs administrator) or just for you (recommen
 prompt), then adds a Start menu entry, an optional desktop shortcut, and an entry in Settings,
 Apps. Settings go to `%APPDATA%\TtsUtilWin`.
 
-A components page lists the curated voices with a checkbox and a size each. "Program and the
-three recommended voices" ticks the permissively licensed defaults, "Program only" ticks none,
-and "Choose voices" leaves every box to you. Setup downloads what is ticked and extracts it
-into `voices` beside the program, skipping any model already present. A failed download warns
-and lets the installation finish. Uninstalling removes the voices it installed.
+**No voice model has to be downloaded.** Windows already carries three Microsoft voices,
+Microsoft David, Microsoft Zira and Microsoft Mark, and the program speaks with them as they
+are. The installer's components page shows them at the top as ticked, greyed out rows, which
+say they are on the machine already and cost nothing to install. Everything under them is
+optional.
+
+The rest of that page lists the curated neural voices with a checkbox and a size each.
+"Program and the three recommended neural voices" ticks the permissively licensed defaults,
+"Program only, nothing downloaded" ticks none, and "Choose voices" leaves every box to you.
+Setup downloads what is ticked and extracts it into `voices` beside the program, skipping any
+model already present. A failed download warns and lets the installation finish. Uninstalling
+removes the voices it installed.
 
 **Portable.** Copy the `TtsUtilWin` folder anywhere. The `portable.txt` file beside the
 executable keeps settings and voices inside that folder, so nothing touches your profile.
@@ -109,6 +116,9 @@ pack, the kind Windows installs with its display languages.
 
 ### Voices
 
+The program can speak the moment it opens, on the three Microsoft voices Windows installs
+itself. Downloading a model is a choice about quality, never a requirement.
+
 The **Voices** tab lists the curated models with their size, license and whether they are
 installed. Tick the ones you want and press **Install**: they are downloaded, checked and
 unpacked one at a time, with a progress bar counting the batch and a Cancel button that stops
@@ -121,8 +131,9 @@ happens for an all users installation under Program Files, the download goes to
 `%LOCALAPPDATA%\TtsUtilWin\voices` instead and the tab says so.
 
 The voice picker along the top lists downloaded voices in the order they arrived, oldest
-first, so a voice installed just now sits at the bottom of that group. Windows voices follow
-them when they are turned on.
+first, so a voice installed just now sits at the bottom of that group. The Windows voices,
+Microsoft David, Microsoft Zira and Microsoft Mark, follow them whenever **Also offer the voices
+Windows already has** is on, and need no download of any kind.
 
 The three defaults were chosen for clear, free licenses:
 

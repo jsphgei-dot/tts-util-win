@@ -25,8 +25,13 @@ program refuses any update download whose hash does not match.
 ### Requirements
 
 Windows 10 version 1809 or newer, x64. The executable is self contained, so no runtime needs
-installing. Voice models are downloaded separately, from the Voices tab or with the bundled
-script, and are roughly 60 to 300 MB each.
+installing.
+
+No voice model has to be downloaded. The three Microsoft voices that come with Windows,
+Microsoft David, Microsoft Zira and Microsoft Mark, work with the program as they are, and the
+installer shows them as ticked, greyed out rows to say so. The neural models, roughly 60 to 300
+MB each, are an optional step up in quality, taken from the Voices tab, from the installer or
+with the bundled script.
 
 ### A note on the warning you will see
 
