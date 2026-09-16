@@ -72,6 +72,7 @@ public partial class MainWindow : Window
         Draft = TextDraft.Beside(settings.SourcePath);
         SpeakSnippet = snippet => _ = SpeakSnippetAsync(snippet);
         BatchFolderPicker = () => AskForDirectory(_settings.ResolvedOutputDirectory);
+        AudioPathPicker = AskForAudioPath;
         EntryPlayer = PlayEntryAsync;
         InitializeComponent();
         LoadSettingsIntoUi();
@@ -173,6 +174,7 @@ public partial class MainWindow : Window
         ReadAsYouTypeBox.IsChecked = _settings.ReadAsYouType;
         CheckForUpdatesBox.IsChecked = _settings.CheckForUpdates;
         UseWindowsVoicesBox.IsChecked = _settings.UseWindowsVoices;
+        SaveScriptWithAudioBox.IsChecked = _settings.SaveScriptWithAudio;
         SpeedSlider.Value = Math.Clamp(_settings.Speed, 0.5, 2.0);
         SpeedText.Text = $"{_settings.Speed:0.00}x";
         SettingsPathText.Text = $"Settings file: {AppSettings.SettingsPath}";
@@ -197,6 +199,7 @@ public partial class MainWindow : Window
         _settings.MaxChunkLength = Math.Clamp(ParseInt(ChunkLengthBox.Text, _settings.MaxChunkLength), 64, 20000);
         _settings.ReadAsYouType = ReadAsYouTypeBox.IsChecked == true;
         _settings.CheckForUpdates = CheckForUpdatesBox.IsChecked == true;
+        _settings.SaveScriptWithAudio = SaveScriptWithAudioBox.IsChecked == true;
 
         var outputDir = OutputDirBox.Text.Trim();
         _settings.OutputDirectory = outputDir.Length == 0 ? null : outputDir;
@@ -890,8 +893,10 @@ public partial class MainWindow : Window
             return;
         }
 
-        var path = AskForAudioPath(AudioStem(_textScriptTitle));
+        var path = AudioPathPicker(AudioStem(_textScriptTitle));
         if (path is null) return;
+
+        KeepTextAsScript(text, path);
 
         PendingWork = SaveThenResumeAsync(() =>
         {
@@ -953,7 +958,7 @@ public partial class MainWindow : Window
             return;
         }
 
-        var outputPath = AskForAudioPath(Path.GetFileNameWithoutExtension(path));
+        var outputPath = AudioPathPicker(Path.GetFileNameWithoutExtension(path));
         if (outputPath is null) return;
 
         PendingWork = SaveThenResumeAsync(() => CurrentRun = ReadOrConvertFileAsync(outputPath));
@@ -1788,6 +1793,31 @@ public partial class MainWindow : Window
         catch (Exception ex)
         {
             SetStatus($"Could not open {folder}: {ex.Message}");
+        }
+    }
+
+    /// <summary>Offers a name for an audio file. Tests answer without a dialog.</summary>
+    internal Func<string, string?> AudioPathPicker { get; set; }
+
+    /// <summary>The words behind a recording are kept under the name given to the audio, so they
+    /// can be read again. The setting turns it off.</summary>
+    private void KeepTextAsScript(string text, string audioPath)
+    {
+        if (!_settings.SaveScriptWithAudio) return;
+
+        var title = ScriptLibrary.ToFileName(Path.GetFileNameWithoutExtension(audioPath));
+        if (title is null) return;
+
+        try
+        {
+            var saved = Scripts.Save(title, text);
+            _textScriptTitle = saved.Title;
+            ScriptTitleBox.Text = saved.Title;
+            RefreshScripts();
+        }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
+        {
+            SetStatus($"The audio is being written, but {title} could not be saved as a script.");
         }
     }
 

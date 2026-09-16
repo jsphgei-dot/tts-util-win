@@ -114,6 +114,9 @@ public sealed class AppSettings
     /// <summary>The script the Text tab was left holding, which names audio written from it.</summary>
     public string? TextScriptTitle { get; set; }
 
+    /// <summary>Whether writing audio also keeps the words behind it as a script.</summary>
+    public bool SaveScriptWithAudio { get; set; } = true;
+
     [JsonIgnore]
     public string ResolvedVoicesDirectory => InstallPaths.ResolveVoicesDirectory(
         VoicesDirectory,

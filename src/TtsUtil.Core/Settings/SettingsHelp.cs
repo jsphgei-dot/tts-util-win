@@ -27,6 +27,8 @@ public static class SettingsHelp
 
     public const string UseWindowsVoices = "use-windows-voices";
 
+    public const string SaveScriptWithAudio = "save-script-with-audio";
+
     public const string KeepLastMessages = "keep-last-messages";
 
     public const string ShowLastMessages = "show-last-messages";
@@ -174,6 +176,15 @@ public static class SettingsHelp
             + "page away." + NewParagraph
             + "Page 1 is always the newest, so the numbers count backwards in time and the double "
             + "arrow is the way back to now."),
+
+        new SettingsHelpTopic(
+            SaveScriptWithAudio,
+            "Keep a script with the audio",
+            "On: writing audio from the Text tab also saves that text as a script, under the name "
+            + "you gave the audio file, so the words behind a recording can be found and read "
+            + "again." + NewParagraph
+            + "A script of that name already there is replaced." + NewParagraph
+            + "Off: the audio file is written and nothing is saved beside it."),
     };
 
     /// <summary>The topic for a key, or null when nothing matches it.</summary>

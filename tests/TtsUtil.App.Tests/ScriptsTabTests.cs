@@ -119,6 +119,33 @@ public sealed class ScriptsTabTests : IDisposable
     }
 
     [Fact]
+    public void WritingAudioKeepsTheTextAsAScriptUnlessTheSettingIsOff()
+    {
+        var window = CreateWindow();
+
+        _wpf.Invoke(() =>
+        {
+            window.AudioPathPicker = _ => Path.Combine(_root, "Scene Two.mp3");
+            window.InputText.Text = "The words behind it.";
+        });
+
+        Click(window.SaveWaveButton);
+
+        _wpf.Invoke(() =>
+        {
+            Assert.Equal("The words behind it.", File.ReadAllText(Path.Combine(_scriptsDir, "Scene Two.txt")));
+            Assert.Equal("Scene Two", window.TextScriptTitle);
+
+            window.Settings.SaveScriptWithAudio = false;
+            window.AudioPathPicker = _ => Path.Combine(_root, "Scene Three.mp3");
+        });
+
+        Click(window.SaveWaveButton);
+
+        Assert.False(File.Exists(Path.Combine(_scriptsDir, "Scene Three.txt")));
+    }
+
+    [Fact]
     public void RenamingRefusesWhenTheNewTitleIsTaken()
     {
         File.WriteAllText(Path.Combine(_scriptsDir, "Keep.txt"), "keep");

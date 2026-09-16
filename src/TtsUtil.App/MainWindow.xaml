@@ -691,7 +691,13 @@
                         <Button Grid.Row="18" Grid.Column="3" Tag="show-last-messages"
                                 Style="{StaticResource HelpButton}" Click="OnSettingsHelp" />
 
-                        <StackPanel Grid.Row="20" Grid.Column="1" Orientation="Horizontal" Margin="0,8,0,0">
+                        <CheckBox x:Name="SaveScriptWithAudioBox" Grid.Row="20" Grid.Column="0" Grid.ColumnSpan="2"
+                                  Content="Save a script when writing audio" Margin="0,4,0,8"
+                                  VerticalAlignment="Center" />
+                        <Button Grid.Row="20" Grid.Column="3" Tag="save-script-with-audio"
+                                Style="{StaticResource HelpButton}" Click="OnSettingsHelp" />
+
+                        <StackPanel Grid.Row="21" Grid.Column="1" Orientation="Horizontal" Margin="0,8,0,0">
                             <Button x:Name="ApplySettingsButton" Content="Apply" Click="OnApplySettings" />
                             <TextBlock x:Name="SettingsPathText" VerticalAlignment="Center" Foreground="#555"
                                        TextTrimming="CharacterEllipsis" />
