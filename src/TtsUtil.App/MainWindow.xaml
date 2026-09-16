@@ -163,7 +163,7 @@
                                 AutomationProperties.Name="Save script" Click="OnSaveScript"
                                 ToolTip="Save as a script (Ctrl+S)" Margin="6,0,0,0" />
                         <TextBox x:Name="TextTitleBox" Tag="The name this text is saved under" Padding="6,4" FontSize="14"
-                                 VerticalContentAlignment="Center"
+                                 VerticalContentAlignment="Center" TextChanged="OnTitleBoxChanged"
                                  ToolTip="The name this text is saved under in the Scripts tab" />
                     </DockPanel>
 

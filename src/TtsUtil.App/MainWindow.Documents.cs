@@ -65,7 +65,11 @@ public partial class MainWindow
         box.TextChanged += OnInputTextChanged;
 
         var tab = new TabItem { Content = box };
-        var document = new TextDocument(tab, box, title ?? NextDocumentTitle()) { ScriptTitle = scriptTitle };
+        var document = new TextDocument(tab, box, title ?? NextDocumentTitle())
+        {
+            ScriptTitle = scriptTitle,
+            TitleInBox = scriptTitle ?? string.Empty,
+        };
         tab.Tag = document;
         tab.Header = BuildTabHeader(document);
         document.SavedText = text;
@@ -181,7 +185,17 @@ public partial class MainWindow
         // Another tab holds other text, so the stopped spot no longer points anywhere useful.
         RememberStoppedSpot(null);
         RebuildLineList();
-        if (ActiveScriptTitle is string title) ScriptTitleBox.Text = title;
+        ShowTitleOfActiveTab();
+    }
+
+    /// <summary>The title box belongs to the tab in front, so it holds that tab's name and
+    /// nothing else. Another tab's name is never left sitting there to be saved over.</summary>
+    private void ShowTitleOfActiveTab() =>
+        TextTitleBox.Text = ActiveDocument?.TitleInBox ?? string.Empty;
+
+    private void OnTitleBoxChanged(object sender, TextChangedEventArgs e)
+    {
+        if (ActiveDocument is TextDocument document) document.TitleInBox = TextTitleBox.Text;
     }
 
     /// <summary>A box being spoken or written is held still, and looks it. It can still be
@@ -324,4 +338,8 @@ internal sealed class TextDocument
 
     /// <summary>The script this document came from, which names audio written from it.</summary>
     public string? ScriptTitle { get; set; }
+
+    /// <summary>The name in the title box while this tab is in front. A tab that came from
+    /// nowhere starts empty, so saving it cannot land on another script by accident.</summary>
+    public string TitleInBox { get; set; } = string.Empty;
 }

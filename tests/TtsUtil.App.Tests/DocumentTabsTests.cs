@@ -50,6 +50,35 @@ public sealed class DocumentTabsTests : IDisposable
         });
     }
 
+    /// <summary>The title box holds the name of the tab in front and nothing else, so a new tab
+    /// cannot be saved over the script the last tab came from.</summary>
+    [Fact]
+    public void TheTitleBoxFollowsTheTabInFront()
+    {
+        var window = CreateWindow();
+
+        _wpf.Invoke(() =>
+        {
+            window.TextTitleBox.Text = "Act One";
+
+            var second = window.NewDocument();
+            window.DocumentTabs.SelectedItem = second.Tab;
+
+            Assert.Equal(string.Empty, window.TextTitleBox.Text);
+
+            window.TextTitleBox.Text = "Act Two";
+            window.DocumentTabs.SelectedItem = window.Documents[0].Tab;
+
+            Assert.Equal("Act One", window.TextTitleBox.Text);
+
+            window.DocumentTabs.SelectedItem = second.Tab;
+
+            Assert.Equal("Act Two", window.TextTitleBox.Text);
+
+            window.Close();
+        });
+    }
+
     /// <summary>Eight tabs stay on one line, so closing one cannot reshuffle the rows.</summary>
     [Fact]
     public void TheTabStripIsOneRowThatScrollsSideways()

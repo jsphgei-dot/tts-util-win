@@ -220,6 +220,10 @@ does the same, except that it asks for the name first in a small window, filled 
 title already in the box. Saving under a name that exists replaces it. The same title shows
 on the Scripts tab, so saving from either place uses one name.
 
+The name belongs to the tab it was typed in. Switching tabs brings that tab's name back, and a
+new tab starts with an empty box, so a fresh piece of text is never saved over the script the
+last tab came from.
+
 The icon answers for itself: it turns into a tick, green when the name is written for the first
 time and blue when an existing script is replaced, and goes back to normal a moment later. The
 status bar says which of the two happened as well.
