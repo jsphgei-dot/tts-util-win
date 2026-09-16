@@ -54,8 +54,7 @@ voice, the setting and the text that misbehaved is worth a great deal.
 
 ## 🤖 How it was made
 
-Most of this program was written with AI assistance, using Claude Code, under human direction
-and review. Said plainly because you should know what you are running.
+This application was coded using AI assistance.
 
 ## ⚖️ Licence
 
