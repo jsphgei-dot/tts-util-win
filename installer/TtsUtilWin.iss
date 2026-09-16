@@ -92,6 +92,7 @@ Source: "{#SourceDir}\{#AppExeName}"; DestDir: "{app}"; Components: app; Flags: 
 Source: "..\LICENSE";                 DestDir: "{app}"; Components: app; Flags: ignoreversion
 Source: "..\NOTICE";                  DestDir: "{app}"; Components: app; Flags: ignoreversion
 Source: "..\README.md";               DestDir: "{app}"; Components: app; Flags: ignoreversion
+Source: "..\THIRD-PARTY-NOTICES.txt"; DestDir: "{app}"; Components: app; Flags: ignoreversion
 Source: "..\scripts\FetchVoices.ps1"; DestDir: "{app}\scripts"; Components: app; Flags: ignoreversion
 
 [Icons]

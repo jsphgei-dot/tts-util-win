@@ -1,0 +1,134 @@
+TTS Util Win, third party notices
+=================================
+
+This program is distributed with the components listed below. Each is used
+under its own licence, reproduced or pointed to here. Attribution for the work
+TTS Util Win is derived from is in the NOTICE file beside this one.
+
+Voice models are not listed here. They are downloaded separately and each one
+carries its own licence in the LICENSE or MODEL_CARD file inside its folder,
+which the About tab shows for the selected voice.
+
+
+-------------------------------------------------------------------------------
+TTS Util
+https://github.com/drmfinlay/tts-util-app
+Copyright (C) 2019 Dane Finlay
+
+Licensed under the Apache License, Version 2.0. The full text of that licence
+is in the LICENSE file beside this one, and at
+http://www.apache.org/licenses/LICENSE-2.0.
+
+Parts of TtsUtil.Core are ports of this work, as described in NOTICE.
+
+
+-------------------------------------------------------------------------------
+sherpa-onnx
+https://github.com/k2-fsa/sherpa-onnx
+Copyright 2019-2023 Xiaomi Corporation
+The Next-gen Kaldi development team
+
+Licensed under the Apache License, Version 2.0. The full text of that licence
+is in the LICENSE file beside this one, and at
+http://www.apache.org/licenses/LICENSE-2.0.
+
+Ships as sherpa-onnx.dll and sherpa-onnx-c-api.dll.
+
+
+-------------------------------------------------------------------------------
+PdfPig
+https://github.com/UglyToad/PdfPig
+Copyright (C) UglyToad and the PdfPig contributors
+
+Licensed under the Apache License, Version 2.0. The full text of that licence
+is in the LICENSE file beside this one, and at
+http://www.apache.org/licenses/LICENSE-2.0.
+
+Ships as the UglyToad.PdfPig assemblies, and reads the text layer of PDFs.
+
+
+-------------------------------------------------------------------------------
+ONNX Runtime
+https://github.com/microsoft/onnxruntime
+Copyright (c) Microsoft Corporation
+
+MIT Licence.
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+Ships as onnxruntime.dll, inside the sherpa-onnx package, and runs the models.
+
+
+-------------------------------------------------------------------------------
+NAudio
+https://github.com/naudio/NAudio
+Copyright 2020 Mark Heath
+
+MIT Licence.
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+Ships as the NAudio assemblies, and handles playback and wave and MP3 writing.
+
+
+-------------------------------------------------------------------------------
+.NET runtime, Windows Presentation Foundation, and the Windows SDK projection
+https://github.com/dotnet/runtime
+https://github.com/dotnet/wpf
+https://github.com/microsoft/CsWinRT
+Copyright (c) .NET Foundation and Contributors
+
+MIT Licence.
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+The published executable is self contained, so it embeds these rather than
+relying on a runtime installed on the machine.

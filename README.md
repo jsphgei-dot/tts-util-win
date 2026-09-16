@@ -36,7 +36,7 @@ with none and offers a curated list to download, so you choose what lands on the
 
 ### How it relates to TTS Util
 
-This is a Windows port of [TTS Util](https://github.com/jdanefinlay/tts-util-app), the Android
+This is a Windows port of [TTS Util](https://github.com/drmfinlay/tts-util-app), the Android
 application by Dane Finlay, and it keeps that program's ideas: read aloud or save to a file,
 custom silence around sentences and line endings, filters for the things a reader would skip.
 What is new here is the engine (Android hands text to the system TTS service, this carries its
@@ -448,11 +448,18 @@ the formatting and test gates run locally rather than surprising you later.
 
 * `SPEC.md`, what is built, what is tested and what is left.
 * `DECISIONS.md`, why the awkward choices were made the way they were.
-* [TTS Util](https://github.com/jdanefinlay/tts-util-app), the Android original.
+* [TTS Util](https://github.com/drmfinlay/tts-util-app), the Android original.
 * [sherpa-onnx](https://github.com/k2-fsa/sherpa-onnx), the engine, and its
   [voice catalogue](https://github.com/k2-fsa/sherpa-onnx/releases/tag/tts-models).
 
 ## ⚖️ Licence
 
-Apache 2.0, the same licence as the original TTS Util by Dane Finlay and as sherpa-onnx. See
-`LICENSE` and `NOTICE`. Voice models carry their own licences, listed above.
+Apache 2.0, the same licence as the original TTS Util by Dane Finlay and as sherpa-onnx.
+
+Three files travel with every build, in the installed folder and in the portable folder alike:
+`LICENSE` is the Apache 2.0 text, `NOTICE` names the work this one is derived from, and
+`THIRD-PARTY-NOTICES.txt` carries the licence of every component that ships inside the
+executable (sherpa-onnx, ONNX Runtime, PdfPig, NAudio, and the .NET runtime itself).
+
+Voice models are not covered by any of that. Each carries its own licence, listed above and
+restated in the `LICENSE` or `MODEL_CARD` file inside the model folder.

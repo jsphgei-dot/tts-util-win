@@ -2,7 +2,7 @@ TTS Util Win
 Copyright (C) 2026
 
 This product includes software derived from TTS Util
-(https://github.com/jdanefinlay/tts-util-app), Copyright (C) 2019 Dane Finlay,
+(https://github.com/drmfinlay/tts-util-app), Copyright (C) 2019 Dane Finlay,
 licensed under the Apache License, Version 2.0. The text chunking rules, the
 silence and filter behaviour, and the wave handling in TtsUtil.Core are ports of
 that work.
@@ -11,8 +11,21 @@ This product depends on sherpa-onnx (https://github.com/k2-fsa/sherpa-onnx),
 Copyright (C) 2022 Xiaomi Corporation, licensed under the Apache License,
 Version 2.0.
 
+This product depends on ONNX Runtime (https://github.com/microsoft/onnxruntime),
+Copyright (C) Microsoft Corporation, licensed under the MIT licence. It is
+distributed inside the sherpa-onnx package and runs the voice models.
+
+This product depends on PdfPig (https://github.com/UglyToad/PdfPig),
+Copyright (C) UglyToad and the PdfPig contributors, licensed under the Apache
+License, Version 2.0.
+
 This product depends on NAudio (https://github.com/naudio/NAudio),
 Copyright (C) Mark Heath, licensed under the MIT licence.
+
+This product embeds the .NET runtime and Windows Presentation Foundation,
+Copyright (C) .NET Foundation and Contributors, licensed under the MIT licence.
+
+The full licence texts for these components are in THIRD-PARTY-NOTICES.txt.
 
 Voice models are not part of this source tree. Each model downloaded by
 scripts/FetchVoices.ps1 carries its own licence, stated in the LICENSE or

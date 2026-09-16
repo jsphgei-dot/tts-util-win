@@ -78,8 +78,12 @@ if ($IncludeVoices) {
     }
 }
 
-Copy-Item -Path (Join-Path $root 'README.md') -Destination $OutputDirectory -Force
-Copy-Item -Path (Join-Path $root 'LICENSE') -Destination $OutputDirectory -Force
+# Apache 2.0 asks for the licence and the notices to travel with the program, so the portable
+# copy carries the same four files the installer lays down.
+foreach ($doc in 'README.md', 'LICENSE', 'NOTICE', 'THIRD-PARTY-NOTICES.txt') {
+    Copy-Item -Path (Join-Path $root $doc) -Destination $OutputDirectory -Force
+}
+
 # FetchVoices.ps1 works out its default destination from its parent folder, so it has to sit
 # in scripts\ for models to land in this folder's voices directory rather than beside it.
 $scriptsTarget = Join-Path $OutputDirectory 'scripts'
