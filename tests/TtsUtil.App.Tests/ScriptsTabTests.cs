@@ -219,6 +219,67 @@ public sealed class ScriptsTabTests : IDisposable
         });
     }
 
+    [Fact]
+    public void AScriptKeepsTheVoiceAndSpeedItWasSavedWith()
+    {
+        var window = CreateWindowWithAVoice();
+
+        _wpf.Invoke(() =>
+        {
+            window.InputText.Text = "The script body.";
+            window.ScriptTitleBox.Text = "Act One";
+            window.SpeedSlider.Value = 1.4;
+        });
+
+        Click(window.SaveScriptButton);
+
+        _wpf.Invoke(() =>
+        {
+            window.SpeedSlider.Value = 0.8;
+            window.ScriptList.SelectedIndex = 0;
+        });
+
+        Click(window.OpenScriptButton);
+
+        _wpf.Invoke(() =>
+        {
+            Assert.Equal(1.4, window.SpeedSlider.Value, 3);
+            Assert.Equal(0, window.VoiceBox.SelectedIndex);
+            Assert.Equal("Act One", window.TextScriptTitle);
+        });
+    }
+
+    private MainWindow CreateWindowWithAVoice()
+    {
+        var window = _wpf.Invoke(() =>
+        {
+            var settings = AppSettings.LoadFrom(_settingsPath);
+            settings.VoicesDirectory = _voicesDir;
+            settings.UseWindowsVoices = true;
+
+            var created = new MainWindow(settings, loadVoiceOnSelection: false)
+            {
+                Scripts = new ScriptLibrary(_scriptsDir),
+                WindowsVoiceScanner = () => new[]
+                {
+                    new TtsUtil.Core.Tts.VoiceDescriptor
+                    {
+                        Name = "David",
+                        Source = TtsUtil.Core.Tts.VoiceSource.Windows,
+                        Id = "david",
+                    },
+                },
+            };
+
+            created.VoiceBox.SelectedIndex = 0;
+            created.RefreshScripts();
+            return created;
+        });
+
+        _windows.Add(window);
+        return window;
+    }
+
     private void Click(ButtonBase button) =>
         _wpf.Invoke(() => button.RaiseEvent(new RoutedEventArgs(ButtonBase.ClickEvent)));
 

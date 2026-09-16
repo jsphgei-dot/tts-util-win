@@ -672,6 +672,8 @@ public partial class MainWindow : Window
 
     private async Task<RunOutcome> PlayEntryAsync(QueueEntry entry)
     {
+        if (entry.ScriptTitle is string script) ApplyScriptVoice(script);
+
         var text = TextFor(entry);
         if (string.IsNullOrWhiteSpace(text))
         {
@@ -1176,6 +1178,7 @@ public partial class MainWindow : Window
         {
             var existed = Scripts.Exists(title);
             var saved = Scripts.Save(title, text);
+            KeepVoiceWithScript(saved.Title);
             ActiveScriptTitle = saved.Title;
             RefreshScripts();
             ScriptList.SelectedItem = ScriptList.Items.Cast<ScriptRow>()
@@ -1202,9 +1205,10 @@ public partial class MainWindow : Window
         {
             InputText.Text = Scripts.Load(script.Title);
             ActiveScriptTitle = script.Title;
+            var voice = ApplyScriptVoice(script.Title);
             RebuildLineList();
             Tabs.SelectedIndex = 0;
-            SetStatus($"Opened {script.Title}.");
+            SetStatus(voice ? $"Opened {script.Title}, in the voice it was saved with." : $"Opened {script.Title}.");
         }
         catch (IOException ex)
         {
@@ -1825,6 +1829,7 @@ public partial class MainWindow : Window
         try
         {
             var saved = Scripts.Save(title, text);
+            KeepVoiceWithScript(saved.Title);
             ActiveScriptTitle = saved.Title;
             ScriptTitleBox.Text = saved.Title;
             RefreshScripts();

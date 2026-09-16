@@ -5,6 +5,7 @@
  */
 
 using System.Text;
+using System.Text.Json;
 
 namespace TtsUtil.Core.Settings;
 
@@ -22,12 +23,25 @@ public sealed class SavedScript
     public override string ToString() => $"{Title} ({Characters:N0} characters, {Modified:yyyy-MM-dd HH:mm})";
 }
 
+/// <summary>How a script was last read: the voice, the speaker in it and the talking speed.</summary>
+public sealed class ScriptProperties
+{
+    public string? VoiceName { get; set; }
+
+    public int SpeakerId { get; set; }
+
+    public float Speed { get; set; } = 1.0f;
+}
+
 /// <summary>Saved scripts, stored as text files so nothing is trapped in an app format.</summary>
 public sealed class ScriptLibrary
 {
     public const string FolderName = "scripts";
 
     public const string Extension = ".txt";
+
+    /// <summary>The voice and speed sit beside the text, which stays a plain text file.</summary>
+    public const string PropertiesExtension = ".voice.json";
 
     private static readonly char[] Invalid =
         System.IO.Path.GetInvalidFileNameChars().Concat(new[] { '.' }).Distinct().ToArray();
@@ -114,6 +128,37 @@ public sealed class ScriptLibrary
     {
         var path = PathFor(title);
         if (File.Exists(path)) File.Delete(path);
+
+        var properties = PropertiesPathFor(title);
+        if (File.Exists(properties)) File.Delete(properties);
+    }
+
+    /// <summary>The voice and speed a script was last read with, or null when it has none.</summary>
+    public ScriptProperties? LoadProperties(string title)
+    {
+        try
+        {
+            var path = PropertiesPathFor(title);
+            return File.Exists(path) ? JsonSerializer.Deserialize<ScriptProperties>(File.ReadAllText(path)) : null;
+        }
+        catch (Exception exception) when (exception is IOException or UnauthorizedAccessException or JsonException)
+        {
+            return null;
+        }
+    }
+
+    /// <summary>Keeps the voice and speed with the script, for the next time it is opened.</summary>
+    public void SaveProperties(string title, ScriptProperties properties)
+    {
+        try
+        {
+            System.IO.Directory.CreateDirectory(Directory);
+            File.WriteAllText(PropertiesPathFor(title), JsonSerializer.Serialize(properties));
+        }
+        catch (Exception exception) when (exception is IOException or UnauthorizedAccessException)
+        {
+            // The text is what matters, and a read only folder is not worth an error.
+        }
     }
 
     /// <summary>Renames a script, refusing to write over one that already exists.</summary>
@@ -127,6 +172,10 @@ public sealed class ScriptLibrary
         if (File.Exists(to)) return false;
 
         File.Move(from, to);
+
+        var properties = PropertiesPathFor(oldTitle);
+        if (File.Exists(properties)) File.Move(properties, PropertiesPathFor(newTitle), overwrite: true);
+
         return true;
     }
 
@@ -135,5 +184,12 @@ public sealed class ScriptLibrary
     {
         var name = ToFileName(title) ?? throw new ArgumentException("A script needs a title.", nameof(title));
         return System.IO.Path.Combine(Directory, name + Extension);
+    }
+
+    /// <summary>The file the voice and speed of a title live in.</summary>
+    public string PropertiesPathFor(string title)
+    {
+        var name = ToFileName(title) ?? throw new ArgumentException("A script needs a title.", nameof(title));
+        return System.IO.Path.Combine(Directory, name + PropertiesExtension);
     }
 }

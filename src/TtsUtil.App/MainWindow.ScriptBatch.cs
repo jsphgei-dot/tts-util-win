@@ -75,6 +75,7 @@ public partial class MainWindow
             }
 
             SetStatus($"Writing {index + 1} of {scripts.Count}: {script.Title}");
+            ApplyScriptVoice(script.Title);
 
             lastPath = FreeAudioPath(folder, script.Title);
             var outcome = await RunSynthesisAsync(() => new StringReader(text), lastPath, text.Length);

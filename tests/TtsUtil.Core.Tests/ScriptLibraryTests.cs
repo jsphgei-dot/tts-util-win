@@ -107,6 +107,25 @@ public sealed class ScriptLibraryTests : IDisposable
     }
 
     [Fact]
+    public void TheVoiceAndSpeedFollowAScriptThroughRenamingAndDeleting()
+    {
+        _library.Save("Act One", "words");
+        _library.SaveProperties("Act One", new ScriptProperties { VoiceName = "David", SpeakerId = 3, Speed = 1.25f });
+
+        Assert.True(_library.Rename("Act One", "Act Two"));
+
+        var kept = _library.LoadProperties("Act Two");
+        Assert.NotNull(kept);
+        Assert.Equal("David", kept!.VoiceName);
+        Assert.Equal(3, kept.SpeakerId);
+        Assert.Equal(1.25f, kept.Speed);
+
+        _library.Delete("Act Two");
+        Assert.Null(_library.LoadProperties("Act Two"));
+        Assert.Empty(_library.List());
+    }
+
+    [Fact]
     public void APortableInstallKeepsItsScriptsBesideTheExecutable()
     {
         var portable = ScriptLibrary.ResolveDirectory(@"C:\portable", @"C:\roaming", _ => true);

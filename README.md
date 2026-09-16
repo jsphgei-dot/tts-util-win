@@ -25,6 +25,8 @@
 * **It keeps your place.** Every text tab is still there when you open the program again, audio
   written from a script is offered that script's title as its file name, and the words behind a
   recording are saved as a script under the name you gave the file.
+* **Each script remembers its voice.** Saving a script keeps the voice, the speaker and the
+  talking speed with it, and opening or converting it reads it back the way it sounded.
 * **Several texts at once.** New tab gives you another text window, and each one writes its audio
   in the background on a voice of its own, so you can set several recordings going and carry on
   reading in another tab.
