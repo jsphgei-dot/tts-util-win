@@ -1,4 +1,5 @@
 using System.Windows.Threading;
+using TtsUtil.Core.Settings;
 using Xunit;
 
 namespace TtsUtil.App.Tests;
@@ -13,6 +14,9 @@ public sealed class WpfFixture : IDisposable
 
     public WpfFixture()
     {
+        // No test run should play the sound a finished file makes.
+        MainWindow.DefaultWriteFinishedNotifier = (WriteFinishedNotice _, string _) => { };
+
         _thread = new Thread(Run) { IsBackground = true, Name = "WpfTestThread" };
         _thread.SetApartmentState(ApartmentState.STA);
         _thread.Start();

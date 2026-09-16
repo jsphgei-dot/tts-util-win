@@ -25,8 +25,12 @@ public partial class MainWindow
     /// <summary>Held down through a batch, which announces itself once at the end.</summary>
     private bool _holdWriteNotice;
 
+    /// <summary>What every new window starts with, which tests set once to keep quiet.</summary>
+    internal static Action<WriteFinishedNotice, string>? DefaultWriteFinishedNotifier { get; set; }
+
     /// <summary>Stands in for the sound and the notification while testing.</summary>
     internal Action<WriteFinishedNotice, string>? WriteFinishedNotifier { get; set; }
+        = DefaultWriteFinishedNotifier;
 
     /// <summary>Announces a finished file, as far as the setting asks for.</summary>
     internal void NotifyWriteFinished(string path)
