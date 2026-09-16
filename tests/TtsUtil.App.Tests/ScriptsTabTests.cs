@@ -182,6 +182,7 @@ public sealed class ScriptsTabTests : IDisposable
         {
             var settings = AppSettings.LoadFrom(_settingsPath);
             settings.VoicesDirectory = _voicesDir;
+            settings.UseWindowsVoices = false;
             settings.OutputDirectory = _root;
 
             var created = new MainWindow(settings, loadVoiceOnSelection: false)

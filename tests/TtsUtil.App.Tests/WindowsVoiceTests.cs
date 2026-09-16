@@ -65,6 +65,7 @@ public sealed class WindowsVoiceTests : IDisposable
         Assert.Equal("piper-en  (Vits)", MainWindow.VoiceLabel(sherpa));
     }
 
+    /// <summary>Drives a real Windows voice into a memory stream, so nothing is heard.</summary>
     [Fact]
     public void AWindowsVoiceOnThisMachineSpeaksAndProducesSamples()
     {

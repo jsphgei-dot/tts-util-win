@@ -135,6 +135,7 @@ public sealed class UpdateNoticeTests : IDisposable
     {
         var settings = AppSettings.LoadFrom(Path.Combine(_root, Guid.NewGuid().ToString("N") + ".json"));
         settings.VoicesDirectory = Path.Combine(_root, "voices");
+        settings.UseWindowsVoices = false;
         settings.OutputDirectory = _root;
 
         var window = new MainWindow(settings, loadVoiceOnSelection: false)

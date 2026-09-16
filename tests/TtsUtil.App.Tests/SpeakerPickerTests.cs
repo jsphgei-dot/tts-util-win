@@ -331,6 +331,7 @@ public sealed class SpeakerPickerTests : IDisposable
         {
             var settings = AppSettings.LoadFrom(_settingsPath);
             settings.VoicesDirectory = _voicesDir;
+            settings.UseWindowsVoices = false;
             settings.OutputDirectory = _root;
             configure?.Invoke(settings);
 

@@ -26,6 +26,7 @@ public sealed class AliasTabTests : IDisposable
         {
             var settings = AppSettings.LoadFrom(Path.Combine(_root, "settings.json"));
             settings.VoicesDirectory = Path.Combine(_root, "voices");
+            settings.UseWindowsVoices = false;
             settings.OutputDirectory = _root;
 
             return new MainWindow(settings, loadVoiceOnSelection: false)
@@ -173,6 +174,7 @@ public sealed class AliasTabTests : IDisposable
         {
             var settings = AppSettings.LoadFrom(Path.Combine(_root, "settings.json"));
             settings.VoicesDirectory = Path.Combine(_root, "voices");
+            settings.UseWindowsVoices = false;
 
             return new MainWindow(settings, loadVoiceOnSelection: false) { AliasStore = new AliasStore(_aliasPath) };
         });

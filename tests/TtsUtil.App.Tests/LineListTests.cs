@@ -155,6 +155,7 @@ public sealed class LineListTests : IDisposable
         {
             var settings = AppSettings.LoadFrom(_settingsPath);
             settings.VoicesDirectory = _voicesDir;
+            settings.UseWindowsVoices = false;
             settings.OutputDirectory = _root;
 
             return new MainWindow(settings, loadVoiceOnSelection: false);

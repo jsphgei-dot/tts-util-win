@@ -24,6 +24,7 @@ public sealed class SettingsHelpTests : IDisposable
         {
             var settings = AppSettings.LoadFrom(Path.Combine(_root, "settings.json"));
             settings.VoicesDirectory = _root;
+            settings.UseWindowsVoices = false;
             return new MainWindow(settings, loadVoiceOnSelection: false);
         });
     }

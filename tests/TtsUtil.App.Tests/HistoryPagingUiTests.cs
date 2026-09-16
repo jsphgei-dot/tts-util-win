@@ -23,6 +23,7 @@ public sealed class HistoryPagingUiTests : IDisposable
         {
             var settings = AppSettings.LoadFrom(Path.Combine(_root, "settings.json"));
             settings.VoicesDirectory = Path.Combine(_root, "voices");
+            settings.UseWindowsVoices = false;
             settings.ShowLastMessages = 3;
             settings.KeepLastMessages = 12;
 
