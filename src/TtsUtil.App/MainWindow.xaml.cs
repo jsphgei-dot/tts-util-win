@@ -45,6 +45,7 @@ public partial class MainWindow : Window
     private bool _restarting;
     private int _spokenLine = -1;
     private bool _readingFromText;
+    private int? _stoppedAt;
     private TextDocument? _runDocument;
     private IReadOnlyList<SpeakerInfo> _speakers = Array.Empty<SpeakerInfo>();
     private string? _speakerVoiceName;
@@ -595,6 +596,7 @@ public partial class MainWindow : Window
         }
 
         LastReadStartOffset = offset;
+        RememberStoppedSpot(null);
         _readingFromText = true;
         _runDocument = ActiveDocument;
         _rerun = () => ReadFrom(offset);
@@ -953,6 +955,27 @@ public partial class MainWindow : Window
         return _lineMap.StartOf(_lineMap.LineAt(_runStartOffset + player.PlayedCharacters));
     }
 
+    /// <summary>Stop keeps the line it cut off on, and the button only shows while there is one.</summary>
+    private void RememberStoppedSpot(int? offset)
+    {
+        _stoppedAt = offset;
+        ResumeButton.Visibility = offset is null ? Visibility.Collapsed : Visibility.Visible;
+    }
+
+    /// <summary>Where a stopped reading would carry on from, or null when there is nothing to carry on.</summary>
+    internal int? StoppedAt => _stoppedAt;
+
+    private void OnResumeFromStop(object sender, RoutedEventArgs e)
+    {
+        if (_stoppedAt is not int offset)
+        {
+            SetStatus("There is no stopped reading to carry on from.");
+            return;
+        }
+
+        ReadOrRestartFrom(offset);
+    }
+
     private void OnReadFile(object sender, RoutedEventArgs e)
     {
         if (_busy && _rerun is not null)
@@ -1281,10 +1304,15 @@ public partial class MainWindow : Window
         }
     }
 
-    private void OnStop(object sender, RoutedEventArgs e) => StopRun("Stopping...");
+    private void OnStop(object sender, RoutedEventArgs e)
+    {
+        StopRun("Stopping...");
+        if (_stoppedAt is not null) SetStatus("Stopped. Carry on picks the reading up at that line.");
+    }
 
     private void StopRun(string message)
     {
+        RememberStoppedSpot(ReadingSpot());
         CancelTypingPlayback();
         _cancellation?.Cancel();
 

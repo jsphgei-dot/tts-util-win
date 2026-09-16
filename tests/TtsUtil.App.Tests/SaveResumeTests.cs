@@ -1,4 +1,5 @@
 using System.IO;
+using System.Windows;
 using TtsUtil.Core.Settings;
 using TtsUtil.Core.Tts;
 using Xunit;
@@ -82,6 +83,29 @@ public sealed class SaveResumeTests : IDisposable
 
         Assert.Equal(1, saved);
         _wpf.Invoke(() => Assert.Equal(-1, _window.LastReadStartOffset));
+    }
+
+    /// <summary>Stop keeps the line, so the listener can carry on there instead of starting over.</summary>
+    [Fact]
+    public void StoppingPartWayLeavesTheReadingToBeCarriedOn()
+    {
+        _wpf.Invoke(() =>
+        {
+            _window.InputText.Text = "One.\nTwo.\nThree.";
+            _window.RebuildLineList();
+            _window.ActivePlayback = new FakePlayback { PlayedCharacters = 6 };
+            _window.ReadingFromText = true;
+
+            _window.StopButton.RaiseEvent(new RoutedEventArgs(System.Windows.Controls.Primitives.ButtonBase.ClickEvent));
+
+            Assert.Equal(5, _window.StoppedAt);
+            Assert.Equal(Visibility.Visible, _window.ResumeButton.Visibility);
+
+            _window.ResumeButton.RaiseEvent(new RoutedEventArgs(System.Windows.Controls.Primitives.ButtonBase.ClickEvent));
+
+            Assert.Equal(5, _window.LastReadStartOffset);
+            Assert.Equal(Visibility.Collapsed, _window.ResumeButton.Visibility);
+        });
     }
 
     private sealed class FakePlayback : IAudioPlayback

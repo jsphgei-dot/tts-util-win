@@ -232,6 +232,9 @@
                                 AutomationProperties.Name="Pause" Click="OnTogglePause" ToolTip="Pause" />
                         <Button x:Name="StopButton" Style="{StaticResource IconButton}" Content="&#xE71A;"
                                 AutomationProperties.Name="Stop" Click="OnStop" ToolTip="Stop" />
+                        <Button x:Name="ResumeButton" Style="{StaticResource IconButton}" Content="&#xE768;"
+                                AutomationProperties.Name="Carry on" Visibility="Collapsed"
+                                Click="OnResumeFromStop" ToolTip="Carry on from where you stopped" />
                         <Button x:Name="SaveWaveButton" Style="{StaticResource IconButton}" Content="&#xE74E;"
                                 AutomationProperties.Name="Save audio" Click="OnSaveTextToWave"
                                 ToolTip="Save audio" Margin="12,0,4,0" />

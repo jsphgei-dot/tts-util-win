@@ -127,6 +127,9 @@ public partial class MainWindow
         if (_initialising || InputText is null) return;
 
         _spokenLine = -1;
+
+        // Another tab holds other text, so the stopped spot no longer points anywhere useful.
+        RememberStoppedSpot(null);
         RebuildLineList();
         if (ActiveScriptTitle is string title) ScriptTitleBox.Text = title;
     }
