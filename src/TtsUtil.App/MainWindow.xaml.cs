@@ -76,6 +76,7 @@ public partial class MainWindow : Window
         BatchFolderPicker = () => AskForDirectory(_settings.ResolvedOutputDirectory);
         AudioPathPicker = AskForAudioPath;
         BatchFilePicker = AskForFilesToTakeIn;
+        UnsavedCloseAsker = AskAboutUnsavedClose;
         EntryPlayer = PlayEntryAsync;
         InitializeComponent();
         NewDocument();
@@ -160,6 +161,10 @@ public partial class MainWindow : Window
 
     private bool Confirm(string message, string title) => Confirmer(message, title);
 
+    /// <summary>Asks whether a tab with unsaved words should go, and whether to stop asking.
+    /// Tests answer it without a dialog.</summary>
+    internal Func<string, (bool Close, bool StopAsking)> UnsavedCloseAsker { get; set; }
+
     internal AppSettings Settings => _settings;
 
     internal IReadOnlyList<VoiceDescriptor> Voices => _voices;
@@ -197,6 +202,7 @@ public partial class MainWindow : Window
         ShowUpdateState();
         UseWindowsVoicesBox.IsChecked = _settings.UseWindowsVoices;
         SaveScriptWithAudioBox.IsChecked = _settings.SaveScriptWithAudio;
+        WarnOnClosingUnsavedBox.IsChecked = _settings.WarnOnClosingUnsaved;
         SpeedSlider.Value = Math.Clamp(_settings.Speed, 0.5, 2.0);
         SpeedText.Text = $"{_settings.Speed:0.00}x";
         SettingsPathText.Text = $"Settings file: {AppSettings.SettingsPath}";
@@ -222,6 +228,7 @@ public partial class MainWindow : Window
         _settings.ReadAsYouType = ReadAsYouTypeBox.IsChecked == true;
         _settings.CheckForUpdates = CheckForUpdatesBox.IsChecked == true;
         _settings.SaveScriptWithAudio = SaveScriptWithAudioBox.IsChecked == true;
+        _settings.WarnOnClosingUnsaved = WarnOnClosingUnsavedBox.IsChecked == true;
         _settings.Speed = ReadSpeed();
 
         var outputDir = OutputDirBox.Text.Trim();
@@ -1264,6 +1271,7 @@ public partial class MainWindow : Window
             ScriptList.SelectedItem = ScriptList.Items.Cast<ScriptRow>()
                 .FirstOrDefault(s => s.Title == saved.Title);
 
+            MarkDocumentSaved(ActiveDocument);
             ShowSaveConfirmation(existed);
             SetStatus(existed ? $"Replaced {saved.Title}." : $"Saved {saved.Title}.");
         }
@@ -1286,6 +1294,7 @@ public partial class MainWindow : Window
         {
             InputText.Text = Scripts.Load(script.Title);
             ActiveScriptTitle = script.Title;
+            MarkDocumentSaved(ActiveDocument);
             var voice = ApplyScriptVoice(script.Title);
             RebuildLineList();
             Tabs.SelectedIndex = 0;
@@ -1831,6 +1840,7 @@ public partial class MainWindow : Window
     private void OnInputTextChanged(object sender, TextChangedEventArgs e)
     {
         ScheduleLineRebuild();
+        if (DocumentFor(sender) is TextDocument edited) ShowTabTitle(edited);
 
         if (_initialising || _busy || ReadAsYouTypeBox.IsChecked != true) return;
 
@@ -1991,6 +2001,14 @@ public partial class MainWindow : Window
         }
     }
 
+    /// <summary>Puts the question about a tab with unsaved words in front of the reader.</summary>
+    private (bool Close, bool StopAsking) AskAboutUnsavedClose(string message)
+    {
+        var dialog = new CloseTabWindow(message) { Owner = this };
+        var closed = dialog.ShowDialog() == true;
+        return (closed, dialog.StopAsking);
+    }
+
     /// <summary>Offers a name for an audio file. Tests answer without a dialog.</summary>
     internal Func<string, string?> AudioPathPicker { get; set; }
 
@@ -2009,6 +2027,7 @@ public partial class MainWindow : Window
             KeepVoiceWithScript(saved.Title);
             ActiveScriptTitle = saved.Title;
             ScriptTitleBox.Text = saved.Title;
+            MarkDocumentSaved(ActiveDocument);
             RefreshScripts();
         }
         catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)

@@ -420,7 +420,7 @@
                         </Grid.ColumnDefinitions>
                         <TextBox x:Name="FilePathBox" Tag="The file to read from" Grid.Column="0" Padding="4,4" VerticalContentAlignment="Center" />
                         <Button Grid.Column="1" Content="Browse" Margin="8,0,0,0" Click="OnBrowseInputFile" />
-                        <Button x:Name="FileHelpButton" Grid.Column="2" Content="?" Width="26" Margin="6,0,0,0"
+                        <Button x:Name="FileHelpButton" Grid.Column="2" Style="{StaticResource HelpButton}"
                                 AutomationProperties.Name="About taking files in" Click="OnFileHelp"
                                 ToolTip="Which files can be read in, and what happens to them" />
                     </Grid>
@@ -446,6 +446,9 @@
                                 Click="OnSaveManyAsScripts"
                                 ToolTip="Choose several PDFs or text files. Each one is saved as a script, named after the file" />
                     </StackPanel>
+                    <CheckBox x:Name="AlsoSaveScriptsBox" Content="Opening in tabs also saves them as scripts"
+                              Margin="0,8,0,0"
+                              ToolTip="Off by default, so files opened in tabs stay out of the script library until you save them" />
 
                     <TextBlock x:Name="FileInfoText" Margin="0,14,0,0" Foreground="#555" TextWrapping="Wrap" />
                 </StackPanel>
@@ -467,6 +470,7 @@
                             <Button x:Name="RescanVoicesButton" Content="Rescan" Width="110"
                                     Click="OnRescanVoices" />
                         </StackPanel>
+
                         <ProgressBar x:Name="VoiceProgress" Height="16" Margin="0,8,0,0" Minimum="0" Maximum="100" />
                         <TextBlock x:Name="VoiceInstallStatus" Margin="0,6,0,0" Foreground="#555"
                                    TextWrapping="Wrap" />
@@ -641,6 +645,7 @@
                             <RowDefinition Height="Auto" />
                             <RowDefinition Height="Auto" />
                             <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
                         </Grid.RowDefinitions>
 
                         <TextBlock Grid.Row="0" Grid.Column="0" Text="Silence after line endings (ms)"
@@ -782,6 +787,10 @@
                         <Button Grid.Row="20" Grid.Column="3" Tag="save-script-with-audio"
                                 Style="{StaticResource HelpButton}" Click="OnSettingsHelp" />
 
+                        <CheckBox x:Name="WarnOnClosingUnsavedBox" Grid.Row="24" Grid.Column="0" Grid.ColumnSpan="2"
+                                  Content="Ask before closing a tab with unsaved changes" Margin="0,4,0,8"
+                                  VerticalAlignment="Center" />
+
                         <CheckBox x:Name="SettingsReadAsYouTypeBox" Grid.Row="21" Grid.Column="0" Grid.ColumnSpan="2"
                                   Content="Read each word as I type it" Margin="0,4,0,8"
                                   VerticalAlignment="Center" Checked="OnSettingsReadAsYouTypeChanged"
@@ -797,32 +806,32 @@
                                   VerticalAlignment="Center" Checked="OnSettingsUseAliasesChanged"
                                   Unchecked="OnSettingsUseAliasesChanged" />
 
-                        <TextBlock Grid.Row="24" Grid.Column="0" Text="Reading speed"
+                        <TextBlock Grid.Row="25" Grid.Column="0" Text="Reading speed"
                                    Style="{StaticResource SettingLabel}" />
-                        <TextBox x:Name="SettingsSpeedBox" Grid.Row="24" Grid.Column="1"
+                        <TextBox x:Name="SettingsSpeedBox" Grid.Row="25" Grid.Column="1"
                                  Style="{StaticResource SettingBox}" />
 
-                        <TextBlock Grid.Row="25" Grid.Column="0" Text="Editor text size"
+                        <TextBlock Grid.Row="26" Grid.Column="0" Text="Editor text size"
                                    Style="{StaticResource SettingLabel}" />
-                        <ComboBox x:Name="SettingsFontSizeBox" Grid.Row="25" Grid.Column="1" Width="80"
+                        <ComboBox x:Name="SettingsFontSizeBox" Grid.Row="26" Grid.Column="1" Width="80"
                                   HorizontalAlignment="Left" Margin="0,0,0,8"
                                   SelectionChanged="OnSettingsFontSizeChanged" />
 
-                        <TextBlock Grid.Row="26" Grid.Column="0" Text="Repeat"
+                        <TextBlock Grid.Row="27" Grid.Column="0" Text="Repeat"
                                    Style="{StaticResource SettingLabel}" />
-                        <ComboBox x:Name="SettingsRepeatBox" Grid.Row="26" Grid.Column="1" Width="160"
+                        <ComboBox x:Name="SettingsRepeatBox" Grid.Row="27" Grid.Column="1" Width="160"
                                   HorizontalAlignment="Left" Margin="0,0,0,8"
                                   SelectionChanged="OnSettingsRepeatChanged" />
 
-                        <TextBlock Grid.Row="27" Grid.Column="0" Text="When a file finishes"
+                        <TextBlock Grid.Row="28" Grid.Column="0" Text="When a file finishes"
                                    Style="{StaticResource SettingLabel}" />
-                        <ComboBox x:Name="SettingsWriteNoticeBox" Grid.Row="27" Grid.Column="1" Width="240"
+                        <ComboBox x:Name="SettingsWriteNoticeBox" Grid.Row="28" Grid.Column="1" Width="240"
                                   HorizontalAlignment="Left" Margin="0,0,0,8"
                                   SelectionChanged="OnSettingsWriteNoticeChanged" />
-                        <Button Grid.Row="27" Grid.Column="3" Tag="write-finished-notice"
+                        <Button Grid.Row="28" Grid.Column="3" Tag="write-finished-notice"
                                 Style="{StaticResource HelpButton}" Click="OnSettingsHelp" />
 
-                        <StackPanel Grid.Row="28" Grid.Column="0" Grid.ColumnSpan="3" Orientation="Horizontal"
+                        <StackPanel Grid.Row="29" Grid.Column="0" Grid.ColumnSpan="3" Orientation="Horizontal"
                                     Margin="0,8,0,0">
                             <Button x:Name="ApplySettingsButton" Content="Apply" Click="OnApplySettings" />
                             <Button x:Name="ResetSettingsButton" Content="Reset to defaults"

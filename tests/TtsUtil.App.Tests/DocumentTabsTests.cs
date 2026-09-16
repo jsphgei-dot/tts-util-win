@@ -82,6 +82,7 @@ public sealed class DocumentTabsTests : IDisposable
 
         _wpf.Invoke(() =>
         {
+            window.UnsavedCloseAsker = _ => (Close: true, StopAsking: false);
             window.InputText.Text = "Something to be rid of.";
             window.TextScriptTitle = "Act One";
             window.CloseDocument(window.ActiveDocument!);

@@ -39,13 +39,14 @@ public partial class MainWindow
             MessageBoxImage.Information);
 
     private void OnOpenManyInTabs(object sender, RoutedEventArgs e) =>
-        PendingWork = TakeInFilesAsync(asScripts: false);
+        PendingWork = TakeInFilesAsync(openTabs: true, saveScripts: AlsoSaveScriptsBox.IsChecked == true);
 
     private void OnSaveManyAsScripts(object sender, RoutedEventArgs e) =>
-        PendingWork = TakeInFilesAsync(asScripts: true);
+        PendingWork = TakeInFilesAsync(openTabs: false, saveScripts: true);
 
-    /// <summary>Reads the chosen files one after another, so a long PDF never blocks the rest.</summary>
-    internal async Task TakeInFilesAsync(bool asScripts)
+    /// <summary>Reads the chosen files one after another, so a long PDF never blocks the rest.
+    /// A file can become a tab, a script, or both.</summary>
+    internal async Task TakeInFilesAsync(bool openTabs, bool saveScripts)
     {
         var paths = BatchFilePicker();
         if (paths.Count == 0) return;
@@ -61,33 +62,31 @@ public partial class MainWindow
             if (_batchStopped) break;
 
             var name = Path.GetFileNameWithoutExtension(path);
-            if (string.IsNullOrWhiteSpace(text) || (asScripts && !SaveAsScript(name, text)))
+            if (string.IsNullOrWhiteSpace(text) || (saveScripts && !SaveAsScript(name, text)))
             {
                 skipped.Add(Path.GetFileName(path));
                 continue;
             }
 
-            if (!asScripts)
+            if (openTabs)
             {
-                var opened = NewDocument(name, text);
+                var opened = NewDocument(name, text, saveScripts ? ScriptLibrary.ToFileName(name) : null);
                 first ??= opened;
             }
 
             taken.Add(name);
         }
 
-        if (asScripts)
-        {
-            RefreshScripts();
-        }
-        else if (first is not null)
+        if (saveScripts) RefreshScripts();
+
+        if (first is not null)
         {
             // The first one taken in is the one waiting when the Text tab is next looked at.
             DocumentTabs.SelectedItem = first.Tab;
             MarkNewTabs(taken.Count);
         }
 
-        ReportBatch(taken, skipped, asScripts);
+        ReportBatch(taken, skipped, openTabs, saveScripts);
     }
 
     private bool SaveAsScript(string name, string text)
@@ -106,9 +105,12 @@ public partial class MainWindow
         }
     }
 
-    private void ReportBatch(IReadOnlyList<string> taken, IReadOnlyList<string> skipped, bool asScripts)
+    private void ReportBatch(IReadOnlyList<string> taken, IReadOnlyList<string> skipped,
+        bool openTabs, bool saveScripts)
     {
-        var where = asScripts ? "saved as script(s)" : "opened in tab(s)";
+        var where = openTabs && saveScripts ? "opened in tab(s) and saved as script(s)"
+            : saveScripts ? "saved as script(s)"
+            : "opened in tab(s)";
         var note = taken.Count == 0
             ? $"Nothing was {where}."
             : $"{taken.Count} file(s) {where}: {string.Join(", ", taken)}.";

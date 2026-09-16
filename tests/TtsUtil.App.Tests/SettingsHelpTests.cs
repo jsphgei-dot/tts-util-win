@@ -67,10 +67,13 @@ public sealed class SettingsHelpTests : IDisposable
         });
     }
 
+    /// <summary>The question marks that name a settings topic. The ones on the File and Voices
+    /// tabs carry their own text instead, so they have no tag.</summary>
     private IEnumerable<Button> HelpButtons()
     {
         var style = (Style)_window.FindResource("HelpButton");
-        return Descendants(_window).OfType<Button>().Where(button => button.Style == style);
+        return Descendants(_window).OfType<Button>()
+            .Where(button => button.Style == style && button.Tag is not null);
     }
 
     private static IEnumerable<DependencyObject> Descendants(DependencyObject root)

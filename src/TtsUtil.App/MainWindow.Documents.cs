@@ -68,6 +68,7 @@ public partial class MainWindow
         var document = new TextDocument(tab, box, title ?? NextDocumentTitle()) { ScriptTitle = scriptTitle };
         tab.Tag = document;
         tab.Header = BuildTabHeader(document);
+        document.SavedText = text;
 
         EnsurePlusTab();
         _documents.Add(document);
@@ -80,6 +81,28 @@ public partial class MainWindow
 
         ScrollTabsToEnd();
         return document;
+    }
+
+    /// <summary>The document a text box belongs to, or null for a box outside the tabs.</summary>
+    internal TextDocument? DocumentFor(object? box) =>
+        _documents.FirstOrDefault(document => ReferenceEquals(document.Box, box));
+
+    /// <summary>A tab wears a star while its words differ from the last save, so unsaved work is
+    /// visible without opening the tab.</summary>
+    internal void ShowTabTitle(TextDocument document)
+    {
+        var unsaved = document.Unsaved;
+        document.Label.Text = unsaved ? document.Title + " *" : document.Title;
+        document.Label.ToolTip = unsaved ? "Changes not saved to a script" : null;
+    }
+
+    /// <summary>Takes the star off a document whose words have just been written to a script.</summary>
+    internal void MarkDocumentSaved(TextDocument? document)
+    {
+        if (document is null) return;
+
+        document.SavedText = document.Box.Text;
+        ShowTabTitle(document);
     }
 
     /// <summary>Marks the Text tab when tabs arrive while another tab is in front, so they are
@@ -108,6 +131,8 @@ public partial class MainWindow
             return;
         }
 
+        if (!AgreedToLoseChanges(document)) return;
+
         CancelWriteFor(document);
 
         if (_documents.Count == 1)
@@ -115,6 +140,7 @@ public partial class MainWindow
             document.Box.Clear();
             document.ScriptTitle = null;
             Rename(document, "Text 1");
+            MarkDocumentSaved(document);
             return;
         }
 
@@ -218,10 +244,28 @@ public partial class MainWindow
         DocumentTabs.Items.Add(_plusTab);
     }
 
+    /// <summary>Asks before a tab with unsaved words goes, unless the reader has turned the
+    /// question off.</summary>
+    private bool AgreedToLoseChanges(TextDocument document)
+    {
+        if (!document.Unsaved || !_settings.WarnOnClosingUnsaved) return true;
+
+        var answer = UnsavedCloseAsker($"{document.Title} has changes that are not saved as a " +
+                                       "script. Close it anyway?");
+        if (answer.StopAsking)
+        {
+            _settings.WarnOnClosingUnsaved = false;
+            WarnOnClosingUnsavedBox.IsChecked = false;
+            _settings.Save();
+        }
+
+        return answer.Close;
+    }
+
     private void Rename(TextDocument document, string title)
     {
         document.Title = title;
-        document.Label.Text = title;
+        ShowTabTitle(document);
     }
 
     /// <summary>Numbers a new document past the ones already open.</summary>
@@ -271,6 +315,12 @@ internal sealed class TextDocument
     public TextBlock Label { get; }
 
     public string Title { get; set; }
+
+    /// <summary>The words as they were at the last save, which the star is measured against.</summary>
+    public string SavedText { get; set; } = string.Empty;
+
+    /// <summary>Whether the box has moved on from what was last written to a script.</summary>
+    public bool Unsaved => !string.Equals(Box.Text, SavedText, StringComparison.Ordinal);
 
     /// <summary>The script this document came from, which names audio written from it.</summary>
     public string? ScriptTitle { get; set; }

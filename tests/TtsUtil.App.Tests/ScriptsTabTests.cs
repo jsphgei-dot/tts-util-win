@@ -292,6 +292,74 @@ public sealed class ScriptsTabTests : IDisposable
         });
     }
 
+    /// <summary>A tab wears a star while its words differ from the last save, and loses it once
+    /// they are written to a script.</summary>
+    [Fact]
+    public void AnEditedTabWearsAStarUntilItIsSaved()
+    {
+        var window = CreateWindow();
+
+        _wpf.Invoke(() =>
+        {
+            window.InputText.Text = "Something new.";
+
+            Assert.Equal("Text 1 *", window.Documents[0].Label.Text);
+
+            window.ScriptTitleBox.Text = "Something";
+            window.SaveScriptFromText();
+
+            Assert.Equal("Something", window.Documents[0].Label.Text);
+        });
+    }
+
+    /// <summary>Closing a tab with unsaved words asks first, and the box on that question turns
+    /// the asking off for good.</summary>
+    [Fact]
+    public void ClosingAnUnsavedTabAsksAndCanBeToldToStop()
+    {
+        var window = CreateWindow();
+
+        _wpf.Invoke(() =>
+        {
+            var asked = 0;
+            window.UnsavedCloseAsker = _ =>
+            {
+                asked++;
+                return (Close: false, StopAsking: false);
+            };
+            window.InputText.Text = "Not saved yet.";
+            window.NewDocument();
+            window.CloseDocument(window.Documents[0]);
+
+            Assert.Equal(1, asked);
+            Assert.Equal(2, window.Documents.Count);
+
+            window.UnsavedCloseAsker = _ => (Close: true, StopAsking: true);
+            window.CloseDocument(window.Documents[0]);
+
+            Assert.Single(window.Documents);
+            Assert.False(window.Settings.WarnOnClosingUnsaved);
+        });
+    }
+
+    /// <summary>With the question turned off a tab goes without a word.</summary>
+    [Fact]
+    public void WithTheQuestionOffAnUnsavedTabJustCloses()
+    {
+        var window = CreateWindow();
+
+        _wpf.Invoke(() =>
+        {
+            window.Settings.WarnOnClosingUnsaved = false;
+            window.UnsavedCloseAsker = _ => throw new InvalidOperationException("Nothing should be asked.");
+            window.InputText.Text = "Not saved yet.";
+            window.NewDocument();
+            window.CloseDocument(window.Documents[0]);
+
+            Assert.Single(window.Documents);
+        });
+    }
+
     /// <summary>Several files at once become a tab each, named after the file.</summary>
     [Fact]
     public async Task TakingInSeveralFilesOpensOneTabEach()
@@ -299,7 +367,7 @@ public sealed class ScriptsTabTests : IDisposable
         var window = CreateWindow();
         _wpf.Invoke(() => window.BatchFilePicker = () => WriteTwoFiles());
 
-        await _wpf.Invoke(() => window.TakeInFilesAsync(asScripts: false));
+        await _wpf.Invoke(() => window.TakeInFilesAsync(openTabs: true, saveScripts: false));
 
         _wpf.Invoke(() =>
         {
@@ -310,6 +378,19 @@ public sealed class ScriptsTabTests : IDisposable
         });
     }
 
+    /// <summary>Tabs opened without saving carry a star, as nothing has been written yet.</summary>
+    [Fact]
+    public async Task FilesOpenedInTabsAreLeftOutOfTheLibraryUnlessAsked()
+    {
+        var window = CreateWindow();
+        _wpf.Invoke(() => window.BatchFilePicker = () => WriteTwoFiles());
+
+        await _wpf.Invoke(() => window.TakeInFilesAsync(openTabs: true, saveScripts: true));
+
+        Assert.True(File.Exists(Path.Combine(_scriptsDir, "Chapter one.txt")));
+        _wpf.Invoke(() => Assert.Equal("Chapter one", window.Documents[1].Label.Text));
+    }
+
     /// <summary>The same files can go straight to the script library instead.</summary>
     [Fact]
     public async Task TakingInSeveralFilesSavesOneScriptEach()
@@ -317,7 +398,7 @@ public sealed class ScriptsTabTests : IDisposable
         var window = CreateWindow();
         _wpf.Invoke(() => window.BatchFilePicker = () => WriteTwoFiles());
 
-        await _wpf.Invoke(() => window.TakeInFilesAsync(asScripts: true));
+        await _wpf.Invoke(() => window.TakeInFilesAsync(openTabs: false, saveScripts: true));
 
         Assert.Equal("The first one.", File.ReadAllText(Path.Combine(_scriptsDir, "Chapter one.txt")));
         Assert.Equal("The second one.", File.ReadAllText(Path.Combine(_scriptsDir, "Chapter two.txt")));

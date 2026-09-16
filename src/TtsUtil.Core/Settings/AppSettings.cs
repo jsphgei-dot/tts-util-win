@@ -141,6 +141,9 @@ public sealed class AppSettings
     /// <summary>Whether writing audio also keeps the words behind it as a script.</summary>
     public bool SaveScriptWithAudio { get; set; } = true;
 
+    /// <summary>Whether closing a text tab with unsaved changes asks first.</summary>
+    public bool WarnOnClosingUnsaved { get; set; } = true;
+
     [JsonIgnore]
     public string ResolvedVoicesDirectory => InstallPaths.ResolveVoicesDirectory(
         VoicesDirectory,

@@ -220,6 +220,13 @@ The tab strip above the text stays on one line however many tabs are open. It sc
 sideways when they no longer fit, by its scrollbar or the mouse wheel over the strip, so
 closing one never reshuffles the rest onto different rows.
 
+A tab whose text has moved on from the last save wears a **\*** after its name, so unsaved work
+is visible without opening the tab. The star goes as soon as the text is saved as a script, and
+a tab that comes from a script or a file starts clean. Closing a starred tab asks first, and
+that question has a **Don't show this again** box for anyone who would rather it did not. The
+same switch lives in Settings as **Ask before closing a tab with unsaved changes**, so it can be
+turned back on later.
+
 Under it is the editing toolbar. Scripts are plain text files, so there is no bold, no italic
 and no color: everything here changes the words themselves and survives a round trip through
 a `.txt` file.
@@ -317,7 +324,9 @@ The **?** button beside Browse spells out which files can be read in and what ha
 
 Several files can come in at one go. **Open files in tabs** gives each chosen file its own tab
 on the Text tab, and **Save files as scripts** puts each one straight in the script library.
-Either way the name comes from the file, so `Chapter one.pdf` becomes `Chapter one`. They are
+Either way the name comes from the file, so `Chapter one.pdf` becomes `Chapter one`. Files
+opened in tabs stay out of the script library unless **Opening in tabs also saves them as
+scripts** is ticked, which is off to begin with. They are
 read one after another, **Stop** gives up on the rest, and anything that yielded no text is
 named in the line under the buttons rather than passed over in silence.
 
@@ -439,7 +448,8 @@ so it is readable and testable without opening the window.
 
 Settings that also live elsewhere in the window are repeated at the bottom of the tab, so
 everything can be found in one place: **Read as I type**, **Pause when I click away**, the
-alias switch, the reading speed, the editor text size and the repeat mode. A change in
+alias switch, the reading speed, the editor text size, the repeat mode and the question asked
+before a tab with unsaved changes closes. A change in
 either place moves the other. **Reset to defaults** puts every setting back to a first run,
 after asking. Scripts, aliases and saved audio are left alone. **Reset aliases** empties the
 alias list, after asking and after copying the list to `aliases.json.bak` beside it, so a list
