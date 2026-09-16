@@ -267,6 +267,72 @@ public sealed class ScriptsTabTests : IDisposable
         });
     }
 
+    /// <summary>A double click opens a script beside what is already open, and the Text tab wears
+    /// a mark until it is looked at.</summary>
+    [Fact]
+    public void DoubleClickingAScriptOpensItInANewTab()
+    {
+        File.WriteAllText(Path.Combine(_scriptsDir, "Act Two.txt"), "The second act.");
+        var window = CreateWindow();
+
+        _wpf.Invoke(() =>
+        {
+            window.RefreshScripts();
+            window.Tabs.SelectedIndex = 1;
+            window.OpenScriptInNewTab(window.Scripts.List().Single());
+
+            Assert.Equal(2, window.Documents.Count);
+            Assert.Equal("Act Two", window.Documents[^1].Title);
+            Assert.Equal("The second act.", window.InputText.Text);
+            Assert.Equal(Visibility.Visible, window.TextTabMark.Visibility);
+
+            window.Tabs.SelectedIndex = 0;
+
+            Assert.Equal(Visibility.Collapsed, window.TextTabMark.Visibility);
+        });
+    }
+
+    /// <summary>Several files at once become a tab each, named after the file.</summary>
+    [Fact]
+    public async Task TakingInSeveralFilesOpensOneTabEach()
+    {
+        var window = CreateWindow();
+        _wpf.Invoke(() => window.BatchFilePicker = () => WriteTwoFiles());
+
+        await _wpf.Invoke(() => window.TakeInFilesAsync(asScripts: false));
+
+        _wpf.Invoke(() =>
+        {
+            Assert.Equal(3, window.Documents.Count);
+            Assert.Equal(new[] { "Chapter one", "Chapter two" },
+                window.Documents.Skip(1).Select(d => d.Title).ToArray());
+            Assert.Equal("The first one.", window.InputText.Text);
+        });
+    }
+
+    /// <summary>The same files can go straight to the script library instead.</summary>
+    [Fact]
+    public async Task TakingInSeveralFilesSavesOneScriptEach()
+    {
+        var window = CreateWindow();
+        _wpf.Invoke(() => window.BatchFilePicker = () => WriteTwoFiles());
+
+        await _wpf.Invoke(() => window.TakeInFilesAsync(asScripts: true));
+
+        Assert.Equal("The first one.", File.ReadAllText(Path.Combine(_scriptsDir, "Chapter one.txt")));
+        Assert.Equal("The second one.", File.ReadAllText(Path.Combine(_scriptsDir, "Chapter two.txt")));
+        _wpf.Invoke(() => Assert.Equal(2, window.ScriptList.Items.Count));
+    }
+
+    private IReadOnlyList<string> WriteTwoFiles()
+    {
+        var first = Path.Combine(_root, "Chapter one.txt");
+        var second = Path.Combine(_root, "Chapter two.txt");
+        File.WriteAllText(first, "The first one.");
+        File.WriteAllText(second, "The second one.");
+        return new[] { first, second };
+    }
+
     private MainWindow CreateWindowWithAVoice()
     {
         var window = _wpf.Invoke(() =>

@@ -82,6 +82,23 @@ public partial class MainWindow
         return document;
     }
 
+    /// <summary>Marks the Text tab when tabs arrive while another tab is in front, so they are
+    /// not missed. Opening while the Text tab is already up needs no mark.</summary>
+    internal void MarkNewTabs(int count)
+    {
+        if (ReferenceEquals(Tabs.SelectedItem, TextTab)) return;
+
+        TextTabMark.ToolTip = count == 1 ? "New tab opened" : "New tabs opened";
+        TextTabMark.Visibility = Visibility.Visible;
+    }
+
+    /// <summary>The Text tab coming up is the news being read, so the mark goes.</summary>
+    private void OnMainTabChanged(object sender, SelectionChangedEventArgs e)
+    {
+        if (!ReferenceEquals(e.OriginalSource, Tabs)) return;
+        if (ReferenceEquals(Tabs.SelectedItem, TextTab)) TextTabMark.Visibility = Visibility.Collapsed;
+    }
+
     /// <summary>Closes a document. The last one is emptied rather than taken away.</summary>
     internal void CloseDocument(TextDocument document)
     {

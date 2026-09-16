@@ -144,9 +144,16 @@
             </Grid>
         </Border>
 
-        <TabControl x:Name="Tabs">
+        <TabControl x:Name="Tabs" SelectionChanged="OnMainTabChanged">
 
-            <TabItem Header="Text">
+            <TabItem x:Name="TextTab">
+                <TabItem.Header>
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="Text" />
+                        <TextBlock x:Name="TextTabMark" Text="!" FontWeight="Bold" Foreground="#C0392B"
+                                   Margin="4,0,0,0" Visibility="Collapsed" ToolTip="New tabs opened" />
+                    </StackPanel>
+                </TabItem.Header>
                 <DockPanel Margin="10">
                     <!-- The title sits with the text it names, and saves with the button beside it. -->
                     <DockPanel DockPanel.Dock="Top" Margin="0,0,0,6">
@@ -311,6 +318,8 @@
                                     Click="OnConvertScripts" />
                         </WrapPanel>
                         <ListBox x:Name="ScriptList" SelectionChanged="OnScriptSelected"
+                                 MouseDoubleClick="OnScriptDoubleClick"
+                                 ToolTip="Double click a script to open it in a new tab"
                                  local:RowTicking.Enabled="True"
                                  HorizontalContentAlignment="Stretch">
                             <ListBox.ItemTemplate>
@@ -407,9 +416,13 @@
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*" />
                             <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="Auto" />
                         </Grid.ColumnDefinitions>
                         <TextBox x:Name="FilePathBox" Tag="The file to read from" Grid.Column="0" Padding="4,4" VerticalContentAlignment="Center" />
                         <Button Grid.Column="1" Content="Browse" Margin="8,0,0,0" Click="OnBrowseInputFile" />
+                        <Button x:Name="FileHelpButton" Grid.Column="2" Content="?" Width="26" Margin="6,0,0,0"
+                                AutomationProperties.Name="About taking files in" Click="OnFileHelp"
+                                ToolTip="Which files can be read in, and what happens to them" />
                     </Grid>
                     <StackPanel Orientation="Horizontal">
                         <Button x:Name="ReadFileButton" Style="{StaticResource IconButton}" Content="&#xE768;"
@@ -424,6 +437,16 @@
                         <Button x:Name="ImportTextButton" Content="Import to Text tab" Width="140"
                                 Click="OnImportFileToTextTab" />
                     </StackPanel>
+                    <TextBlock Text="Several files at once" Margin="0,16,0,6" Foreground="#555" />
+                    <StackPanel Orientation="Horizontal">
+                        <Button x:Name="OpenManyInTabsButton" Content="Open files in tabs" Width="160"
+                                Click="OnOpenManyInTabs"
+                                ToolTip="Choose several PDFs or text files. Each one opens as its own tab, named after the file" />
+                        <Button x:Name="SaveManyAsScriptsButton" Content="Save files as scripts" Width="160"
+                                Click="OnSaveManyAsScripts"
+                                ToolTip="Choose several PDFs or text files. Each one is saved as a script, named after the file" />
+                    </StackPanel>
+
                     <TextBlock x:Name="FileInfoText" Margin="0,14,0,0" Foreground="#555" TextWrapping="Wrap" />
                 </StackPanel>
             </TabItem>

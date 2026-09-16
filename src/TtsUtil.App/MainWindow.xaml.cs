@@ -75,6 +75,7 @@ public partial class MainWindow : Window
         SpeakSnippet = snippet => _ = SpeakSnippetAsync(snippet);
         BatchFolderPicker = () => AskForDirectory(_settings.ResolvedOutputDirectory);
         AudioPathPicker = AskForAudioPath;
+        BatchFilePicker = AskForFilesToTakeIn;
         EntryPlayer = PlayEntryAsync;
         InitializeComponent();
         NewDocument();
@@ -1120,6 +1121,7 @@ public partial class MainWindow : Window
         }
         catch (OperationCanceledException)
         {
+            _batchStopped = true;
             SetStatus("Stopped.");
             return null;
         }
@@ -1288,6 +1290,31 @@ public partial class MainWindow : Window
             RebuildLineList();
             Tabs.SelectedIndex = 0;
             SetStatus(voice ? $"Opened {script.Title}, in the voice it was saved with." : $"Opened {script.Title}.");
+        }
+        catch (IOException ex)
+        {
+            SetStatus($"Could not open {script.Title}: {ex.Message}");
+        }
+    }
+
+    private void OnScriptDoubleClick(object sender, MouseButtonEventArgs e)
+    {
+        if (SelectedScript is not SavedScript script) return;
+
+        OpenScriptInNewTab(script);
+    }
+
+    /// <summary>Opens a script beside what is already there rather than over it, leaving the
+    /// Scripts tab in front so another can be opened straight after.</summary>
+    internal void OpenScriptInNewTab(SavedScript script)
+    {
+        try
+        {
+            var document = NewDocument(script.Title, Scripts.Load(script.Title), script.Title);
+            DocumentTabs.SelectedItem = document.Tab;
+            ApplyScriptVoice(script.Title);
+            MarkNewTabs(1);
+            SetStatus($"Opened {script.Title} in a new tab.");
         }
         catch (IOException ex)
         {

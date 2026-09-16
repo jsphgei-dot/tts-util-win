@@ -313,6 +313,14 @@ The status line reports how many pages had no text layer and which pages yielded
 partial read is visible rather than silent. If Windows has no OCR language pack installed,
 scanned pages are reported as unreadable instead of failing.
 
+The **?** button beside Browse spells out which files can be read in and what happens to them.
+
+Several files can come in at one go. **Open files in tabs** gives each chosen file its own tab
+on the Text tab, and **Save files as scripts** puts each one straight in the script library.
+Either way the name comes from the file, so `Chapter one.pdf` becomes `Chapter one`. They are
+read one after another, **Stop** gives up on the rest, and anything that yielded no text is
+named in the line under the buttons rather than passed over in silence.
+
 ### Saving audio
 
 The save icon sits beside Stop under the text, and **Ctrl+Shift+S** does the same thing from
@@ -340,7 +348,9 @@ responsive; the status bar says "Encoding MP3..." while it runs.
 
 The Scripts tab keeps named texts you can come back to. Type a title, press **Save from Text
 tab**, and the text is written as a `.txt` file; **Open in Text tab** loads one back, ready to
-read. Rename and Delete do what they say, and Delete asks first.
+read. Double clicking a script opens it in a new tab instead, leaving what you already had open
+alone, and the Text tab wears a red **!** until you look at it. Rename and Delete do what they
+say, and Delete asks first.
 
 Scripts are plain UTF-8 text files, one per script, named after the title. They live in
 `%APPDATA%\TtsUtilWin\scripts`, or in a `scripts` folder beside the executable on a portable
