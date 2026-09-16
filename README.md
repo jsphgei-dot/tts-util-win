@@ -11,7 +11,9 @@
 ## ✨ Highlights
 
 * **Offline, always.** The voice runs locally. Nothing is uploaded, nothing is fetched while
-  you read, and no system speech engine is involved.
+  you read, and no system speech engine is involved. It reaches the network twice only: to
+  download a voice you asked for, and for the once a day update check, which sends nothing and
+  can be switched off.
 * **Real neural voices.** Piper, Kokoro and Matcha models through
   [sherpa-onnx](https://github.com/k2-fsa/sherpa-onnx), including one with over 900 speakers.
 * **Reads what a reader would read.** Symbols, links and stray punctuation are filtered out
@@ -49,15 +51,16 @@ Finlay. See `NOTICE` for the full attribution.
 
 ## ⬇️ Install
 
-**Download a build.** Published builds are attached to the
-[Releases page](https://github.com/jsphgei-dot/tts-util-win/releases). Nothing is committed to
-the repository: `dist/` is ignored, so the executable and the installer are always either
-downloaded from a release or built locally.
+**Download a build.** Builds are published to the public distribution repository,
+[jsphgei-dot/tts-util-win-releases](https://github.com/jsphgei-dot/tts-util-win-releases/releases/latest),
+as `TtsUtilWin-<version>-setup.zip` and `TtsUtilWin-<version>-portable.zip`, each with its
+SHA256 on the release page. Nothing is committed to this repository: `dist/` is ignored, so the
+executable and the installer are always either downloaded from a release or built locally.
 
-**Installer.** `TtsUtilWin-<version>-setup.exe` asks on its first page whether to install for
-all users (needs administrator) or just for you (recommended, no prompt), then adds a Start
-menu entry, an optional desktop shortcut, and an entry in Settings, Apps. Settings go to
-`%APPDATA%\TtsUtilWin`.
+**Installer.** `TtsUtilWin-<version>-setup.exe`, inside the setup zip, asks on its first page
+whether to install for all users (needs administrator) or just for you (recommended, no
+prompt), then adds a Start menu entry, an optional desktop shortcut, and an entry in Settings,
+Apps. Settings go to `%APPDATA%\TtsUtilWin`.
 
 A components page lists the curated voices with a checkbox and a size each. "Program and the
 three recommended voices" ticks the permissively licensed defaults, "Program only" ticks none,
