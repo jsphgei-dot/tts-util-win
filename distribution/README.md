@@ -2,7 +2,7 @@
 
 [![Version](https://img.shields.io/badge/version-0.6.0--beta-blue.svg)](https://github.com/jsphgei-dot/tts-util-win-releases/releases/latest)
 [![Platform](https://img.shields.io/badge/platform-Windows%2010%2F11%20x64-green.svg)](#requirements)
-[![Licence](https://img.shields.io/badge/licence-Apache%202.0-lightgrey.svg)](LICENSE)
+[![License](https://img.shields.io/badge/license-Apache%202.0-lightgrey.svg)](LICENSE)
 
 > Reads text aloud on Windows, offline. Downloads for the program live here.
 
@@ -56,11 +56,11 @@ voice, the setting and the text that misbehaved is worth a great deal.
 
 This application was coded using AI assistance.
 
-## ⚖️ Licence
+## ⚖️ License
 
 Apache 2.0. Every download carries `LICENSE`, `NOTICE` and `THIRD-PARTY-NOTICES.txt`, which
 name every component that ships inside the program and the work it is derived from: TTS Util
 for Android by Dane Finlay, sherpa-onnx, ONNX Runtime, PdfPig, NAudio and the .NET runtime.
 
-Voice models are not covered by that licence. Each carries its own, stated in the `LICENSE` or
+Voice models are not covered by that license. Each carries its own, stated in the `LICENSE` or
 `MODEL_CARD` file inside the model folder and shown in the About tab.

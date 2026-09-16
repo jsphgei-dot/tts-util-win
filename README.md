@@ -3,8 +3,8 @@
 ![version](https://img.shields.io/badge/version-0.6.0--beta-blue)
 ![platform](https://img.shields.io/badge/platform-Windows%2010%20%7C%2011%20x64-0078D6)
 ![built with](https://img.shields.io/badge/.NET-6.0-512BD4)
-![tests](https://img.shields.io/badge/tests-390%20passing-brightgreen)
-![licence](https://img.shields.io/badge/licence-Apache%202.0-lightgrey)
+![tests](https://img.shields.io/badge/tests-399%20passing-brightgreen)
+![license](https://img.shields.io/badge/license-Apache%202.0-lightgrey)
 
 > Read anything you can type, paste or open out loud, entirely on your own machine.
 
@@ -95,7 +95,7 @@ TtsUtilWin\
 
 Saved scripts land in that same `scripts` folder, as plain `.txt` files.
 
-**Upgrading.** Setup recognises an existing installation by its application id. A newer setup
+**Upgrading.** Setup recognizes an existing installation by its application id. A newer setup
 upgrades in place, keeping the folder, shortcuts, settings and the voices already downloaded.
 The same version offers a repair. An older setup warns that it would downgrade and asks for
 confirmation. A running copy is closed through the Restart Manager rather than failing on a
@@ -109,16 +109,20 @@ pack, the kind Windows installs with its display languages.
 
 ### Voices
 
-The **Voices** tab lists the curated models with their size, licence and whether they are
+The **Voices** tab lists the curated models with their size, license and whether they are
 installed. Select one and press **Install**: it is downloaded, checked and unpacked, with a
-progress bar and a Cancel button. **Remove** deletes one again, and a cancelled or failed
+progress bar and a Cancel button. **Remove** deletes one again, and a canceled or failed
 install leaves nothing behind. When the configured voices directory cannot be written, which
 happens for an all users installation under Program Files, the download goes to
 `%LOCALAPPDATA%\TtsUtilWin\voices` instead and the tab says so.
 
-The three defaults were chosen for clear, free licences:
+The voice picker along the top lists downloaded voices in the order they arrived, oldest
+first, so a voice installed just now sits at the bottom of that group. Windows voices follow
+them when they are turned on.
 
-| Model | Voice | Licence |
+The three defaults were chosen for clear, free licenses:
+
+| Model | Voice | License |
 | --- | --- | --- |
 | `vits-piper-en_US-ljspeech-high` | English (US), single speaker | LJ Speech data set, public domain |
 | `vits-piper-en_US-libritts_r-medium` | English (US), 900+ speakers | LibriTTS-R, CC BY 4.0 |
@@ -130,14 +134,14 @@ The installer offers these three plus `vits-piper-en_GB-alan-medium`,
 For a portable copy or an unattended setup, `scripts\FetchVoices.ps1` does the same job:
 
 ```powershell
-.\scripts\FetchVoices.ps1 -List          # the whole catalogue
+.\scripts\FetchVoices.ps1 -List          # the whole catalog
 .\scripts\FetchVoices.ps1 -Default       # the three defaults, about 490 MB
 .\scripts\FetchVoices.ps1 -Name kokoro-en-v0_19
 ```
 
 On an all users installation the program folder is under Program Files, so running the script
 there needs an elevated PowerShell, or a `-Destination` you can write to. The authoritative
-licence for a model is the `LICENSE` or `MODEL_CARD` file inside its folder, and the About tab
+license for a model is the `LICENSE` or `MODEL_CARD` file inside its folder, and the About tab
 shows it for the selected voice.
 
 The voices directory is resolved in this order, first hit wins:
@@ -182,17 +186,23 @@ lines starting with `#` are ignored. Your names win over the model's.
 
 The search box filters by name or by leading digits of the number, and Star keeps a speaker at
 the top of the list. Both the chosen speaker and its starred speakers are remembered per voice.
-Favourites shows only the starred speakers, and shows everything again when pressed a second
+Favorites shows only the starred speakers, and shows everything again when pressed a second
 time.
 
 ### Writing and editing
 
 The Text tab opens with a title box above the text and a save icon beside it. Type a name,
-press the icon or **Ctrl+S**, and the text is written to the script library under that name.
-The same title shows on the Scripts tab, so saving from either place uses one name.
+press the icon, and the text is written to the script library under that name. **Ctrl+S**
+does the same, except that it asks for the name first in a small window, filled in with the
+title already in the box. Saving under a name that exists replaces it. The same title shows
+on the Scripts tab, so saving from either place uses one name.
+
+The icon answers for itself: it turns into a tick, green when the name is written for the first
+time and blue when an existing script is replaced, and goes back to normal a moment later. The
+status bar says which of the two happened as well.
 
 Under it is the editing toolbar. Scripts are plain text files, so there is no bold, no italic
-and no colour: everything here changes the words themselves and survives a round trip through
+and no color: everything here changes the words themselves and survives a round trip through
 a `.txt` file.
 
 | Tool | What it does |
@@ -232,7 +242,17 @@ says nothing.
 Pause holds the audio device and Resume carries on from the same place. Synthesis keeps a few
 seconds of lookahead and then waits, so pausing does not quietly race ahead generating the rest
 of the book. Stop gives up on the run entirely; pressing it while paused releases the pause
-first, so nothing is left waiting.
+first, so nothing is left waiting. Stop also remembers the line it cut off on, and a **Carry
+on** button appears beside it that starts the reading again there rather than at the top. It
+goes away once the reading is picked up, or when you move to another document tab.
+
+**Pause when I click away**, beside **Read as I type**, holds the reading whenever another
+window takes over. It is off to begin with. Press Resume to carry on.
+
+The voice, the speaker, the speed and everything on the Voices tab are held still while
+something is playing. They are grayed out, and resting the pointer on one says to stop the
+playback before changing it. Changing a voice out from under a reading in flight is what
+that prevents.
 
 There is no scrub bar, because the audio does not exist yet: it is synthesised as it plays.
 Moving about is done by line instead, and Stop is no part of it. While a reading is in flight,
@@ -340,6 +360,12 @@ The panels cover the silence values, scaling silence to the speech rate, the has
 filters, both character settings, the two folders, threads, chunk length, the saved audio
 format and the MP3 bit rate. The text lives in `SettingsHelp` in Core rather than in the XAML,
 so it is readable and testable without opening the window.
+
+Settings that also live elsewhere in the window are repeated at the bottom of the tab, so
+everything can be found in one place: **Read as I type**, **Pause when I click away**, the
+alias switch, the reading speed, the editor text size and the repeat mode. A change in
+either place moves the other. **Reset to defaults** puts every setting back to a first run,
+after asking. Scripts, aliases and saved audio are left alone.
 
 Two groups are worth knowing about before you go looking. **Silence** sets how long a pause
 follows a line ending, a sentence, a question and an exclamation, in milliseconds, and can be
@@ -543,16 +569,16 @@ the formatting and test gates run locally rather than surprising you later.
 * `DECISIONS.md`, why the awkward choices were made the way they were.
 * [TTS Util](https://github.com/drmfinlay/tts-util-app), the Android original.
 * [sherpa-onnx](https://github.com/k2-fsa/sherpa-onnx), the engine, and its
-  [voice catalogue](https://github.com/k2-fsa/sherpa-onnx/releases/tag/tts-models).
+  [voice catalog](https://github.com/k2-fsa/sherpa-onnx/releases/tag/tts-models).
 
-## ⚖️ Licence
+## ⚖️ License
 
-Apache 2.0, the same licence as the original TTS Util by Dane Finlay and as sherpa-onnx.
+Apache 2.0, the same license as the original TTS Util by Dane Finlay and as sherpa-onnx.
 
 Three files travel with every build, in the installed folder and in the portable folder alike:
 `LICENSE` is the Apache 2.0 text, `NOTICE` names the work this one is derived from, and
-`THIRD-PARTY-NOTICES.txt` carries the licence of every component that ships inside the
+`THIRD-PARTY-NOTICES.txt` carries the license of every component that ships inside the
 executable (sherpa-onnx, ONNX Runtime, PdfPig, NAudio, and the .NET runtime itself).
 
-Voice models are not covered by any of that. Each carries its own licence, listed above and
+Voice models are not covered by any of that. Each carries its own license, listed above and
 restated in the `LICENSE` or `MODEL_CARD` file inside the model folder.

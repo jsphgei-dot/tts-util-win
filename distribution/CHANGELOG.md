@@ -50,7 +50,7 @@ Newest first. Version codes are monotonic and never reused.
 * **The media keys work.** Play, pause and stop on a keyboard drive the reading, and the
   Windows media overlay shows the script title with the same three buttons.
 
-Scripts are plain text files, so the toolbar carries no bold, italic or colour: everything in
+Scripts are plain text files, so the toolbar carries no bold, italic or color: everything in
 it changes the words themselves and survives being saved.
 
 ## 0.3.0-beta (version code 6)
@@ -72,7 +72,7 @@ published here.
 
 ## 0.2.0-alpha (version code 5)
 
-* Speaker names for multi speaker voices, with search, favourites and per voice memory.
+* Speaker names for multi speaker voices, with search, favorites and per voice memory.
 * PDF import, reading the text layer and falling back to Windows OCR for scanned pages.
 * A numbered line list, and reading from any line.
 * A script library kept as plain text files.
@@ -88,12 +88,12 @@ published here.
 
 ## 0.1.2-alpha (version code 3)
 
-* Setup recognises an existing installation: upgrade in place, repair, and a downgrade warning.
+* Setup recognizes an existing installation: upgrade in place, repair, and a downgrade warning.
 * A running copy is closed through the Restart Manager rather than failing on a locked file.
 
 ## 0.1.1-alpha (version code 2)
 
-* Setup can download voices during installation, with a size and a licence shown for each.
+* Setup can download voices during installation, with a size and a license shown for each.
 
 ## 0.1.0-alpha (version code 1)
 
