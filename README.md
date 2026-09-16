@@ -407,7 +407,7 @@ rather than stranded in `.git\hooks`. Each is a small shell shim over a PowerShe
 | Hook | Checks | Cost |
 | --- | --- | --- |
 | `pre-commit` | trailing whitespace and conflict markers in the staged diff, staged files over 5 MB, staged build output, `dotnet format --verify-no-changes`, a `-warnaserror` build, the core tests | about 8 s, and it skips the last four when no code is staged |
-| `commit-msg` | Conventional Commits subject in lowercase with no trailing period, 72 character subject, blank line before the body, body of 200 words or fewer, no tool attribution line | instant |
+| `commit-msg` | Conventional Commits subject in lowercase with no trailing period, 72 character subject, blank line before the body, body of 200 characters or fewer with trailers excluded, no tool attribution line | instant |
 | `pre-push` | the whole suite, user interface tests included | about 15 s |
 
 `pre-commit` also runs `scripts\TestInstaller.ps1` when an `.iss` file is staged. That compiles

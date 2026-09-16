@@ -1,4 +1,4 @@
-# Checks the commit message: Conventional Commits subject, 200 word body, no tool attribution.
+# Checks the commit message: Conventional Commits subject, 200 character body, no tool attribution.
 
 param([Parameter(Mandatory = $true)][string]$MessagePath)
 
@@ -58,16 +58,19 @@ if ($lines.Count -gt 1 -and -not [string]::IsNullOrWhiteSpace($lines[1]))
     Add-Failure 'Put a blank line between the subject and the body.'
 }
 
-$body = if ($lines.Count -gt 2) { $lines[2..($lines.Count - 1)] -join ' ' } else { '' }
-$words = @($body -split '\s+' | Where-Object { $_ -ne '' })
+$bodyLines = if ($lines.Count -gt 2) { @($lines[2..($lines.Count - 1)]) } else { @() }
 
-if ($words.Count -gt 200)
+# Trailers carry metadata rather than prose, so they do not eat the budget.
+$prose = @($bodyLines | Where-Object { $_ -cnotmatch '^(BREAKING CHANGE: |[A-Za-z][A-Za-z-]*: \S)' })
+$body = ($prose -join ' ').Trim() -replace '\s+', ' '
+
+if ($body.Length -gt 200)
 {
-    Add-Failure "Body is $($words.Count) words. Keep it to 200; detail belongs in the code or the docs."
+    Add-Failure "Body is $($body.Length) characters. Keep it to 200; detail belongs in the code or the docs."
 }
-elseif ($words.Count -gt 0)
+elseif ($body.Length -gt 0)
 {
-    Write-Pass "body is $($words.Count) words"
+    Write-Pass "body is $($body.Length) characters"
 }
 
 $attribution = @($lines | Where-Object { $_ -match '(?i)(co-authored-by:.*claude|generated with \[?claude)' })
