@@ -49,6 +49,9 @@ own), PDF and OCR import, the script library and the queue.
 Written by [jsphgei-dot](https://github.com/jsphgei-dot). The original TTS Util is by Dane
 Finlay. See `NOTICE` for the full attribution.
 
+Most of this port was written with AI assistance, using Claude Code, under human direction and
+review. Said plainly because you should know what you are reading.
+
 ## ⬇️ Install
 
 **Download a build.** Builds are published to the public distribution repository,

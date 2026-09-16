@@ -52,6 +52,11 @@ Bug reports and voice suggestions belong in
 [Issues](https://github.com/jsphgei-dot/tts-util-win-releases/issues). A report that names the
 voice, the setting and the text that misbehaved is worth a great deal.
 
+## 🤖 How it was made
+
+Most of this program was written with AI assistance, using Claude Code, under human direction
+and review. Said plainly because you should know what you are running.
+
 ## ⚖️ Licence
 
 Apache 2.0. Every download carries `LICENSE`, `NOTICE` and `THIRD-PARTY-NOTICES.txt`, which
