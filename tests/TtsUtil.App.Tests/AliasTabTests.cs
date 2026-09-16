@@ -49,6 +49,28 @@ public sealed class AliasTabTests : IDisposable
         }
     }
 
+    /// <summary>A list that ships is off until it is ticked, and then it reads alongside the
+    /// rules of your own.</summary>
+    [Fact]
+    public void AListThatShipsOnlyAppliesOnceItIsTicked()
+    {
+        _wpf.Invoke(() =>
+        {
+            Assert.Empty(_window.Settings.AliasPacks);
+            Assert.Null(_window.ActiveAliases());
+
+            var chemistry = _window.AliasPackPanel.Children
+                .OfType<System.Windows.Controls.CheckBox>()
+                .First(box => (string)box.Tag == "chemistry");
+
+            chemistry.IsChecked = true;
+            chemistry.RaiseEvent(new RoutedEventArgs(ButtonBase.ClickEvent));
+
+            Assert.Equal(new[] { "chemistry" }, _window.Settings.AliasPacks);
+            Assert.Equal("potassium", _window.ActiveAliases()!.Apply("K"));
+        });
+    }
+
     [Fact]
     public void AnAddedAliasIsListedAndWrittenToDisk()
     {

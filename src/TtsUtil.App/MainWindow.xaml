@@ -494,6 +494,17 @@
                                        Margin="12,0,0,0" />
                         </StackPanel>
 
+                        <TextBlock Text="Lists that come with the program" Foreground="#555"
+                                   Margin="0,0,0,4" />
+                        <WrapPanel x:Name="AliasPackPanel" Margin="0,0,0,4" />
+                        <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
+                            <Button x:Name="CopyAliasPackButton" Content="Copy ticked lists into my rules"
+                                    MinWidth="220" Click="OnCopyAliasPacks"
+                                    ToolTip="Add their rules above, where they can be edited or turned off one by one" />
+                            <TextBlock x:Name="AliasPackText" VerticalAlignment="Center" Foreground="#777"
+                                       Margin="12,0,0,0" TextWrapping="Wrap" />
+                        </StackPanel>
+
                         <CheckBox x:Name="UseAliasesBox" Content="Use these aliases when reading"
                                   Margin="0,0,0,8" Click="OnUseAliasesChanged" />
 

@@ -10,6 +10,7 @@ using System.Windows;
 using System.Windows.Controls;
 using TtsUtil.Core.Settings;
 using TtsUtil.Core.Text;
+using CheckBox = System.Windows.Controls.CheckBox;
 
 namespace TtsUtil.App;
 
@@ -53,11 +54,94 @@ public partial class MainWindow
         return dialog.ShowDialog() == true ? dialog.FileName : null;
     };
 
-    /// <summary>The list a run should apply, or null when the setting is off.</summary>
-    internal AliasDictionary? ActiveAliases() =>
-        _settings.UseAliases && _aliasRules.Count > 0
-            ? new AliasDictionary { Rules = _aliasRules.ToList() }
-            : null;
+    /// <summary>The list a run should apply, or null when the setting is off. Rules of your own
+    /// run first, so they beat anything in a list that ships.</summary>
+    internal AliasDictionary? ActiveAliases()
+    {
+        if (!_settings.UseAliases) return null;
+
+        var rules = _aliasRules.ToList();
+        rules.AddRange(AliasPacks.RulesFor(_settings.AliasPacks));
+
+        return rules.Count > 0 ? new AliasDictionary { Rules = rules } : null;
+    }
+
+    /// <summary>A tick box per list that ships, filled from the settings.</summary>
+    private void LoadAliasPacks()
+    {
+        if (AliasPackPanel.Children.Count > 0) return;
+
+        foreach (var pack in AliasPacks.All)
+        {
+            var box = new CheckBox
+            {
+                Content = pack.Name,
+                Tag = pack.Id,
+                Margin = new Thickness(0, 0, 14, 0),
+                ToolTip = pack.Description,
+                IsChecked = _settings.AliasPacks.Contains(pack.Id, StringComparer.OrdinalIgnoreCase),
+            };
+
+            box.Click += OnAliasPackChanged;
+            AliasPackPanel.Children.Add(box);
+        }
+
+        ShowAliasPackCount();
+    }
+
+    /// <summary>Puts the tick boxes back to what the settings say, after a reset.</summary>
+    private void ShowAliasPacks()
+    {
+        foreach (var box in AliasPackPanel.Children.OfType<CheckBox>())
+        {
+            box.IsChecked = box.Tag is string id
+                && _settings.AliasPacks.Contains(id, StringComparer.OrdinalIgnoreCase);
+        }
+
+        ShowAliasPackCount();
+    }
+
+    private void OnAliasPackChanged(object sender, RoutedEventArgs e)
+    {
+        _settings.AliasPacks = AliasPackPanel.Children.OfType<CheckBox>()
+            .Where(box => box.IsChecked == true)
+            .Select(box => (string)box.Tag)
+            .ToList();
+
+        _settings.Save();
+        ShowAliasPackCount();
+        ShowAliasPreview();
+    }
+
+    private void ShowAliasPackCount()
+    {
+        var rules = AliasPacks.RulesFor(_settings.AliasPacks).Count(rule => rule.Enabled);
+
+        AliasPackText.Text = rules == 0
+            ? "None of them is on."
+            : $"{rules} rules from the ticked lists.";
+    }
+
+    /// <summary>Copies the ticked lists into the rules above, where every one can be edited.</summary>
+    private void OnCopyAliasPacks(object sender, RoutedEventArgs e)
+    {
+        var ticked = AliasPacks.RulesFor(_settings.AliasPacks);
+
+        if (ticked.Count == 0)
+        {
+            SetStatus("Tick a list that comes with the program first.");
+            return;
+        }
+
+        var mine = new AliasDictionary { Rules = _aliasRules.ToList() };
+        var added = mine.Merge(new AliasDictionary { Rules = ticked });
+
+        foreach (var rule in mine.Rules.Skip(_aliasRules.Count)) _aliasRules.Add(rule);
+
+        AfterAliasChange(added == 0
+            ? "Every rule in the ticked lists was already here."
+            : $"Added {added} rule{(added == 1 ? string.Empty : "s")} from the ticked lists.");
+    }
 
     private void LoadAliases()
     {
@@ -65,6 +149,7 @@ public partial class MainWindow
         _aliasRules = new ObservableCollection<AliasRule>(stored.Rules);
         AliasList.ItemsSource = _aliasRules;
         UseAliasesBox.IsChecked = _settings.UseAliases;
+        LoadAliasPacks();
         ShowAliasCount();
     }
 
@@ -152,14 +237,7 @@ public partial class MainWindow
             return;
         }
 
-        if (_settings.UseAliases)
-        {
-            var aliases = new AliasDictionary { Rules = _aliasRules.ToList() };
-            AliasResultText.Text = aliases.Apply(text);
-            return;
-        }
-
-        AliasResultText.Text = text;
+        AliasResultText.Text = ActiveAliases() is AliasDictionary aliases ? aliases.Apply(text) : text;
     }
 
     private void OnAliasTryChanged(object sender, TextChangedEventArgs e) => ShowAliasPreview();

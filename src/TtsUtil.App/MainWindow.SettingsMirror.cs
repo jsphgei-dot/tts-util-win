@@ -80,6 +80,7 @@ public partial class MainWindow
         LoadSettingsIntoUi();
         LoadEditorToolbar();
         UseAliasesBox.IsChecked = _settings.UseAliases;
+        ShowAliasPacks();
         ShowRepeatMode();
         LoadSettingsMirror();
         RefreshVoices();

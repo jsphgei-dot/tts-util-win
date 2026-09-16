@@ -3,7 +3,7 @@
 ![version](https://img.shields.io/badge/version-0.6.0--beta-blue)
 ![platform](https://img.shields.io/badge/platform-Windows%2010%20%7C%2011%20x64-0078D6)
 ![built with](https://img.shields.io/badge/.NET-6.0-512BD4)
-![tests](https://img.shields.io/badge/tests-399%20passing-brightgreen)
+![tests](https://img.shields.io/badge/tests-403%20passing-brightgreen)
 ![license](https://img.shields.io/badge/license-Apache%202.0-lightgrey)
 
 > Read anything you can type, paste or open out loud, entirely on your own machine.
@@ -349,6 +349,29 @@ Repeat one works on a single reading as much as on the queue, so the Text tab ca
 looping without pressing Read each time. Stop ends the repeat, whichever mode is set, and the
 mode is remembered between sessions. An entry that cannot be read (an empty script, a file that
 has gone) is reported and skipped rather than retried for ever.
+
+### Aliases
+
+The **Aliases** tab holds the rules that tell the voice to say one thing where the text says
+another. Type the word to look for, what to say instead, and press Add. Rules run top down,
+whole word and case matching are per rule, and what one rule writes is left alone by the rules
+under it. The try it box shows the effect on a line of your own. Lists import and export as
+JSON, so they can be shared.
+
+Four lists come with the program, and none of them is on until it is ticked:
+
+| List | What it reads |
+| --- | --- |
+| Chemistry | Element symbols and common formulas, so `K` is potassium, `Ca` is calcium and `H2O` is water |
+| Math symbols | The signs a voice otherwise skips, such as the root sign, pi, and less than or equal to |
+| Units and measures | The short forms of everyday units, from kilometers to megabytes |
+| Everyday shorthand | The abbreviations prose is full of, such as e.g., i.e. and etc. |
+
+Symbols that are also ordinary English words, among them `In`, `No`, `He` and `As`, arrive
+turned off inside the chemistry list, so a sentence starting with one of them is read as
+English. **Copy ticked lists into my rules** brings their rules into the list above, where any
+of them can be edited or turned on one at a time. Rules of your own always run first, so they
+beat anything a list that ships would have said.
 
 ### Settings
 

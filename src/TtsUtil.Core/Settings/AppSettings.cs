@@ -105,6 +105,10 @@ public sealed class AppSettings
     /// <summary>Whether the alias list is applied to text on its way to the voice.</summary>
     public bool UseAliases { get; set; } = true;
 
+    /// <summary>The lists that ship with the program which the reader has turned on. Empty to
+    /// begin with, so none of them is applied.</summary>
+    public List<string> AliasPacks { get; set; } = new();
+
     /// <summary>Whether the voices Windows already has are offered alongside downloaded ones.</summary>
     public bool UseWindowsVoices { get; set; } = true;
 
