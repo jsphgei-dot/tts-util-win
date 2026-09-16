@@ -51,6 +51,8 @@ public partial class MainWindow : Window
 
     public MainWindow() : this(LoadSettingsWithOverrides())
     {
+        // Only the real startup path looks for a release. Tests build the window directly.
+        Loaded += (_, _) => StartUpdateCheck();
     }
 
     private static AppSettings LoadSettingsWithOverrides()
@@ -137,6 +139,7 @@ public partial class MainWindow : Window
         ThreadsBox.Text = _settings.NumThreads.ToString();
         ChunkLengthBox.Text = _settings.MaxChunkLength.ToString();
         ReadAsYouTypeBox.IsChecked = _settings.ReadAsYouType;
+        CheckForUpdatesBox.IsChecked = _settings.CheckForUpdates;
         SpeedSlider.Value = Math.Clamp(_settings.Speed, 0.5, 2.0);
         SpeedText.Text = $"{_settings.Speed:0.00}x";
         SettingsPathText.Text = $"Settings file: {AppSettings.SettingsPath}";
@@ -160,6 +163,7 @@ public partial class MainWindow : Window
         _settings.NumThreads = Math.Clamp(ParseInt(ThreadsBox.Text, _settings.NumThreads), 1, 16);
         _settings.MaxChunkLength = Math.Clamp(ParseInt(ChunkLengthBox.Text, _settings.MaxChunkLength), 64, 20000);
         _settings.ReadAsYouType = ReadAsYouTypeBox.IsChecked == true;
+        _settings.CheckForUpdates = CheckForUpdatesBox.IsChecked == true;
 
         var outputDir = OutputDirBox.Text.Trim();
         _settings.OutputDirectory = outputDir.Length == 0 ? null : outputDir;

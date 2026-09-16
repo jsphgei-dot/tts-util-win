@@ -23,6 +23,10 @@ public static class SettingsHelp
     public const string ChunkLength = "chunk-length";
     public const string OutputFormat = "output-format";
     public const string Mp3BitRate = "mp3-bit-rate";
+    public const string CheckForUpdates = "check-for-updates";
+
+    /// <summary>The blank line the other topics write inline as an escape.</summary>
+    private const string NewParagraph = "\n\n";
 
     public static IReadOnlyList<SettingsHelpTopic> Topics { get; } = new[]
     {
@@ -125,6 +129,16 @@ public static class SettingsHelp
             "In kilobits per second. 32 to 320, and 128 by default. Higher means a larger file and " +
             "slightly cleaner sound.\n\n" +
             "One speaking voice needs little: 96 or 128 is plenty. Ignored when saving a WAV."),
+
+        new SettingsHelpTopic(
+            CheckForUpdates,
+            "Look for a new version",
+            "Once a day, at most, the program asks a single published file whether a newer release "
+            + "exists. Nothing about you is sent: no identifier, no text, no list of voices, and no "
+            + "request at all while this is off." + NewParagraph
+            + "An installed copy can offer to download the installer and run it, after checking the "
+            + "download against its published checksum. A portable copy is only given the link, since "
+            + "replacing the folder it is running from is yours to do."),
     };
 
     /// <summary>The topic for a key, or null when nothing matches it.</summary>

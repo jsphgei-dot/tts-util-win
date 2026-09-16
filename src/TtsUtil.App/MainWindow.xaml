@@ -326,6 +326,7 @@
                             <RowDefinition Height="Auto" />
                             <RowDefinition Height="Auto" />
                             <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
                         </Grid.RowDefinitions>
 
                         <TextBlock Grid.Row="0" Grid.Column="0" Text="Silence after line endings (ms)"
@@ -426,6 +427,11 @@
                         <TextBox x:Name="Mp3BitRateBox" Grid.Row="15" Grid.Column="1"
                                  Style="{StaticResource SettingBox}" />
                         <Button Grid.Row="15" Grid.Column="3" Tag="mp3-bit-rate"
+                                Style="{StaticResource HelpButton}" Click="OnSettingsHelp" />
+
+                        <CheckBox x:Name="CheckForUpdatesBox" Grid.Row="16" Grid.Column="0" Grid.ColumnSpan="2"
+                                  Content="Look for a new version once a day" Margin="0,4,0,8" />
+                        <Button Grid.Row="16" Grid.Column="3" Tag="check-for-updates"
                                 Style="{StaticResource HelpButton}" Click="OnSettingsHelp" />
 
                         <Popup x:Name="SettingsHelpPopup" Placement="Left" StaysOpen="False"

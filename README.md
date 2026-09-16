@@ -1,9 +1,9 @@
 # TTS Util Win
 
-![version](https://img.shields.io/badge/version-0.2.0--alpha-blue)
+![version](https://img.shields.io/badge/version-0.3.0--beta-blue)
 ![platform](https://img.shields.io/badge/platform-Windows%2010%20%7C%2011%20x64-0078D6)
 ![built with](https://img.shields.io/badge/.NET-6.0-512BD4)
-![tests](https://img.shields.io/badge/tests-286%20passing-brightgreen)
+![tests](https://img.shields.io/badge/tests-298%20passing-brightgreen)
 ![licence](https://img.shields.io/badge/licence-Apache%202.0-lightgrey)
 
 > Read anything you can type, paste or open out loud, entirely on your own machine.
@@ -326,6 +326,22 @@ last 50 messages, newest first, as text that can be selected and copied, and tha
 there is more of it than the panel holds. Repeats are collapsed, so a progress figure that
 updates many times a second does not crowd out everything else.
 
+### Updates
+
+Once a day at most, the program reads one published file,
+`latest.json` in the public distribution repository, and compares its version code with the
+running build. Nothing is sent with the request: no identifier, no text, no list of voices, and
+no request at all while the setting is off.
+
+What happens next depends on how the program was installed. An **installed** copy offers to
+download the setup program, checks it against the SHA256 published in the manifest, and hands
+over to it, since setup already knows how to upgrade in place and keep settings and voices. A
+**portable** copy is told where the release is and left to unpack it, because replacing a folder
+it may be running from is not the program's business. Saying no to a version means that version,
+not every version after it.
+
+Turn it off with **Look for a new version once a day** in Settings.
+
 ## 🛠️ Build from source
 
 Building takes about a minute and needs only the .NET 6 SDK.
@@ -370,11 +386,17 @@ properties all come from `Directory.Build.props`. Nothing needs editing in two p
 publish a build for other people, attach the artifacts to a GitHub release:
 
 ```powershell
-gh release create v0.2.0-alpha `
-  dist\TtsUtilWin-0.2.0-alpha-setup.zip `
-  dist\TtsUtilWin-0.2.0-alpha-portable.zip `
-  --title "0.2.0-alpha" --notes-file dist\RELEASE_NOTES_v0.2.0-alpha.md
+# Build, zip, hash, and write dist\latest.json without publishing anything.
+.\scripts\Publish.ps1
+
+# The same, then create the release in the public distribution repository and
+# push the manifest that makes the update notice appear.
+.\scripts\Publish.ps1 -Publish -NotesFile dist\RELEASE_NOTES_v0.3.0-beta.md
 ```
+
+The manifest is pushed **after** the assets, so nobody is pointed at a download that is not
+there yet. The seed files for that public repository, its README and the changelog, live in
+`distribution\` here.
 
 ## 🧪 Develop and test
 
@@ -432,14 +454,15 @@ so an editor and the hook agree.
 ### Versioning
 
 Two numbers, the same split the Android original uses: a semantic **version name**
-(`0.2.0-alpha`) and a monotonic **version code** (`5`) that increases on every release and is
+(`0.3.0-beta`) and a monotonic **version code** (`6`) that increases on every release and is
 never reused. Both live in `Directory.Build.props`, both are compiled into the executable, and
 the About tab shows them. Git tags match the version name, prefixed with `v`.
 
 ## 🤝 Contributing and feedback
 
-Bug reports, voice suggestions and pull requests are welcome through
-[issues](https://github.com/jsphgei-dot/tts-util-win/issues). A report that names the voice, the
+Bug reports and voice suggestions are welcome through
+[issues on the distribution repository](https://github.com/jsphgei-dot/tts-util-win-releases/issues),
+which is the one anybody can reach. A report that names the voice, the
 setting and the text that misbehaved is worth a great deal, since most of the awkward cases live
 in the text rather than in the code. Run `.\scripts\InstallHooks.ps1` before your first commit so
 the formatting and test gates run locally rather than surprising you later.

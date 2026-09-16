@@ -87,6 +87,15 @@ public sealed class AppSettings
     /// <summary>Whether a finished reading starts again, and whether the queue wraps.</summary>
     public RepeatMode Repeat { get; set; } = RepeatMode.Off;
 
+    /// <summary>Whether the program asks once a day whether a newer release has been published.</summary>
+    public bool CheckForUpdates { get; set; } = true;
+
+    /// <summary>When a check last succeeded, so a restart does not mean another request.</summary>
+    public DateTime? LastUpdateCheckUtc { get; set; }
+
+    /// <summary>A release the reader said no to, so the same one is not offered again.</summary>
+    public int DismissedUpdateCode { get; set; }
+
     [JsonIgnore]
     public string ResolvedVoicesDirectory => InstallPaths.ResolveVoicesDirectory(
         VoicesDirectory,
