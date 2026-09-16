@@ -176,6 +176,10 @@ time.
 Type or paste into the Text tab and press **Read**. **Read as I type** speaks each word as you
 finish it, never single letters. The voice, the speaker and the speech rate sit along the top.
 
+The playback buttons carry icons rather than words: play, pause, stop, save audio, and an arrow
+for **Read from here** above the line list. Resting the pointer on one names it, and screen
+readers get the same name, so nothing is lost by dropping the captions.
+
 ### Moving about while it reads
 
 Pause holds the audio device and Resume carries on from the same place. Synthesis keeps a few
@@ -185,9 +189,9 @@ first, so nothing is left waiting.
 
 There is no scrub bar, because the audio does not exist yet: it is synthesised as it plays.
 Moving about is done by line instead, and Stop is no part of it. While a reading is in flight,
-**Read** becomes **Restart** and starts the same reading again from where it began. **Read from
-here**, and a double click in the line list, move the reading to that line without stopping
-first. Each of these stops the current run, waits for it to unwind, and starts the next one.
+**Read** turns into **Restart** and starts the same reading again from where it began. **Read
+from here**, which sits above the line list, and a double click in the line list, move the
+reading to that line without stopping first. Each of these stops the current run, waits for it to unwind, and starts the next one.
 
 A restart also sounds the same as the reading it replaces. The voice draws its prosody from a
 random generator that runs on from one sentence to the next, so reading a passage twice with
@@ -317,8 +321,9 @@ status bar says so and points at the setting rather than finishing silently.
 ### The status bar
 
 The bar along the bottom shows one message at a time, which used to mean a finished run, a
-filtered count, or an error vanished as soon as the next message arrived. **History** opens a
-list of the last 50 messages, newest first. Repeats are collapsed, so a progress figure that
+filtered count, or an error vanished as soon as the next message arrived. **History** opens the
+last 50 messages, newest first, as text that can be selected and copied, and that scrolls once
+there is more of it than the panel holds. Repeats are collapsed, so a progress figure that
 updates many times a second does not crowd out everything else.
 
 ## 🛠️ Build from source

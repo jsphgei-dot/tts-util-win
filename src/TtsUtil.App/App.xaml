@@ -27,6 +27,9 @@
             <Setter Property="Height" Value="30" />
             <Setter Property="Padding" Value="0" />
             <Setter Property="Margin" Value="0,0,4,0" />
+            <!-- The face carries no words, so the tooltip has to arrive while the pointer is still there. -->
+            <Setter Property="ToolTipService.InitialShowDelay" Value="250" />
+            <Setter Property="ToolTipService.ShowDuration" Value="10000" />
         </Style>
         <Style x:Key="HelpButton" TargetType="Button">
             <Setter Property="Content" Value="?" />

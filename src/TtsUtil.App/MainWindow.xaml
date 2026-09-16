@@ -79,8 +79,11 @@
                         <DockPanel>
                             <TextBlock DockPanel.Dock="Top" Text="Recent messages, newest first"
                                        Foreground="#555" Margin="2,0,2,6" />
-                            <ListBox x:Name="StatusHistoryList" BorderThickness="0"
-                                     HorizontalContentAlignment="Stretch" />
+                            <!-- A text box rather than a list, so the messages can be selected and copied. -->
+                            <TextBox x:Name="StatusHistoryText" IsReadOnly="True" IsReadOnlyCaretVisible="True"
+                                     BorderThickness="0" Background="Transparent" Padding="2"
+                                     TextWrapping="Wrap" VerticalScrollBarVisibility="Auto"
+                                     HorizontalScrollBarVisibility="Disabled" />
                         </DockPanel>
                     </Border>
                 </Popup>
@@ -94,14 +97,15 @@
             <TabItem Header="Text">
                 <DockPanel Margin="10">
                     <StackPanel DockPanel.Dock="Bottom" Orientation="Horizontal" Margin="0,10,0,0">
-                        <Button x:Name="ReadButton" Content="Read" Click="OnReadText"
-                                ToolTip="Read from the top. While reading, this starts the reading again." />
-                        <Button x:Name="ReadFromHereButton" Content="Read from here" Width="110"
-                                Click="OnReadFromHere"
-                                ToolTip="Start at the selected line, or at the cursor when no line is selected" />
-                        <Button x:Name="PauseButton" Content="Pause" Width="80" Click="OnTogglePause" />
-                        <Button x:Name="StopButton" Content="Stop" Click="OnStop" />
-                        <Button x:Name="SaveWaveButton" Content="Save audio" Width="110" Click="OnSaveTextToWave" />
+                        <Button x:Name="ReadButton" Style="{StaticResource IconButton}" Content="&#xE768;"
+                                AutomationProperties.Name="Read" Click="OnReadText" ToolTip="Read" />
+                        <Button x:Name="PauseButton" Style="{StaticResource IconButton}" Content="&#xE769;"
+                                AutomationProperties.Name="Pause" Click="OnTogglePause" ToolTip="Pause" />
+                        <Button x:Name="StopButton" Style="{StaticResource IconButton}" Content="&#xE71A;"
+                                AutomationProperties.Name="Stop" Click="OnStop" ToolTip="Stop" />
+                        <Button x:Name="SaveWaveButton" Style="{StaticResource IconButton}" Content="&#xE74E;"
+                                AutomationProperties.Name="Save audio" Click="OnSaveTextToWave"
+                                ToolTip="Save audio" Margin="12,0,4,0" />
                         <Button x:Name="PasteButton" Content="Paste" Click="OnPasteClipboard" />
                         <Button x:Name="ClearButton" Content="Clear" Click="OnClearText" />
                         <CheckBox x:Name="ReadAsYouTypeBox" Content="Read as I type" VerticalAlignment="Center"
@@ -125,8 +129,16 @@
                                       HorizontalAlignment="Stretch" Background="Transparent" />
 
                         <DockPanel x:Name="LinePanel" Grid.Column="2">
-                            <TextBlock DockPanel.Dock="Top" Margin="0,0,0,4" Foreground="#555"
-                                       Text="Double click a line to read from there." TextWrapping="Wrap" />
+                            <DockPanel DockPanel.Dock="Top" Margin="0,0,0,4">
+                                <!-- Read from here belongs beside the lines it reads from, not in the row below. -->
+                                <Button x:Name="ReadFromHereButton" DockPanel.Dock="Left"
+                                        Style="{StaticResource IconButton}" Content="&#xE72A;"
+                                        AutomationProperties.Name="Read from here" Click="OnReadFromHere"
+                                        ToolTip="Read from here" Margin="0,0,6,0" VerticalAlignment="Top" />
+                                <TextBlock Foreground="#555" VerticalAlignment="Center"
+                                           Text="Double click a line to read from there, or select one and press this."
+                                           TextWrapping="Wrap" />
+                            </DockPanel>
                             <ListBox x:Name="LineList" FontFamily="Consolas" FontSize="12"
                                      VirtualizingPanel.IsVirtualizing="True"
                                      VirtualizingPanel.VirtualizationMode="Recycling"
@@ -234,10 +246,15 @@
                         <Button Grid.Column="1" Content="Browse" Margin="8,0,0,0" Click="OnBrowseInputFile" />
                     </Grid>
                     <StackPanel Orientation="Horizontal">
-                        <Button x:Name="ReadFileButton" Content="Read file" Click="OnReadFile" />
-                        <Button x:Name="PauseFileButton" Content="Pause" Width="80" Click="OnTogglePause" />
-                        <Button x:Name="StopFileButton" Content="Stop" Click="OnStop" />
-                        <Button x:Name="ConvertFileButton" Content="Convert to audio" Width="130" Click="OnSaveFileToWave" />
+                        <Button x:Name="ReadFileButton" Style="{StaticResource IconButton}" Content="&#xE768;"
+                                AutomationProperties.Name="Read file" Click="OnReadFile" ToolTip="Read file" />
+                        <Button x:Name="PauseFileButton" Style="{StaticResource IconButton}" Content="&#xE769;"
+                                AutomationProperties.Name="Pause" Click="OnTogglePause" ToolTip="Pause" />
+                        <Button x:Name="StopFileButton" Style="{StaticResource IconButton}" Content="&#xE71A;"
+                                AutomationProperties.Name="Stop" Click="OnStop" ToolTip="Stop" />
+                        <Button x:Name="ConvertFileButton" Style="{StaticResource IconButton}" Content="&#xE74E;"
+                                AutomationProperties.Name="Convert to audio" Click="OnSaveFileToWave"
+                                ToolTip="Convert to audio" Margin="12,0,8,0" />
                         <Button x:Name="ImportTextButton" Content="Import to Text tab" Width="140"
                                 Click="OnImportFileToTextTab" />
                     </StackPanel>

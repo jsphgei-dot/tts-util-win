@@ -47,7 +47,7 @@ public sealed class PauseTests : IDisposable
         _wpf.Invoke(() =>
         {
             Assert.Equal("Nothing is playing.", window.StatusText.Text);
-            Assert.Equal("Pause", window.PauseButton.Content);
+            Assert.Equal("Pause", window.PauseButton.ToolTip);
         });
     }
 
@@ -63,8 +63,8 @@ public sealed class PauseTests : IDisposable
         _wpf.Invoke(() =>
         {
             Assert.True(playback.IsPaused);
-            Assert.Equal("Resume", window.PauseButton.Content);
-            Assert.Equal("Resume", window.PauseFileButton.Content);
+            Assert.Equal("Resume", window.PauseButton.ToolTip);
+            Assert.Equal("Resume", window.PauseFileButton.ToolTip);
         });
 
         Click(window.PauseFileButton);
@@ -72,8 +72,8 @@ public sealed class PauseTests : IDisposable
         _wpf.Invoke(() =>
         {
             Assert.False(playback.IsPaused);
-            Assert.Equal("Pause", window.PauseButton.Content);
-            Assert.Equal("Pause", window.PauseFileButton.Content);
+            Assert.Equal("Pause", window.PauseButton.ToolTip);
+            Assert.Equal("Pause", window.PauseFileButton.ToolTip);
         });
     }
 
@@ -89,7 +89,7 @@ public sealed class PauseTests : IDisposable
 
         Assert.False(playback.IsPaused);
         Assert.True(playback.Stopped);
-        _wpf.Invoke(() => Assert.Equal("Pause", window.PauseButton.Content));
+        _wpf.Invoke(() => Assert.Equal("Pause", window.PauseButton.ToolTip));
     }
 
     private void Click(ButtonBase button) =>

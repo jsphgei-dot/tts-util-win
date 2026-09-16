@@ -1202,8 +1202,18 @@ public partial class MainWindow : Window
     /// <summary>Both tabs carry the button, so both follow the one playback state.</summary>
     private void ShowPauseState(bool paused)
     {
-        PauseButton.Content = paused ? "Resume" : "Pause";
-        PauseFileButton.Content = PauseButton.Content;
+        var glyph = paused ? Glyph.Play : Glyph.Pause;
+        var label = paused ? "Resume" : "Pause";
+        ShowAction(PauseButton, glyph, label);
+        ShowAction(PauseFileButton, glyph, label);
+    }
+
+    /// <summary>Icon buttons show no words, so the wording lives in the tooltip and the accessible name.</summary>
+    private static void ShowAction(System.Windows.Controls.Button button, string glyph, string label)
+    {
+        button.Content = glyph;
+        button.ToolTip = label;
+        System.Windows.Automation.AutomationProperties.SetName(button, label);
     }
 
     /// <summary>The playback a run is using, or null when nothing is playing.</summary>
@@ -1621,8 +1631,8 @@ public partial class MainWindow : Window
     /// <summary>Read becomes Restart while a reading is in flight, so Stop is not needed first.</summary>
     private void ShowRestartState(bool running)
     {
-        ReadButton.Content = running ? "Restart" : "Read";
-        ReadFileButton.Content = running ? "Restart" : "Read file";
+        ShowAction(ReadButton, running ? Glyph.Restart : Glyph.Play, running ? "Restart" : "Read");
+        ShowAction(ReadFileButton, running ? Glyph.Restart : Glyph.Play, running ? "Restart" : "Read file");
     }
 
     /// <summary>How many past messages the history keeps before the oldest falls off.</summary>
@@ -1653,11 +1663,13 @@ public partial class MainWindow : Window
 
     private void OnShowStatusHistory(object sender, RoutedEventArgs e)
     {
-        StatusHistoryList.Items.Clear();
+        var newestFirst = Enumerable.Reverse(_statusHistory).ToList();
 
-        for (var i = _statusHistory.Count - 1; i >= 0; i--) StatusHistoryList.Items.Add(_statusHistory[i]);
-
-        if (StatusHistoryList.Items.Count == 0) StatusHistoryList.Items.Add("Nothing yet.");
+        StatusHistoryText.Text = newestFirst.Count == 0
+            ? "Nothing yet."
+            : string.Join(Environment.NewLine, newestFirst);
+        StatusHistoryText.CaretIndex = 0;
+        StatusHistoryText.ScrollToHome();
 
         StatusHistoryPopup.IsOpen = true;
     }
