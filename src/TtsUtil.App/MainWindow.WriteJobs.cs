@@ -92,7 +92,9 @@ public partial class MainWindow
             else
             {
                 SetStatusWithFileLink($"Wrote {Path.GetFileName(job.Path)}. ", job.Path);
-                NotifyWriteFinished(job.Path);
+
+                // Documents written side by side announce themselves once, on the last one.
+                if (_writeJobs.Count == 1) NotifyWriteFinished(job.Path);
             }
         }
         catch (OperationCanceledException)

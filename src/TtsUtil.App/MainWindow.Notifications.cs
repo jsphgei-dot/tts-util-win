@@ -70,9 +70,13 @@ public partial class MainWindow
 
     private void AnnounceWriteFinished(WriteFinishedNotice notice, string path)
     {
-        SystemSounds.Asterisk.Play();
-        if (notice != WriteFinishedNotice.PopupAndSound) return;
+        if (notice != WriteFinishedNotice.PopupAndSound)
+        {
+            SystemSounds.Asterisk.Play();
+            return;
+        }
 
+        // Windows plays its own notification sound over the popup.
         _notifyIcon ??= new NotifyIcon
         {
             Icon = System.Drawing.SystemIcons.Application,
