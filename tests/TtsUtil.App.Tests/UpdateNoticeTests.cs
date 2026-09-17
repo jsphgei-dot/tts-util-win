@@ -137,7 +137,7 @@ public sealed class UpdateNoticeTests : IDisposable
         _wpf.Invoke(() => Assert.Equal(Visibility.Collapsed, window.UpdatesTabMark.Visibility));
     }
 
-    /// <summary>The tab lists the change history shipped inside this build.</summary>
+    /// <summary>The tab lists the change history shipped inside this build, newest release first.</summary>
     [Fact]
     public void TheUpdatesTabListsWhatChanged()
     {
@@ -146,10 +146,11 @@ public sealed class UpdateNoticeTests : IDisposable
         _wpf.Invoke(() =>
         {
             var releases = window.ChangelogList.ItemsSource.Cast<ChangelogRelease>().ToList();
+            var released = releases.SkipWhile(r => r.Title.StartsWith("Unreleased")).ToList();
 
             Assert.NotEmpty(releases);
-            Assert.StartsWith(AppVersion.Name, releases[0].Title);
-            Assert.NotEmpty(releases[0].Notes);
+            Assert.StartsWith(AppVersion.Name, released[0].Title);
+            Assert.NotEmpty(released[0].Notes);
         });
     }
 
