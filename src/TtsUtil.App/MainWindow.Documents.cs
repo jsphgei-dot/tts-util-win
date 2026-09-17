@@ -77,6 +77,7 @@ public partial class MainWindow
         EnsurePlusTab();
         _documents.Add(document);
         DocumentTabs.Items.Insert(DocumentTabs.Items.Count - 1, tab);
+        SizeTabs();
 
         if (DocumentTabs.SelectedItem is null || ReferenceEquals(DocumentTabs.SelectedItem, _plusTab))
         {
@@ -97,7 +98,9 @@ public partial class MainWindow
     {
         var unsaved = document.Unsaved;
         document.Label.Text = unsaved ? document.Title + " *" : document.Title;
-        document.Label.ToolTip = unsaved ? "Changes not saved to a script" : null;
+        document.Label.ToolTip = unsaved
+            ? $"{document.Title} (changes not saved to a script)"
+            : document.Title;
     }
 
     /// <summary>Takes the star off a document whose words have just been written to a script.</summary>
@@ -154,6 +157,7 @@ public partial class MainWindow
         // Picking the neighbour first keeps the plus from being selected, and opening a tab.
         DocumentTabs.SelectedItem = _documents[Math.Min(index, _documents.Count - 1)].Tab;
         DocumentTabs.Items.Remove(document.Tab);
+        SizeTabs();
     }
 
     private void OnNewDocument(object sender, RoutedEventArgs e)
@@ -230,7 +234,7 @@ public partial class MainWindow
 
         DocumentTabs.ApplyTemplate();
         _tabStrip = DocumentTabs.Template?.FindName("HeaderScroller", DocumentTabs) as ScrollViewer;
-        if (_tabStrip is not null) _tabStrip.PreviewMouseWheel += OnTabStripWheel;
+        if (_tabStrip is not null) WatchTabStrip(_tabStrip);
 
         return _tabStrip;
     }
@@ -319,7 +323,12 @@ internal sealed class TextDocument
         Tab = tab;
         Box = box;
         Title = title;
-        Label = new TextBlock { Text = title, VerticalAlignment = VerticalAlignment.Center };
+        Label = new TextBlock
+        {
+            Text = title,
+            VerticalAlignment = VerticalAlignment.Center,
+            TextTrimming = TextTrimming.CharacterEllipsis,
+        };
     }
 
     public TabItem Tab { get; }

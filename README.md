@@ -3,7 +3,7 @@
 ![version](https://img.shields.io/badge/version-0.11.0--beta-blue)
 ![platform](https://img.shields.io/badge/platform-Windows%2010%20%7C%2011%20x64-0078D6)
 ![built with](https://img.shields.io/badge/.NET-6.0-512BD4)
-![tests](https://img.shields.io/badge/tests-454%20passing-brightgreen)
+![tests](https://img.shields.io/badge/tests-455%20passing-brightgreen)
 ![license](https://img.shields.io/badge/license-Apache%202.0-lightgrey)
 
 > Read anything you can type, paste or open out loud, entirely on your own machine.
@@ -230,11 +230,11 @@ time.
 
 ### Writing and editing
 
-The Text tab opens with a title box above the text and a save icon beside it. Type a name,
-press the icon, and the text is written to the script library under that name. **Ctrl+S**
-does the same, except that it asks for the name first in a small window, filled in with the
-title already in the box. Saving under a name that exists replaces it. The same title shows
-on the Scripts tab, so saving from either place uses one name.
+The Text tab opens with a save icon at the left of the row above the text and a title box
+beside it. Type a name, press the icon, and the text is written to the script library under
+that name. **Ctrl+S** does the same, except that it asks for the name first in a small window,
+filled in with the title already in the box. Saving under a name that exists replaces it. The
+same title shows on the Scripts tab, so saving from either place uses one name.
 
 Pressing anywhere that is not a control takes the cursor out of whatever box it was in, so no
 caret is left blinking in a box that has been clicked away from.
@@ -247,9 +247,15 @@ The icon answers for itself: it turns into a tick, green when the name is writte
 time and blue when an existing script is replaced, and goes back to normal a moment later. The
 status bar says which of the two happened as well.
 
-The tab strip above the text stays on one line however many tabs are open. It scrolls
-sideways when they no longer fit, by its scrollbar or the mouse wheel over the strip, so
-closing one never reshuffles the rest onto different rows.
+The tab strip above the text stays on one line however many tabs are open, and the tabs share
+it evenly the way a web browser's do. One tab on its own is 180 pixels wide, more tabs split the
+room between them down to 80 pixels each, and names too long for the space end in an ellipsis
+with the full name in the tooltip. Past that the strip scrolls sideways, by its scrollbar or the
+mouse wheel over the strip, so closing one never reshuffles the rest onto different rows.
+
+While the pointer is among the tabs they keep the width they have, so closing several in a row
+does not move the next close button out from under the pointer. The widths are worked out again
+once the pointer leaves the strip.
 
 A tab whose text has moved on from the last save wears a **\*** after its name, so unsaved work
 is visible without opening the tab. The star goes as soon as the text is saved as a script, and

@@ -144,6 +144,16 @@ public sealed class DocumentTabsTests : IDisposable
         });
     }
 
+    /// <summary>Tabs share the strip evenly, up to a width of their own and down to the width
+    /// that starts the strip scrolling.</summary>
+    [Fact]
+    public void TabsShareTheStripEvenlyBetweenTheTwoLimits()
+    {
+        Assert.Equal(MainWindow.WidestTab, MainWindow.TabWidth(600, 1));
+        Assert.Equal(150, MainWindow.TabWidth(300, 2));
+        Assert.Equal(MainWindow.NarrowestTab, MainWindow.TabWidth(600, 20));
+    }
+
     private MainWindow CreateWindow() => _wpf.Invoke(() =>
     {
         var settings = AppSettings.LoadFrom(Path.Combine(_root, Guid.NewGuid().ToString("N") + ".json"));

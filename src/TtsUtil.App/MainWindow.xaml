@@ -164,11 +164,11 @@
                 <DockPanel Margin="10">
                     <!-- The title sits with the text it names, and saves with the button beside it. -->
                     <DockPanel DockPanel.Dock="Top" Margin="0,0,0,6">
-                        <TextBlock Text="Title" VerticalAlignment="Center" Margin="0,0,8,0" Foreground="#555" />
-                        <Button x:Name="SaveScriptFromTextButton" DockPanel.Dock="Right"
+                        <Button x:Name="SaveScriptFromTextButton" DockPanel.Dock="Left"
                                 Style="{StaticResource IconButton}" Content="&#xE792;"
                                 AutomationProperties.Name="Save script" Click="OnSaveScript"
-                                ToolTip="Save as a script (Ctrl+S)" Margin="6,0,0,0" />
+                                ToolTip="Save as a script (Ctrl+S)" Margin="0,0,8,0" />
+                        <TextBlock Text="Title" VerticalAlignment="Center" Margin="0,0,8,0" Foreground="#555" />
                         <TextBox x:Name="TextTitleBox" Tag="The name this text is saved under" Padding="6,4" FontSize="14"
                                  VerticalContentAlignment="Center" TextChanged="OnTitleBoxChanged"
                                  ToolTip="The name this text is saved under in the Scripts tab" />
