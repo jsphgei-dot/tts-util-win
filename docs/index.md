@@ -1,4 +1,8 @@
-﻿# Documentation
+﻿[Documentation index](index.md) | [Usage](usage.md) | [Performance](performance.md) | [Build](building.md) | [Release](releasing.md) | [Develop](developing.md)
+
+---
+
+# Documentation
 
 Everything written down about TTS Util Win, in one place. The
 [repository README](../README.md) is the short version: what the program is, how to install it
@@ -7,6 +11,7 @@ and where to go next.
 | Document | For | What is in it |
 | --- | --- | --- |
 | [Usage](usage.md) | Anybody using the program | The tab by tab manual |
+| [Speed and machine requirements](performance.md) | Anybody wondering what it costs to run | Measured render speeds, the thread rule, minimum and recommended specs |
 | [Build from source](building.md) | Anybody compiling it | The SDK, the scripts, the switches, the output |
 | [Release](releasing.md) | Whoever cuts a release | Publishing, the update manifest, code signing |
 | [Develop and test](developing.md) | Anybody changing the code | Projects, tests, git hooks, versioning |

@@ -138,6 +138,7 @@ build switches, the output sizes and the signing options are in
 | --- | --- |
 | [Documentation index](docs/index.md) | Everything here, with the usage guide broken out section by section |
 | [Usage](docs/usage.md) | The tab by tab manual |
+| [Speed and machine requirements](docs/performance.md) | Measured render speeds, the thread rule, minimum and recommended specs |
 | [Build from source](docs/building.md) | The SDK, the scripts, the switches, the output |
 | [Release](docs/releasing.md) | Publishing, the update manifest, code signing |
 | [Develop and test](docs/developing.md) | Projects, tests, git hooks, versioning |

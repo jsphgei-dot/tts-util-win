@@ -1,4 +1,4 @@
-﻿[Documentation index](index.md) | [Usage](usage.md) | [Build](building.md) | [Release](releasing.md) | [Develop](developing.md)
+﻿[Documentation index](index.md) | [Usage](usage.md) | [Performance](performance.md) | [Build](building.md) | [Release](releasing.md) | [Develop](developing.md)
 
 ---
 
@@ -385,7 +385,13 @@ helps. Press elsewhere to close it.
 The panels cover the silence values, scaling silence to the speech rate, the hash and link
 filters, both character settings, the two folders, threads, chunk length, the saved audio
 format and the MP3 bit rate. The text lives in `SettingsHelp` in Core rather than in the XAML,
-so it is readable and testable without opening the window.
+so it is readable and testable without opening the window. Every control on the tab also
+carries a one line description on hover.
+
+**Synthesis threads**, under **Performance**, is empty by default, which means the program
+works the count out from the processors the machine reports. [Speed and machine
+requirements](performance.md) has the rule, the measured render speeds behind it, and why
+the Windows voices ignore the setting entirely.
 
 Settings that also live elsewhere in the window appear here too, in whichever group they
 belong to, so everything can be found in one place: **Read as I type**, **Pause when I click
