@@ -15,10 +15,14 @@
 
 .EXAMPLE
     .\BuildPortable.ps1 -Installer -CertThumbprint ABC123DEF456
+
+.EXAMPLE
+    .\BuildPortable.ps1 -Runtime win-arm64 -Installer
 #>
 [CmdletBinding()]
 param(
     [string]$Configuration = 'Release',
+    [ValidateSet('win-x64', 'win-arm64', 'win-x86')]
     [string]$Runtime = 'win-x64',
     [string]$OutputDirectory,
     [switch]$IncludeVoices,
@@ -35,8 +39,12 @@ $ErrorActionPreference = 'Stop'
 $root = Split-Path -Parent $PSScriptRoot
 $project = Join-Path $root 'src\TtsUtil.App\TtsUtil.App.csproj'
 
+# Each processor gets its own folder and its own file names, so three builds can sit side by
+# side in dist without overwriting one another.
+$arch = $Runtime -replace '^win-', ''
+
 if (-not $OutputDirectory) {
-    $OutputDirectory = Join-Path $root 'dist\TtsUtilWin'
+    $OutputDirectory = Join-Path $root "dist\TtsUtilWin-$arch"
 }
 
 if (-not $SkipTests) {
@@ -139,12 +147,12 @@ if ($Installer) {
     $appVersion = if ($suffix) { "$prefix-$suffix" } else { $prefix }
     $fileVersion = "$prefix.$code"
 
-    Write-Host "Compiling installer for $appVersion" -ForegroundColor Cyan
+    Write-Host "Compiling installer for $appVersion ($arch)" -ForegroundColor Cyan
     & $iscc "/DAppVersion=$appVersion" "/DFileVersion=$fileVersion" "/DSourceDir=$OutputDirectory" `
-        (Join-Path $root 'installer\TtsUtilWin.iss')
+        "/DTargetArch=$arch" (Join-Path $root 'installer\TtsUtilWin.iss')
     if ($LASTEXITCODE -ne 0) { throw 'Inno Setup compilation failed.' }
 
-    $setup = Join-Path $root "dist\TtsUtilWin-$appVersion-setup.exe"
+    $setup = Join-Path $root "dist\TtsUtilWin-$appVersion-$arch-setup.exe"
     Invoke-CodeSign -Path $setup -Thumbprint $CertThumbprint -TimestampUrl $TimestampUrl
 
     $setupMb = [math]::Round((Get-Item $setup).Length / 1MB, 1)

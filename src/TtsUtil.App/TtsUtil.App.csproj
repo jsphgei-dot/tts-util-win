@@ -9,9 +9,8 @@
     <RootNamespace>TtsUtil.App</RootNamespace>
     <AssemblyName>TtsUtilWin</AssemblyName>
     <ApplicationIcon></ApplicationIcon>
-    <RuntimeIdentifier>win-x64</RuntimeIdentifier>
+    <RuntimeIdentifier Condition="'$(RuntimeIdentifier)' == ''">win-x64</RuntimeIdentifier>
     <SelfContained>false</SelfContained>
-    <PlatformTarget>x64</PlatformTarget>
     <SatelliteResourceLanguages>en</SatelliteResourceLanguages>
   </PropertyGroup>
 

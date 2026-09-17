@@ -23,6 +23,26 @@ The manifest is pushed **after** the assets, so nobody is pointed at a download 
 there yet. The seed files for that public repository, its README and the changelog, live in
 `distribution\` here.
 
+## The other two architectures
+
+`-Runtime win-arm64` and `-Runtime win-x86` package those builds and attach them to the release
+the x64 run created, under their own filenames. Run x64 first, since it is the one that creates
+the release page and writes the manifest.
+
+```powershell
+.\scripts\Publish.ps1 -Publish -NotesFile dist
+otes.md
+.\scripts\Publish.ps1 -Publish -NotesFile dist
+otes.md -Runtime win-arm64
+.\scripts\Publish.ps1 -Publish -NotesFile dist
+otes.md -Runtime win-x86
+```
+
+A non x64 run stops before the manifest and says so. The manifest names one setup and one
+portable download, with no way to say which processor they are for, so publishing ARM64 through
+it would offer that build to every x64 copy running. Until the manifest carries a download per
+architecture, ARM64 and x86 are downloads from the release page rather than in app updates.
+
 ## Where a build looks for its update
 
 Every build reads a `latest.json` URL that was compiled into it, so a copy already installed

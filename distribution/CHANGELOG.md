@@ -5,6 +5,10 @@ built but not yet released, and the release step renames it to the version going
 
 ## Unreleased
 
+* **Builds for ARM64 and 32 bit Windows.** Alongside the x64 build there are now
+  native ARM64 and x86 ones, each with its own installer and its own speech engine rather
+  than an emulated one. They are downloads from the release page; the in app update check
+  still offers the x64 build.
 * **The text tabs size themselves like a browser's.** One tab on its own is 180 pixels wide,
   more tabs share the strip evenly down to 80 pixels each, and a name too long for the space
   ends in an ellipsis with the whole name on hover. Past that the strip scrolls as before. The

@@ -10,11 +10,11 @@ Building takes about a minute and needs only the .NET 6 SDK.
 # 1. Download voices (about 490 MB for the three permissively licensed defaults).
 .\scripts\FetchVoices.ps1 -Default
 
-# 2. Build the portable executable into dist\TtsUtilWin.
+# 2. Build the portable executable into dist\TtsUtilWin-x64.
 .\scripts\BuildPortable.ps1
 
 # 3. Run it.
-.\dist\TtsUtilWin\TtsUtilWin.exe
+.\dist\TtsUtilWin-x64\TtsUtilWin.exe
 ```
 
 The installer needs [Inno Setup 6](https://jrsoftware.org/isinfo.php) as well:
@@ -29,17 +29,40 @@ installed it per user or per machine.
 
 | What | Path | Size |
 | --- | --- | --- |
-| Portable folder | `dist\TtsUtilWin\` | 70 MB, plus voices |
-| Portable executable | `dist\TtsUtilWin\TtsUtilWin.exe` | 70 MB |
-| Installer | `dist\TtsUtilWin-<version>-setup.exe` | 65 MB |
+| Portable folder | `dist\TtsUtilWin-<arch>\` | 70 MB, plus voices |
+| Portable executable | `dist\TtsUtilWin-<arch>\TtsUtilWin.exe` | 70 MB |
+| Installer | `dist\TtsUtilWin-<version>-<arch>-setup.exe` | 65 MB |
+
+## The three architectures
+
+`-Runtime` picks the processor, and each one writes to its own folder and its own installer
+filename, so all three can sit in `dist` at once. Any of them can be cross built from any
+Windows machine.
+
+```powershell
+.\scripts\BuildPortable.ps1 -Runtime win-x64 -Installer     # the default
+.\scripts\BuildPortable.ps1 -Runtime win-arm64 -Installer   # Snapdragon and other ARM machines
+.\scripts\BuildPortable.ps1 -Runtime win-x86 -Installer     # 32 bit Windows
+```
+
+| Runtime | Executable | Installs into | Runs on |
+| --- | --- | --- | --- |
+| `win-x64` | 77 MB | `Program Files` | x64, and ARM64 under emulation |
+| `win-arm64` | 73 MB | `Program Files` | ARM64 only, natively |
+| `win-x86` | 70 MB | `Program Files (x86)` | anything 32 bit or better |
+
+The sherpa-onnx native libraries ship for all three, so the speech engine is native in each
+build rather than emulated. The installer refuses a machine it does not match, which is why the
+ARM64 build cannot be run on an x64 machine by mistake.
 
 | Switch | Effect |
 | --- | --- |
 | `-Installer` | Compiles `installer\TtsUtilWin.iss` after publishing |
 | `-IncludeVoices` | Copies `voices\` into the portable folder, so it can be zipped and handed over whole |
 | `-SkipTests` | Skips both test suites. The build normally refuses to publish if any test fails |
-| `-OutputDirectory <path>` | Publishes somewhere other than `dist\TtsUtilWin` |
-| `-Configuration`, `-Runtime` | Default to `Release` and `win-x64` |
+| `-OutputDirectory <path>` | Publishes somewhere other than `dist\TtsUtilWin-<arch>` |
+| `-Runtime` | `win-x64`, `win-arm64` or `win-x86`, defaulting to `win-x64` |
+| `-Configuration` | Defaults to `Release` |
 
 The version in the installer filename, in its Apps entry and in the executable's file
 properties all come from `Directory.Build.props`. Nothing needs editing in two places, and

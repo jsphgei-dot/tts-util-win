@@ -10,6 +10,22 @@
 
 #endif
 
+; Which processor this build is for. BuildPortable.ps1 passes it; x64 is the long standing default.
+#ifndef TargetArch
+  #define TargetArch "x64"
+#endif
+
+#if TargetArch == "arm64"
+  #define ArchAllowed "arm64"
+  #define Arch64Mode "arm64"
+#elif TargetArch == "x86"
+  #define ArchAllowed "x86compatible"
+  #define Arch64Mode ""
+#else
+  #define ArchAllowed "x64compatible"
+  #define Arch64Mode "x64compatible"
+#endif
+
 #define AppIdGuid "{8F3C21D6-5A74-4E9B-B0C8-2D1E7A6F4B39}"
 
 #define AppName "TTS Util Win"
@@ -54,15 +70,15 @@ RestartApplications=no
 
 LicenseFile=..\LICENSE
 OutputDir=..\dist
-OutputBaseFilename=TtsUtilWin-{#AppVersion}-setup
+OutputBaseFilename=TtsUtilWin-{#AppVersion}-{#TargetArch}-setup
 UninstallDisplayIcon={app}\{#AppExeName}
-UninstallDisplayName={#AppName} {#AppVersion}
+UninstallDisplayName={#AppName} {#AppVersion} ({#TargetArch})
 
 Compression=lzma2/max
 SolidCompression=yes
 WizardStyle=modern
-ArchitecturesAllowed=x64compatible
-ArchitecturesInstallIn64BitMode=x64compatible
+ArchitecturesAllowed={#ArchAllowed}
+ArchitecturesInstallIn64BitMode={#Arch64Mode}
 MinVersion=10.0
 
 [Languages]

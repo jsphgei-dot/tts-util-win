@@ -1,7 +1,7 @@
 ﻿# TTS Util Win
 
 ![version](https://img.shields.io/badge/version-0.11.0--beta-blue)
-![platform](https://img.shields.io/badge/platform-Windows%2010%20%7C%2011%20x64-0078D6)
+![platform](https://img.shields.io/badge/platform-Windows%2010%20%7C%2011%20%C2%B7%20x64%20%7C%20ARM64%20%7C%20x86-0078D6)
 ![built with](https://img.shields.io/badge/.NET-6.0-512BD4)
 ![tests](https://img.shields.io/badge/tests-456%20passing-brightgreen)
 ![license](https://img.shields.io/badge/license-Apache%202.0-lightgrey)
@@ -108,8 +108,8 @@ The same version offers a repair. An older setup warns that it would downgrade a
 confirmation. A running copy is closed through the Restart Manager rather than failing on a
 locked file. There is no need to uninstall first.
 
-**Requirements.** Windows 10 or 11, x64. The published executable is self contained and needs
-no runtime installed. OCR of scanned PDFs uses the Windows OCR engine, which needs a language
+**Requirements.** Windows 10 or 11, on x64, ARM64 or x86. The published executable is self
+contained and needs no runtime installed. OCR of scanned PDFs uses the Windows OCR engine, which needs a language
 pack, the kind Windows installs with its display languages.
 
 ## 🎧 Usage
@@ -124,11 +124,12 @@ Building takes about a minute and needs only the .NET 6 SDK.
 
 ```powershell
 .\scripts\FetchVoices.ps1 -Default     # about 490 MB, optional
-.\scripts\BuildPortable.ps1            # portable folder in dist\TtsUtilWin
-.\dist\TtsUtilWin\TtsUtilWin.exe
+.\scripts\BuildPortable.ps1            # portable folder in dist\TtsUtilWin-x64
+.\dist\TtsUtilWin-x64\TtsUtilWin.exe
 ```
 
-The installer, the build switches, the output sizes and the signing options are in
+Add `-Runtime win-arm64` or `-Runtime win-x86` for the other two processors. The installer, the
+build switches, the output sizes and the signing options are in
 [docs/building.md](docs/building.md).
 
 ## 📚 Documentation
