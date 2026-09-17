@@ -291,6 +291,73 @@ public sealed class VoicesTabTests : IDisposable
         });
     }
 
+    /// <summary>A voice that is not there can be installed, and there is nothing to open.</summary>
+    [Fact]
+    public void TheVoiceMenuOffersInstallForAVoiceThatIsNotThere()
+    {
+        var window = CreateWindow();
+
+        _wpf.Invoke(() =>
+        {
+            window.VoiceCatalogueList.SelectedIndex = 0;
+            window.UpdateVoiceMenu();
+
+            Assert.True(window.VoiceMenuInstall.IsEnabled);
+            Assert.False(window.VoiceMenuRemove.IsEnabled);
+            Assert.False(window.VoiceMenuFolder.IsEnabled);
+            Assert.True(window.VoiceMenuWeb.IsEnabled);
+        });
+    }
+
+    /// <summary>An installed voice can be uninstalled and its folder opened.</summary>
+    [Fact]
+    public void TheVoiceMenuOpensTheFolderOfAnInstalledVoice()
+    {
+        var voice = DownloadableVoices.All[0];
+        CreateFakeVoice(voice.Id);
+        var window = CreateWindow();
+        var opened = new List<string>();
+
+        _wpf.Invoke(() =>
+        {
+            window.FolderOpener = opened.Add;
+            window.VoiceCatalogueList.SelectedIndex = 0;
+            window.UpdateVoiceMenu();
+
+            Assert.False(window.VoiceMenuInstall.IsEnabled);
+            Assert.True(window.VoiceMenuRemove.IsEnabled);
+            Assert.True(window.VoiceMenuFolder.IsEnabled);
+
+            window.VoiceMenuFolder.RaiseEvent(new RoutedEventArgs(MenuItem.ClickEvent));
+        });
+
+        Assert.Equal(new[] { Path.Combine(_voicesDir, voice.Id) }, opened);
+    }
+
+    /// <summary>A voice dropped into the folder by hand is listed, and nothing on the web is
+    /// known for it.</summary>
+    [Fact]
+    public void AVoiceAddedByHandIsListedWithNoWebLocation()
+    {
+        CreateFakeVoice("my-own-voice");
+        var window = CreateWindow();
+
+        _wpf.Invoke(() =>
+        {
+            var row = Rows(window).First(r => r.Id == "my-own-voice");
+
+            Assert.Equal("Installed", row.Status);
+            Assert.Null(row.WebAddress);
+
+            window.VoiceCatalogueList.SelectedItem = row;
+            window.UpdateVoiceMenu();
+
+            Assert.False(window.VoiceMenuWeb.IsEnabled);
+            Assert.False(window.VoiceMenuInstall.IsEnabled);
+            Assert.True(window.VoiceMenuFolder.IsEnabled);
+        });
+    }
+
     private static List<VoiceCatalogueRow> Rows(MainWindow window) =>
         window.VoiceCatalogueList.Items.Cast<VoiceCatalogueRow>().ToList();
 

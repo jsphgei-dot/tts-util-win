@@ -4,6 +4,7 @@
  * Licensed under the Apache License, Version 2.0.
  */
 
+using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.IO;
 using System.Windows;
@@ -34,7 +35,7 @@ public partial class MainWindow : Window
     private int _queuedSnippets;
     private bool _initialising = true;
     private bool _busy;
-    private readonly List<VoiceCatalogueRow> _catalogueRows = new();
+    private readonly ObservableCollection<VoiceCatalogueRow> _catalogueRows = new();
     private CancellationTokenSource? _installCancellation;
     private bool _installing;
     private LineMap _lineMap = LineMap.Build(string.Empty);
@@ -1607,19 +1608,51 @@ public partial class MainWindow : Window
 
     private void RefreshVoiceCatalogue()
     {
+        var directory = VoiceInstallDirectory;
+
         if (_catalogueRows.Count == 0)
         {
             foreach (var voice in DownloadableVoices.All) _catalogueRows.Add(new VoiceCatalogueRow(voice));
             VoiceCatalogueList.ItemsSource = _catalogueRows;
         }
 
-        var directory = VoiceInstallDirectory;
+        ShowVoicesAddedByHand(directory);
+
         foreach (var row in _catalogueRows)
         {
             row.Status = VoiceInstaller.IsInstalled(row.Voice, directory) ? "Installed" : "Not installed";
         }
 
         VoiceTargetText.Text = $"Installing into {directory}";
+    }
+
+    /// <summary>Lists the voices sitting in the folder that the built in list does not know about,
+    /// and drops the rows for ones that have gone.</summary>
+    private void ShowVoicesAddedByHand(string directory)
+    {
+        foreach (var gone in _catalogueRows
+                     .Where(row => row.AddedByHand && !VoiceInstaller.IsInstalled(row.Voice, directory)).ToList())
+        {
+            _catalogueRows.Remove(gone);
+        }
+
+        var known = _catalogueRows.Select(row => row.Id).ToHashSet(StringComparer.OrdinalIgnoreCase);
+
+        foreach (var found in VoiceCatalog.Scan(directory))
+        {
+            if (!known.Add(found.Name)) continue;
+
+            _catalogueRows.Add(new VoiceCatalogueRow(new DownloadableVoice
+            {
+                Id = found.Name,
+                Language = "Added by hand",
+                Kind = found.Kind,
+                Licence = "See the folder",
+            })
+            {
+                AddedByHand = true,
+            });
+        }
     }
 
     /// <summary>Where a downloaded voice goes: the configured folder, or the profile when it is read only.</summary>

@@ -27,7 +27,13 @@ public sealed class VoiceCatalogueRow : INotifyPropertyChanged, ITickable
 
     public string Language => Voice.Language;
 
-    public string Size => $"{Voice.SizeMb} MB";
+    public string Size => Voice.SizeMb > 0 ? $"{Voice.SizeMb} MB" : string.Empty;
+
+    /// <summary>True for a voice found in the folder that the built in list does not know about.</summary>
+    public bool AddedByHand { get; init; }
+
+    /// <summary>Where the voice came from, or null when nothing on the web is known for it.</summary>
+    public string? WebAddress => AddedByHand ? null : DownloadableVoices.PageUrl;
 
     public string Licence => Voice.Licence;
 

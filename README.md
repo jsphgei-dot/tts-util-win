@@ -3,7 +3,7 @@
 ![version](https://img.shields.io/badge/version-0.10.1--beta-blue)
 ![platform](https://img.shields.io/badge/platform-Windows%2010%20%7C%2011%20x64-0078D6)
 ![built with](https://img.shields.io/badge/.NET-6.0-512BD4)
-![tests](https://img.shields.io/badge/tests-451%20passing-brightgreen)
+![tests](https://img.shields.io/badge/tests-454%20passing-brightgreen)
 ![license](https://img.shields.io/badge/license-Apache%202.0-lightgrey)
 
 > Read anything you can type, paste or open out loud, entirely on your own machine.
@@ -176,6 +176,17 @@ The voices directory is resolved in this order, first hit wins:
 5. a `voices` folder beside the executable
 
 Press **Rescan** after adding a model by hand.
+
+Right click a voice in the Voices tab for a menu with **Install**, **Uninstall**, **Go to web
+location** and **Go to file location**. Whatever the voice cannot do is greyed out: **Uninstall**
+and **Go to file location** for a voice that is not installed, **Install** for one that is, and
+**Go to web location** for a voice with no known address. The first two do what the buttons under
+the list do, the third opens the page the built in voices are published on, and the last opens the
+voice's own folder in Explorer.
+
+A model dropped into the voices folder by hand is listed alongside the built in ones, marked
+**Added by hand**, so it can be uninstalled or opened from the same menu. Nothing on the web is
+known for one of those, so **Go to web location** is greyed out for it.
 
 **Star** beside the voice picker keeps a voice at the top of the list, the way it works for
 speakers, and the stars are kept in `settings.json`. **Favorites** narrows the picker to the

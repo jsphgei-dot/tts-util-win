@@ -499,7 +499,20 @@
                     </StackPanel>
 
                     <ListView x:Name="VoiceCatalogueList" SelectionMode="Single"
-                              local:RowTicking.Enabled="True">
+                              local:RowTicking.Enabled="True"
+                              PreviewMouseRightButtonDown="OnVoiceRowRightClick"
+                              ToolTip="Right click a voice for install, uninstall and where it lives">
+                        <ListView.ContextMenu>
+                            <ContextMenu x:Name="VoiceRowMenu" Opened="OnVoiceMenuOpened">
+                                <MenuItem x:Name="VoiceMenuInstall" Header="Install" Click="OnInstallVoice" />
+                                <MenuItem x:Name="VoiceMenuRemove" Header="Uninstall" Click="OnRemoveVoice" />
+                                <Separator />
+                                <MenuItem x:Name="VoiceMenuWeb" Header="Go to web location"
+                                          Click="OnOpenVoiceWebLocation" />
+                                <MenuItem x:Name="VoiceMenuFolder" Header="Go to file location"
+                                          Click="OnOpenVoiceFolder" />
+                            </ContextMenu>
+                        </ListView.ContextMenu>
                         <ListView.View>
                             <GridView>
                                 <GridViewColumn Header="Install" Width="52">

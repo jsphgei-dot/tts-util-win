@@ -33,6 +33,10 @@ public static class DownloadableVoices
 {
     public const string BaseUrl = "https://github.com/k2-fsa/sherpa-onnx/releases/download/tts-models/";
 
+    /// <summary>The page these voices are published on, opened rather than the archive itself so
+    /// nothing starts downloading in the browser.</summary>
+    public const string PageUrl = "https://github.com/k2-fsa/sherpa-onnx/releases/tag/tts-models";
+
     public static IReadOnlyList<DownloadableVoice> All { get; } = new[]
     {
         new DownloadableVoice
