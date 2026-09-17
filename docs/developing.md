@@ -28,6 +28,38 @@ dotnet build src\TtsUtil.App -p:SkipTests=true
 .\scripts\BuildPortable.ps1 -SkipTests
 ```
 
+## Running a throwaway copy
+
+```powershell
+.\scripts\DebugRun.ps1
+```
+
+That builds the app into a new folder under `%TEMP%`, drops a `portable.txt` marker beside it,
+runs it, and deletes the folder when the window closes or when you press Ctrl+C in the console.
+The marker is what keeps `settings.json`, `draft.txt` and the saved scripts inside that folder,
+so a debug session never touches the settings, drafts or script library of the copy you use
+every day. Voices are borrowed from the repository `voices` folder, or from wherever
+`-VoicesDirectory` points, and nothing is copied.
+
+| Flag | Does |
+| --- | --- |
+| `-Configuration Release` | Builds Release rather than Debug |
+| `-Runtime win-x64` | The shipped 64 bit build, self contained, the way a release is built |
+| `-Runtime win-arm64` | The shipped ARM64 build. Runs on an ARM machine only |
+| `-Runtime win-x86` | The shipped 32 bit build, which is the one to reach for when testing the doubled automatic thread count |
+| `-VoicesDirectory <path>` | Borrows voices from somewhere other than the repository |
+| `-Keep` | Leaves the temporary folder behind, and prints where it is |
+
+Without `-Runtime` the build is framework dependent and for this machine, which is the quickest
+loop. With it the layout matches what a release produces, so a defect that only appears in a
+shipped build has somewhere to be reproduced. A build this machine cannot execute, ARM64 on an
+Intel machine for instance, is left on disk with its path printed rather than launched.
+
+```powershell
+.\scripts\DebugRun.ps1 -Configuration Release -Keep
+.\scripts\DebugRun.ps1 -Runtime win-x86 -VoicesDirectory D:\voices
+```
+
 ## Git hooks
 
 Run once per clone:
