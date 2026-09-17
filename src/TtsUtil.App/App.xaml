@@ -19,6 +19,15 @@
             <Setter Property="Margin" Value="0,0,0,8" />
             <Setter Property="Padding" Value="4,3" />
         </Style>
+        <Style x:Key="SettingGroup" TargetType="TextBlock">
+            <Setter Property="FontWeight" Value="SemiBold" />
+            <Setter Property="Foreground" Value="#334" />
+            <Setter Property="Margin" Value="0,10,0,2" />
+        </Style>
+        <Style x:Key="SettingRule" TargetType="Separator">
+            <Setter Property="Background" Value="#DDD" />
+            <Setter Property="Margin" Value="0,0,0,10" />
+        </Style>
         <Style x:Key="IconButton" TargetType="Button">
             <Setter Property="FontFamily" Value="Segoe MDL2 Assets" />
             <Setter Property="FontSize" Value="15" />

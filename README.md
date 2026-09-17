@@ -460,6 +460,12 @@ that ship are checked for the same thing by a test, so ticking one never quietly
 
 ### Settings
 
+The tab is laid out in seven groups, each under a heading with a rule beneath it: **Reading**,
+**Pauses**, **What gets read**, **Audio files**, **Voices**, **Performance** and **Window**.
+Related settings sit together, so the speech rate and the repeat mode are found in one place and
+the two folders are not a dozen rows apart. **Apply**, **Reset to defaults** and **Reset aliases**
+stay at the foot of the tab, below every group. Update settings have their own tab.
+
 Every setting that needs explaining has a question mark beside it. Press one and a panel opens
 with what the setting does, the range it accepts, the default, and an example where an example
 helps. Press elsewhere to close it.
@@ -469,11 +475,11 @@ filters, both character settings, the two folders, threads, chunk length, the sa
 format and the MP3 bit rate. The text lives in `SettingsHelp` in Core rather than in the XAML,
 so it is readable and testable without opening the window.
 
-Settings that also live elsewhere in the window are repeated at the bottom of the tab, so
-everything can be found in one place: **Read as I type**, **Pause when I click away**, the
-alias switch, the reading speed, the editor text size, the repeat mode and the question asked
-before a tab with unsaved changes closes. A change in
-either place moves the other. **Reset to defaults** puts every setting back to a first run,
+Settings that also live elsewhere in the window appear here too, in whichever group they
+belong to, so everything can be found in one place: **Read as I type**, **Pause when I click
+away**, the alias switch, the reading speed and the repeat mode under **Reading**, the editor
+text size and the question asked before a tab with unsaved changes closes under **Window**. A
+change in either place moves the other. **Reset to defaults** puts every setting back to a first run,
 after asking. Scripts, aliases and saved audio are left alone. **Reset aliases** empties the
 alias list, after asking and after copying the list to `aliases.json.bak` beside it, so a list
 built up over months is never lost to one press.

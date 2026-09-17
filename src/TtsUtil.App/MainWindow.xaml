@@ -628,152 +628,312 @@
 
             <TabItem Header="Settings">
                 <ScrollViewer VerticalScrollBarVisibility="Auto">
-                    <Grid Margin="12">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="Auto" />
-                            <ColumnDefinition Width="*" />
-                            <ColumnDefinition Width="Auto" />
-                            <ColumnDefinition Width="Auto" />
-                        </Grid.ColumnDefinitions>
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="Auto" />
-                            <RowDefinition Height="Auto" />
-                            <RowDefinition Height="Auto" />
-                            <RowDefinition Height="Auto" />
-                            <RowDefinition Height="Auto" />
-                            <RowDefinition Height="Auto" />
-                            <RowDefinition Height="Auto" />
-                            <RowDefinition Height="Auto" />
-                            <RowDefinition Height="Auto" />
-                            <RowDefinition Height="Auto" />
-                            <RowDefinition Height="Auto" />
-                            <RowDefinition Height="Auto" />
-                            <RowDefinition Height="Auto" />
-                            <RowDefinition Height="Auto" />
-                            <RowDefinition Height="Auto" />
-                            <RowDefinition Height="Auto" />
-                            <RowDefinition Height="Auto" />
-                            <RowDefinition Height="Auto" />
-                            <RowDefinition Height="Auto" />
-                            <RowDefinition Height="Auto" />
-                            <RowDefinition Height="Auto" />
-                            <RowDefinition Height="Auto" />
-                            <RowDefinition Height="Auto" />
-                            <RowDefinition Height="Auto" />
-                            <RowDefinition Height="Auto" />
-                            <RowDefinition Height="Auto" />
-                            <RowDefinition Height="Auto" />
-                            <RowDefinition Height="Auto" />
-                            <RowDefinition Height="Auto" />
-                            <RowDefinition Height="Auto" />
-                            <RowDefinition Height="Auto" />
-                        </Grid.RowDefinitions>
+                    <StackPanel Margin="12">
 
-                        <TextBlock Grid.Row="0" Grid.Column="0" Text="Silence after line endings (ms)"
-                                   Style="{StaticResource SettingLabel}" />
-                        <TextBox x:Name="SilenceLineEndingBox" Grid.Row="0" Grid.Column="1"
-                                 Style="{StaticResource SettingBox}" />
-                        <Button Grid.Row="0" Grid.Column="3" Tag="silence"
-                                Style="{StaticResource HelpButton}" Click="OnSettingsHelp" />
+                        <TextBlock Text="Reading" Style="{StaticResource SettingGroup}" />
+                        <Separator Style="{StaticResource SettingRule}" />
+                        <Grid Margin="0,0,0,8">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                            </Grid.RowDefinitions>
 
-                        <TextBlock Grid.Row="1" Grid.Column="0" Text="Silence after sentences (ms)"
-                                   Style="{StaticResource SettingLabel}" />
-                        <TextBox x:Name="SilenceSentenceBox" Grid.Row="1" Grid.Column="1"
-                                 Style="{StaticResource SettingBox}" />
 
-                        <TextBlock Grid.Row="2" Grid.Column="0" Text="Silence after questions (ms)"
-                                   Style="{StaticResource SettingLabel}" />
-                        <TextBox x:Name="SilenceQuestionBox" Grid.Row="2" Grid.Column="1"
-                                 Style="{StaticResource SettingBox}" />
+                            <TextBlock Grid.Row="0" Grid.Column="0" Text="Reading speed"
+                                       Style="{StaticResource SettingLabel}" />
+                            <TextBox x:Name="SettingsSpeedBox" Grid.Row="0" Grid.Column="1"
+                                     Style="{StaticResource SettingBox}" />
 
-                        <TextBlock Grid.Row="3" Grid.Column="0" Text="Silence after exclamations (ms)"
-                                   Style="{StaticResource SettingLabel}" />
-                        <TextBox x:Name="SilenceExclamationBox" Grid.Row="3" Grid.Column="1"
-                                 Style="{StaticResource SettingBox}" />
+                            <TextBlock Grid.Row="1" Grid.Column="0" Text="Repeat"
+                                       Style="{StaticResource SettingLabel}" />
+                            <ComboBox x:Name="SettingsRepeatBox" Grid.Row="1" Grid.Column="1" Width="160"
+                                      HorizontalAlignment="Left" Margin="0,0,0,8"
+                                      SelectionChanged="OnSettingsRepeatChanged" />
 
-                        <CheckBox x:Name="ScaleSilenceBox" Grid.Row="4" Grid.Column="1"
-                                  Content="Scale silence to the speech rate" Margin="0,4,0,12" />
-                        <Button Grid.Row="4" Grid.Column="3" Tag="scale-silence"
-                                Style="{StaticResource HelpButton}" Click="OnSettingsHelp" />
+                            <CheckBox x:Name="SettingsUseAliasesBox" Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2"
+                                      Content="Use the alias list when reading" Margin="0,4,0,8"
+                                      VerticalAlignment="Center" Checked="OnSettingsUseAliasesChanged"
+                                      Unchecked="OnSettingsUseAliasesChanged" />
 
-                        <CheckBox x:Name="FilterHashBox" Grid.Row="5" Grid.Column="1"
-                                  Content="Omit hash characters (#)" Margin="0,0,0,6" />
-                        <Button Grid.Row="5" Grid.Column="3" Tag="filters"
-                                Style="{StaticResource HelpButton}" Click="OnSettingsHelp" />
-                        <CheckBox x:Name="FilterWebBox" Grid.Row="6" Grid.Column="1"
-                                  Content="Omit web links" Margin="0,0,0,6" />
-                        <CheckBox x:Name="FilterMailBox" Grid.Row="7" Grid.Column="1"
-                                  Content="Omit mailto links" Margin="0,0,0,12" />
+                            <CheckBox x:Name="SettingsReadAsYouTypeBox" Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="2"
+                                      Content="Read each word as I type it" Margin="0,4,0,8"
+                                      VerticalAlignment="Center" Checked="OnSettingsReadAsYouTypeChanged"
+                                      Unchecked="OnSettingsReadAsYouTypeChanged" />
 
-                        <TextBlock Grid.Row="8" Grid.Column="0" Text="Characters read aloud"
-                                   Style="{StaticResource SettingLabel}" />
-                        <ComboBox x:Name="SpokenCharactersBox" Grid.Row="8" Grid.Column="1"
-                                  Margin="0,0,0,8" VerticalAlignment="Center" />
-                        <TextBlock Grid.Row="8" Grid.Column="2" Margin="8,0,0,8" Foreground="#555"
-                                   VerticalAlignment="Center"
-                                   Text="Punctuation still becomes a pause" />
-                        <Button Grid.Row="8" Grid.Column="3" Tag="spoken-characters"
-                                Style="{StaticResource HelpButton}" Click="OnSettingsHelp" />
+                            <CheckBox x:Name="SettingsPauseWhenUnfocusedBox" Grid.Row="4" Grid.Column="0" Grid.ColumnSpan="2"
+                                      Content="Pause the reading when the window loses focus" Margin="0,4,0,8"
+                                      VerticalAlignment="Center" Checked="OnSettingsPauseWhenUnfocusedChanged"
+                                      Unchecked="OnSettingsPauseWhenUnfocusedChanged" />
+                        </Grid>
 
-                        <TextBlock Grid.Row="9" Grid.Column="0" Text="Also read these characters"
-                                   Style="{StaticResource SettingLabel}" />
-                        <TextBox x:Name="AllowedExtraBox" Tag="Characters to let through" Grid.Row="9" Grid.Column="1"
-                                 Style="{StaticResource SettingBox}"
-                                 ToolTip="Type the characters themselves, with nothing between them. Press ? for examples." />
-                        <Button Grid.Row="9" Grid.Column="3" Tag="allowed-extra"
-                                Style="{StaticResource HelpButton}" Click="OnSettingsHelp" />
+                        <TextBlock Text="Pauses" Style="{StaticResource SettingGroup}" />
+                        <Separator Style="{StaticResource SettingRule}" />
+                        <Grid Margin="0,0,0,8">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                            </Grid.RowDefinitions>
 
-                        <TextBlock Grid.Row="10" Grid.Column="0" Text="Voices directory"
-                                   Style="{StaticResource SettingLabel}" />
-                        <TextBox x:Name="VoicesDirBox" Tag="Where voice models are kept" Grid.Row="10" Grid.Column="1"
-                                 Style="{StaticResource SettingBox}" />
-                        <Button Grid.Row="10" Grid.Column="2" Content="Browse" Margin="8,0,0,8"
-                                Click="OnBrowseVoicesDir" />
-                        <Button Grid.Row="10" Grid.Column="3" Tag="voices-directory"
-                                Style="{StaticResource HelpButton}" Click="OnSettingsHelp" />
 
-                        <TextBlock Grid.Row="11" Grid.Column="0" Text="Default output directory"
-                                   Style="{StaticResource SettingLabel}" />
-                        <TextBox x:Name="OutputDirBox" Tag="Where finished audio is written" Grid.Row="11" Grid.Column="1"
-                                 Style="{StaticResource SettingBox}" />
-                        <Button Grid.Row="11" Grid.Column="2" Content="Browse" Margin="8,0,0,8"
-                                Click="OnBrowseOutputDir" />
-                        <Button Grid.Row="11" Grid.Column="3" Tag="output-directory"
-                                Style="{StaticResource HelpButton}" Click="OnSettingsHelp" />
+                            <TextBlock Grid.Row="0" Grid.Column="0" Text="Silence after line endings (ms)"
+                                       Style="{StaticResource SettingLabel}" />
+                            <TextBox x:Name="SilenceLineEndingBox" Grid.Row="0" Grid.Column="1"
+                                     Style="{StaticResource SettingBox}" />
+                            <Button Grid.Row="0" Grid.Column="3" Tag="silence"
+                                    Style="{StaticResource HelpButton}" Click="OnSettingsHelp" />
 
-                        <TextBlock Grid.Row="12" Grid.Column="0" Text="Synthesis threads"
-                                   Style="{StaticResource SettingLabel}" />
-                        <TextBox x:Name="ThreadsBox" Grid.Row="12" Grid.Column="1"
-                                 Style="{StaticResource SettingBox}" />
-                        <Button Grid.Row="12" Grid.Column="3" Tag="threads"
-                                Style="{StaticResource HelpButton}" Click="OnSettingsHelp" />
+                            <TextBlock Grid.Row="1" Grid.Column="0" Text="Silence after sentences (ms)"
+                                       Style="{StaticResource SettingLabel}" />
+                            <TextBox x:Name="SilenceSentenceBox" Grid.Row="1" Grid.Column="1"
+                                     Style="{StaticResource SettingBox}" />
 
-                        <TextBlock Grid.Row="13" Grid.Column="0" Text="Maximum characters per chunk"
-                                   Style="{StaticResource SettingLabel}" />
-                        <TextBox x:Name="ChunkLengthBox" Grid.Row="13" Grid.Column="1"
-                                 Style="{StaticResource SettingBox}" />
-                        <Button Grid.Row="13" Grid.Column="3" Tag="chunk-length"
-                                Style="{StaticResource HelpButton}" Click="OnSettingsHelp" />
+                            <TextBlock Grid.Row="2" Grid.Column="0" Text="Silence after questions (ms)"
+                                       Style="{StaticResource SettingLabel}" />
+                            <TextBox x:Name="SilenceQuestionBox" Grid.Row="2" Grid.Column="1"
+                                     Style="{StaticResource SettingBox}" />
 
-                        <TextBlock Grid.Row="14" Grid.Column="0" Text="Saved audio format"
-                                   Style="{StaticResource SettingLabel}" />
-                        <ComboBox x:Name="OutputFormatBox" Grid.Row="14" Grid.Column="1"
-                                  Margin="0,0,0,8" VerticalAlignment="Center" />
-                        <Button Grid.Row="14" Grid.Column="3" Tag="output-format"
-                                Style="{StaticResource HelpButton}" Click="OnSettingsHelp" />
+                            <TextBlock Grid.Row="3" Grid.Column="0" Text="Silence after exclamations (ms)"
+                                       Style="{StaticResource SettingLabel}" />
+                            <TextBox x:Name="SilenceExclamationBox" Grid.Row="3" Grid.Column="1"
+                                     Style="{StaticResource SettingBox}" />
 
-                        <TextBlock Grid.Row="15" Grid.Column="0" Text="MP3 bit rate (kbps)"
-                                   Style="{StaticResource SettingLabel}" />
-                        <TextBox x:Name="Mp3BitRateBox" Grid.Row="15" Grid.Column="1"
-                                 Style="{StaticResource SettingBox}" />
-                        <Button Grid.Row="15" Grid.Column="3" Tag="mp3-bit-rate"
-                                Style="{StaticResource HelpButton}" Click="OnSettingsHelp" />
+                            <CheckBox x:Name="ScaleSilenceBox" Grid.Row="4" Grid.Column="0" Grid.ColumnSpan="2"
+                                      Content="Scale silence to the speech rate" Margin="0,4,0,8"
+                                      VerticalAlignment="Center" />
+                            <Button Grid.Row="4" Grid.Column="3" Tag="scale-silence"
+                                    Style="{StaticResource HelpButton}" Click="OnSettingsHelp" />
+                        </Grid>
 
-                        <CheckBox x:Name="UseWindowsVoicesBox" Grid.Row="19" Grid.Column="0" Grid.ColumnSpan="2"
-                                  Content="Also offer the voices Windows already has" Margin="0,4,0,8"
-                                  VerticalAlignment="Center" Click="OnUseWindowsVoicesChanged" />
-                        <Button Grid.Row="19" Grid.Column="3" Tag="use-windows-voices"
-                                Style="{StaticResource HelpButton}" Click="OnSettingsHelp" />
+                        <TextBlock Text="What gets read" Style="{StaticResource SettingGroup}" />
+                        <Separator Style="{StaticResource SettingRule}" />
+                        <Grid Margin="0,0,0,8">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                            </Grid.RowDefinitions>
+
+
+                            <TextBlock Grid.Row="0" Grid.Column="0" Text="Characters read aloud"
+                                       Style="{StaticResource SettingLabel}" />
+                            <ComboBox x:Name="SpokenCharactersBox" Grid.Row="0" Grid.Column="1"
+                                      Margin="0,0,0,8" VerticalAlignment="Center" />
+                            <TextBlock Grid.Row="0" Grid.Column="2" Margin="8,0,0,8" Foreground="#555"
+                                       VerticalAlignment="Center"
+                                       Text="Punctuation still becomes a pause" />
+                            <Button Grid.Row="0" Grid.Column="3" Tag="spoken-characters"
+                                    Style="{StaticResource HelpButton}" Click="OnSettingsHelp" />
+
+                            <TextBlock Grid.Row="1" Grid.Column="0" Text="Also read these characters"
+                                       Style="{StaticResource SettingLabel}" />
+                            <TextBox x:Name="AllowedExtraBox" Tag="Characters to let through" Grid.Row="1" Grid.Column="1"
+                                     Style="{StaticResource SettingBox}"
+                                     ToolTip="Type the characters themselves, with nothing between them. Press ? for examples." />
+                            <Button Grid.Row="1" Grid.Column="3" Tag="allowed-extra"
+                                    Style="{StaticResource HelpButton}" Click="OnSettingsHelp" />
+
+                            <CheckBox x:Name="FilterHashBox" Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2"
+                                      Content="Omit hash characters (#)" Margin="0,4,0,6" />
+                            <Button Grid.Row="2" Grid.Column="3" Tag="filters"
+                                    Style="{StaticResource HelpButton}" Click="OnSettingsHelp" />
+
+                            <CheckBox x:Name="FilterWebBox" Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="2"
+                                      Content="Omit web links" Margin="0,0,0,6" />
+
+                            <CheckBox x:Name="FilterMailBox" Grid.Row="4" Grid.Column="0" Grid.ColumnSpan="2"
+                                      Content="Omit mailto links" Margin="0,0,0,8" />
+                        </Grid>
+
+                        <TextBlock Text="Audio files" Style="{StaticResource SettingGroup}" />
+                        <Separator Style="{StaticResource SettingRule}" />
+                        <Grid Margin="0,0,0,8">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                            </Grid.RowDefinitions>
+
+
+                            <TextBlock Grid.Row="0" Grid.Column="0" Text="Default output directory"
+                                       Style="{StaticResource SettingLabel}" />
+                            <TextBox x:Name="OutputDirBox" Tag="Where finished audio is written" Grid.Row="0" Grid.Column="1"
+                                     Style="{StaticResource SettingBox}" />
+                            <Button Grid.Row="0" Grid.Column="2" Content="Browse" Margin="8,0,0,8"
+                                    Click="OnBrowseOutputDir" />
+                            <Button Grid.Row="0" Grid.Column="3" Tag="output-directory"
+                                    Style="{StaticResource HelpButton}" Click="OnSettingsHelp" />
+
+                            <TextBlock Grid.Row="1" Grid.Column="0" Text="Saved audio format"
+                                       Style="{StaticResource SettingLabel}" />
+                            <ComboBox x:Name="OutputFormatBox" Grid.Row="1" Grid.Column="1"
+                                      Margin="0,0,0,8" VerticalAlignment="Center" />
+                            <Button Grid.Row="1" Grid.Column="3" Tag="output-format"
+                                    Style="{StaticResource HelpButton}" Click="OnSettingsHelp" />
+
+                            <TextBlock Grid.Row="2" Grid.Column="0" Text="MP3 bit rate (kbps)"
+                                       Style="{StaticResource SettingLabel}" />
+                            <TextBox x:Name="Mp3BitRateBox" Grid.Row="2" Grid.Column="1"
+                                     Style="{StaticResource SettingBox}" />
+                            <Button Grid.Row="2" Grid.Column="3" Tag="mp3-bit-rate"
+                                    Style="{StaticResource HelpButton}" Click="OnSettingsHelp" />
+
+                            <CheckBox x:Name="SaveScriptWithAudioBox" Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="2"
+                                      Content="Save a script when writing audio" Margin="0,4,0,8"
+                                      VerticalAlignment="Center" />
+                            <Button Grid.Row="3" Grid.Column="3" Tag="save-script-with-audio"
+                                    Style="{StaticResource HelpButton}" Click="OnSettingsHelp" />
+
+                            <TextBlock Grid.Row="4" Grid.Column="0" Text="When a file finishes"
+                                       Style="{StaticResource SettingLabel}" />
+                            <ComboBox x:Name="SettingsWriteNoticeBox" Grid.Row="4" Grid.Column="1" Width="240"
+                                      HorizontalAlignment="Left" Margin="0,0,0,8"
+                                      SelectionChanged="OnSettingsWriteNoticeChanged" />
+                            <Button Grid.Row="4" Grid.Column="3" Tag="write-finished-notice"
+                                    Style="{StaticResource HelpButton}" Click="OnSettingsHelp" />
+                        </Grid>
+
+                        <TextBlock Text="Voices" Style="{StaticResource SettingGroup}" />
+                        <Separator Style="{StaticResource SettingRule}" />
+                        <Grid Margin="0,0,0,8">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                            </Grid.RowDefinitions>
+
+
+                            <TextBlock Grid.Row="0" Grid.Column="0" Text="Voices directory"
+                                       Style="{StaticResource SettingLabel}" />
+                            <TextBox x:Name="VoicesDirBox" Tag="Where voice models are kept" Grid.Row="0" Grid.Column="1"
+                                     Style="{StaticResource SettingBox}" />
+                            <Button Grid.Row="0" Grid.Column="2" Content="Browse" Margin="8,0,0,8"
+                                    Click="OnBrowseVoicesDir" />
+                            <Button Grid.Row="0" Grid.Column="3" Tag="voices-directory"
+                                    Style="{StaticResource HelpButton}" Click="OnSettingsHelp" />
+
+                            <CheckBox x:Name="UseWindowsVoicesBox" Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2"
+                                      Content="Also offer the voices Windows already has" Margin="0,4,0,8"
+                                      VerticalAlignment="Center" Click="OnUseWindowsVoicesChanged" />
+                            <Button Grid.Row="1" Grid.Column="3" Tag="use-windows-voices"
+                                    Style="{StaticResource HelpButton}" Click="OnSettingsHelp" />
+                        </Grid>
+
+                        <TextBlock Text="Performance" Style="{StaticResource SettingGroup}" />
+                        <Separator Style="{StaticResource SettingRule}" />
+                        <Grid Margin="0,0,0,8">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                            </Grid.RowDefinitions>
+
+
+                            <TextBlock Grid.Row="0" Grid.Column="0" Text="Synthesis threads"
+                                       Style="{StaticResource SettingLabel}" />
+                            <TextBox x:Name="ThreadsBox" Grid.Row="0" Grid.Column="1"
+                                     Style="{StaticResource SettingBox}" />
+                            <Button Grid.Row="0" Grid.Column="3" Tag="threads"
+                                    Style="{StaticResource HelpButton}" Click="OnSettingsHelp" />
+
+                            <TextBlock Grid.Row="1" Grid.Column="0" Text="Maximum characters per chunk"
+                                       Style="{StaticResource SettingLabel}" />
+                            <TextBox x:Name="ChunkLengthBox" Grid.Row="1" Grid.Column="1"
+                                     Style="{StaticResource SettingBox}" />
+                            <Button Grid.Row="1" Grid.Column="3" Tag="chunk-length"
+                                    Style="{StaticResource HelpButton}" Click="OnSettingsHelp" />
+                        </Grid>
+
+                        <TextBlock Text="Window" Style="{StaticResource SettingGroup}" />
+                        <Separator Style="{StaticResource SettingRule}" />
+                        <Grid Margin="0,0,0,8">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                            </Grid.RowDefinitions>
+
+
+                            <TextBlock Grid.Row="0" Grid.Column="0" Text="Editor text size"
+                                       Style="{StaticResource SettingLabel}" />
+                            <ComboBox x:Name="SettingsFontSizeBox" Grid.Row="0" Grid.Column="1" Width="80"
+                                      HorizontalAlignment="Left" Margin="0,0,0,8"
+                                      SelectionChanged="OnSettingsFontSizeChanged" />
+
+                            <CheckBox x:Name="WarnOnClosingUnsavedBox" Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2"
+                                      Content="Ask before closing a tab with unsaved changes" Margin="0,4,0,8"
+                                      VerticalAlignment="Center" />
+
+                            <CheckBox x:Name="CloseToTrayBox" Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2"
+                                      Content="Close to the notification area instead of quitting" Margin="0,4,0,8"
+                                      VerticalAlignment="Center"
+                                      ToolTip="The window hides among the hidden icons by the clock and keeps reading. Quit from that icon's menu" />
+
+                            <TextBlock Grid.Row="3" Grid.Column="0" Text="Keep last messages"
+                                       Style="{StaticResource SettingLabel}" />
+                            <TextBox x:Name="KeepLastMessagesBox" Grid.Row="3" Grid.Column="1"
+                                     Style="{StaticResource SettingBox}" />
+                            <Button Grid.Row="3" Grid.Column="3" Tag="keep-last-messages"
+                                    Style="{StaticResource HelpButton}" Click="OnSettingsHelp" />
+
+                            <TextBlock Grid.Row="4" Grid.Column="0" Text="Show last messages"
+                                       Style="{StaticResource SettingLabel}" />
+                            <TextBox x:Name="ShowLastMessagesBox" Grid.Row="4" Grid.Column="1"
+                                     Style="{StaticResource SettingBox}" />
+                            <Button Grid.Row="4" Grid.Column="3" Tag="show-last-messages"
+                                    Style="{StaticResource HelpButton}" Click="OnSettingsHelp" />
+                        </Grid>
 
                         <Popup x:Name="SettingsHelpPopup" Placement="Left" StaysOpen="False"
                                AllowsTransparency="True" HorizontalOffset="-6">
@@ -788,77 +948,7 @@
                             </Border>
                         </Popup>
 
-                        <TextBlock Grid.Row="17" Grid.Column="0" Text="Keep last messages"
-                                   Style="{StaticResource SettingLabel}" />
-                        <TextBox x:Name="KeepLastMessagesBox" Grid.Row="17" Grid.Column="1"
-                                 Style="{StaticResource SettingBox}" />
-                        <Button Grid.Row="17" Grid.Column="3" Tag="keep-last-messages"
-                                Style="{StaticResource HelpButton}" Click="OnSettingsHelp" />
-
-                        <TextBlock Grid.Row="18" Grid.Column="0" Text="Show last messages"
-                                   Style="{StaticResource SettingLabel}" />
-                        <TextBox x:Name="ShowLastMessagesBox" Grid.Row="18" Grid.Column="1"
-                                 Style="{StaticResource SettingBox}" />
-                        <Button Grid.Row="18" Grid.Column="3" Tag="show-last-messages"
-                                Style="{StaticResource HelpButton}" Click="OnSettingsHelp" />
-
-                        <CheckBox x:Name="SaveScriptWithAudioBox" Grid.Row="20" Grid.Column="0" Grid.ColumnSpan="2"
-                                  Content="Save a script when writing audio" Margin="0,4,0,8"
-                                  VerticalAlignment="Center" />
-                        <Button Grid.Row="20" Grid.Column="3" Tag="save-script-with-audio"
-                                Style="{StaticResource HelpButton}" Click="OnSettingsHelp" />
-
-                        <CheckBox x:Name="WarnOnClosingUnsavedBox" Grid.Row="24" Grid.Column="0" Grid.ColumnSpan="2"
-                                  Content="Ask before closing a tab with unsaved changes" Margin="0,4,0,8"
-                                  VerticalAlignment="Center" />
-
-                        <CheckBox x:Name="CloseToTrayBox" Grid.Row="25" Grid.Column="0" Grid.ColumnSpan="2"
-                                  Content="Close to the notification area instead of quitting" Margin="0,4,0,8"
-                                  VerticalAlignment="Center"
-                                  ToolTip="The window hides among the hidden icons by the clock and keeps reading. Quit from that icon's menu" />
-
-                        <CheckBox x:Name="SettingsReadAsYouTypeBox" Grid.Row="21" Grid.Column="0" Grid.ColumnSpan="2"
-                                  Content="Read each word as I type it" Margin="0,4,0,8"
-                                  VerticalAlignment="Center" Checked="OnSettingsReadAsYouTypeChanged"
-                                  Unchecked="OnSettingsReadAsYouTypeChanged" />
-
-                        <CheckBox x:Name="SettingsPauseWhenUnfocusedBox" Grid.Row="22" Grid.Column="0" Grid.ColumnSpan="2"
-                                  Content="Pause the reading when the window loses focus" Margin="0,4,0,8"
-                                  VerticalAlignment="Center" Checked="OnSettingsPauseWhenUnfocusedChanged"
-                                  Unchecked="OnSettingsPauseWhenUnfocusedChanged" />
-
-                        <CheckBox x:Name="SettingsUseAliasesBox" Grid.Row="23" Grid.Column="0" Grid.ColumnSpan="2"
-                                  Content="Use the alias list when reading" Margin="0,4,0,8"
-                                  VerticalAlignment="Center" Checked="OnSettingsUseAliasesChanged"
-                                  Unchecked="OnSettingsUseAliasesChanged" />
-
-                        <TextBlock Grid.Row="26" Grid.Column="0" Text="Reading speed"
-                                   Style="{StaticResource SettingLabel}" />
-                        <TextBox x:Name="SettingsSpeedBox" Grid.Row="26" Grid.Column="1"
-                                 Style="{StaticResource SettingBox}" />
-
-                        <TextBlock Grid.Row="27" Grid.Column="0" Text="Editor text size"
-                                   Style="{StaticResource SettingLabel}" />
-                        <ComboBox x:Name="SettingsFontSizeBox" Grid.Row="27" Grid.Column="1" Width="80"
-                                  HorizontalAlignment="Left" Margin="0,0,0,8"
-                                  SelectionChanged="OnSettingsFontSizeChanged" />
-
-                        <TextBlock Grid.Row="28" Grid.Column="0" Text="Repeat"
-                                   Style="{StaticResource SettingLabel}" />
-                        <ComboBox x:Name="SettingsRepeatBox" Grid.Row="28" Grid.Column="1" Width="160"
-                                  HorizontalAlignment="Left" Margin="0,0,0,8"
-                                  SelectionChanged="OnSettingsRepeatChanged" />
-
-                        <TextBlock Grid.Row="29" Grid.Column="0" Text="When a file finishes"
-                                   Style="{StaticResource SettingLabel}" />
-                        <ComboBox x:Name="SettingsWriteNoticeBox" Grid.Row="29" Grid.Column="1" Width="240"
-                                  HorizontalAlignment="Left" Margin="0,0,0,8"
-                                  SelectionChanged="OnSettingsWriteNoticeChanged" />
-                        <Button Grid.Row="29" Grid.Column="3" Tag="write-finished-notice"
-                                Style="{StaticResource HelpButton}" Click="OnSettingsHelp" />
-
-                        <StackPanel Grid.Row="30" Grid.Column="0" Grid.ColumnSpan="3" Orientation="Horizontal"
-                                    Margin="0,8,0,0">
+                        <StackPanel Orientation="Horizontal" Margin="0,8,0,0">
                             <Button x:Name="ApplySettingsButton" Content="Apply" Click="OnApplySettings" />
                             <Button x:Name="ResetSettingsButton" Content="Reset to defaults"
                                     Click="OnResetSettings" MinWidth="130"
@@ -869,7 +959,7 @@
                             <TextBlock x:Name="SettingsPathText" VerticalAlignment="Center" Foreground="#555"
                                        TextTrimming="CharacterEllipsis" />
                         </StackPanel>
-                    </Grid>
+                    </StackPanel>
                 </ScrollViewer>
             </TabItem>
 
