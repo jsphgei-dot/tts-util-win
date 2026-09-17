@@ -7,18 +7,18 @@
 Use the **Voices** tab in the program, or the script:
 
 ```powershell
-..\scripts\FetchVoices.ps1 -List          # the whole catalogue
+..\scripts\FetchVoices.ps1 -List          # the whole catalog
 ..\scripts\FetchVoices.ps1 -Default       # the three defaults, about 490 MB
 ..\scripts\FetchVoices.ps1 -Name kokoro-en-v0_19
 ```
 
 A model downloaded by hand works just as well: unpack it into a folder here and press
-**Rescan**. The Voices section of the top level `README.md` has the curated list, the licences
-and the other languages on offer.
+**Rescan**. The Voices section of [the usage guide](../docs/usage.md#voices) has the curated
+list, the licenses and the other languages on offer.
 
 ## What makes a folder a voice
 
-A folder is recognised when it holds `tokens.txt` and at least one `.onnx` file. The kind is
+A folder is recognized when it holds `tokens.txt` and at least one `.onnx` file. The kind is
 then detected from what else is present:
 
 | Also present | Kind |
@@ -30,5 +30,5 @@ then detected from what else is present:
 Optional files picked up when present: `espeak-ng-data\`, `lexicon.txt`, `dict\`, `LICENSE`,
 `MODEL_CARD`. A `speakers.txt` you write yourself names the speakers of a multi speaker model.
 
-The `LICENSE` or `MODEL_CARD` inside a folder is the authoritative licence for that model, and
+The `LICENSE` or `MODEL_CARD` inside a folder is the authoritative license for that model, and
 the About tab shows it for the selected voice.
