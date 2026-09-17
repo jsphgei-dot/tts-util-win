@@ -11,3 +11,6 @@ voices/*
 
 # Isolated output for the pre-build test run.
 artifacts/
+
+# Working notes: the spec, the decision log, the todo list and the port roadmap.
+notes/
