@@ -1,4 +1,5 @@
 using System.IO;
+using System.Windows;
 using TtsUtil.Core.Settings;
 using Xunit;
 
@@ -152,6 +153,27 @@ public sealed class DocumentTabsTests : IDisposable
         Assert.Equal(MainWindow.WidestTab, MainWindow.TabWidth(600, 1));
         Assert.Equal(150, MainWindow.TabWidth(300, 2));
         Assert.Equal(MainWindow.NarrowestTab, MainWindow.TabWidth(600, 20));
+    }
+
+    /// <summary>A header laid out by the tab, rather than by itself, keeps the name at the left
+    /// and the close button at the right edge however wide the tab grows.</summary>
+    [Fact]
+    public void ATabHeaderFillsTheTabItSitsIn()
+    {
+        var window = CreateWindow();
+
+        _wpf.Invoke(() =>
+        {
+            window.Show();
+            window.Documents[0].Tab.Width = MainWindow.WidestTab;
+            window.UpdateLayout();
+
+            var header = (FrameworkElement)window.Documents[0].Tab.Header;
+            Assert.True(header.ActualWidth > MainWindow.WidestTab - 30,
+                $"the header was {header.ActualWidth} wide in a {MainWindow.WidestTab} wide tab");
+
+            window.Close();
+        });
     }
 
     private MainWindow CreateWindow() => _wpf.Invoke(() =>

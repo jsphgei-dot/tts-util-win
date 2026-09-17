@@ -22,7 +22,9 @@ built but not yet released, and the release step renames it to the version going
   still offers the x64 build.
 * **The text tabs size themselves like a browser's.** One tab on its own is 180 pixels wide,
   more tabs share the strip evenly down to 80 pixels each, and a name too long for the space
-  ends in an ellipsis with the whole name on hover. Past that the strip scrolls as before. The
+  ends in an ellipsis with the whole name on hover. The name sits at the left of its tab and
+  the cross at the right edge, at every width, rather than the pair sitting adrift in the
+  middle of a wide tab. Past that the strip scrolls as before. The
   widths hold while the pointer is among the tabs, so closing several in a row does not move the
   next cross out from under it.
 * **The save icon moved to the left** of the row above the text, ahead of the title box, rather

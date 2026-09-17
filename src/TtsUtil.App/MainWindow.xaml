@@ -280,7 +280,10 @@
                             <ColumnDefinition x:Name="LineListColumn" Width="300" />
                         </Grid.ColumnDefinitions>
 
+                        <!-- A tab header is laid out by the strip, not by itself, so the
+                             stretch that puts the close button at the right edge belongs here. -->
                         <TabControl x:Name="DocumentTabs" Grid.Column="0" Padding="0"
+                                    HorizontalContentAlignment="Stretch"
                                     Style="{StaticResource ScrollingTabs}"
                                     SelectionChanged="OnDocumentTabChanged" />
 
