@@ -1,6 +1,20 @@
 ﻿# Changelog
 
-Newest first. Version codes are monotonic and never reused.
+Newest first. Version codes are monotonic and never reused. The top section carries what is
+built but not yet released, and the release step renames it to the version going out.
+
+## Unreleased
+
+* **The text tabs size themselves like a browser's.** One tab on its own is 180 pixels wide,
+  more tabs share the strip evenly down to 80 pixels each, and a name too long for the space
+  ends in an ellipsis with the whole name on hover. Past that the strip scrolls as before. The
+  widths hold while the pointer is among the tabs, so closing several in a row does not move the
+  next cross out from under it.
+* **The save icon moved to the left** of the row above the text, ahead of the title box, rather
+  than sitting at the far right of the window.
+* **The script list says what voice each script uses.** A **Voice** column beside the title
+  shows the voice a script was saved with. Scripts saved before the voice was recorded, or
+  dropped into the folder by hand, read **Not saved** until they are saved again.
 
 ## 0.11.0-beta (version code 18)
 
