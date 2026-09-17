@@ -1246,7 +1246,8 @@ public partial class MainWindow : Window
         ScriptList.Items.Clear();
         foreach (var script in Scripts.List())
         {
-            ScriptList.Items.Add(new ScriptRow(script) { Chosen = ticked.Contains(script.Title) });
+            var voice = Scripts.LoadProperties(script.Title)?.VoiceName;
+            ScriptList.Items.Add(new ScriptRow(script, voice) { Chosen = ticked.Contains(script.Title) });
         }
 
         ScriptFolderText.Text = $"Scripts folder: {Scripts.Directory}";

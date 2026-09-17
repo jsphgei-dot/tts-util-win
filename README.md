@@ -3,7 +3,7 @@
 ![version](https://img.shields.io/badge/version-0.11.0--beta-blue)
 ![platform](https://img.shields.io/badge/platform-Windows%2010%20%7C%2011%20x64-0078D6)
 ![built with](https://img.shields.io/badge/.NET-6.0-512BD4)
-![tests](https://img.shields.io/badge/tests-455%20passing-brightgreen)
+![tests](https://img.shields.io/badge/tests-456%20passing-brightgreen)
 ![license](https://img.shields.io/badge/license-Apache%202.0-lightgrey)
 
 > Read anything you can type, paste or open out loud, entirely on your own machine.
@@ -405,6 +405,11 @@ the files in any editor, or drop one in from elsewhere and it appears in the lis
 
 Characters Windows will not accept in a file name become spaces, so `Chapter 1: the beginning`
 is stored as `Chapter 1 the beginning.txt`.
+
+The list has a **Voice** column showing the voice each script was saved with, so you can see at
+a glance what a script will be read in. A script saved before its voice was recorded, or one
+dropped into the folder by hand, reads "Not saved" until you save it from the Text tab again.
+The voice sits in a small `.voice.json` file beside the text, which stays a plain text file.
 
 Each script in the list has a tick box. Tick the ones you want, press **Convert ticked to
 audio**, choose a folder, and each is written as its own file in the format set in Settings.

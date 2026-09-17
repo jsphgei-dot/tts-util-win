@@ -405,6 +405,24 @@ public sealed class ScriptsTabTests : IDisposable
         _wpf.Invoke(() => Assert.Equal(2, window.ScriptList.Items.Count));
     }
 
+    [Fact]
+    public void TheListShowsTheVoiceEachScriptWasSavedWith()
+    {
+        File.WriteAllText(Path.Combine(_scriptsDir, "With a voice.txt"), "First.");
+        File.WriteAllText(Path.Combine(_scriptsDir, "Without one.txt"), "Second.");
+        new ScriptLibrary(_scriptsDir).SaveProperties("With a voice", new ScriptProperties { VoiceName = "David" });
+
+        var window = CreateWindow();
+        _wpf.Invoke(() =>
+        {
+            window.RefreshScripts();
+            var rows = window.ScriptList.Items.Cast<ScriptRow>().ToDictionary(r => r.Title, r => r.Voice);
+
+            Assert.Equal("David", rows["With a voice"]);
+            Assert.Equal(ScriptRow.NoVoice, rows["Without one"]);
+        });
+    }
+
     private IReadOnlyList<string> WriteTwoFiles()
     {
         var first = Path.Combine(_root, "Chapter one.txt");

@@ -327,6 +327,11 @@
                             <Button x:Name="ConvertScriptsButton" Content="Convert ticked to audio" Width="160"
                                     Click="OnConvertScripts" />
                         </WrapPanel>
+                        <DockPanel DockPanel.Dock="Top" Margin="26,0,2,2">
+                            <TextBlock DockPanel.Dock="Right" Text="Voice" Width="96" Margin="8,0,0,0"
+                                       FontWeight="SemiBold" Foreground="#555" />
+                            <TextBlock Text="Script" FontWeight="SemiBold" Foreground="#555" />
+                        </DockPanel>
                         <ListBox x:Name="ScriptList" SelectionChanged="OnScriptSelected"
                                  MouseDoubleClick="OnScriptDoubleClick"
                                  ToolTip="Double click a script to open it in a new tab"
@@ -338,6 +343,10 @@
                                         <CheckBox DockPanel.Dock="Left" IsChecked="{Binding Chosen, Mode=TwoWay}"
                                                   Margin="0,0,6,0" VerticalAlignment="Center"
                                                   AutomationProperties.Name="Convert this script" />
+                                        <TextBlock DockPanel.Dock="Right" Text="{Binding Voice}" Width="96"
+                                                   Margin="8,0,0,0" Foreground="#555"
+                                                   TextTrimming="CharacterEllipsis"
+                                                   ToolTip="{Binding Voice}" />
                                         <TextBlock Text="{Binding Label}" TextWrapping="Wrap" />
                                     </DockPanel>
                                 </DataTemplate>
