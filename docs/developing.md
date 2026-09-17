@@ -10,7 +10,7 @@ dotnet test tests\TtsUtil.Core.Tests
 dotnet test tests\TtsUtil.App.Tests -p:SkipTests=true
 ```
 
-`TtsUtil.Core` targets plain `net6.0` and holds the text and audio logic, so it is testable
+`TtsUtil.Core` targets plain `net10.0` and holds the text and audio logic, so it is testable
 without a UI. `TtsUtil.App` is the WPF front end. There are two test projects to match:
 `TtsUtil.Core.Tests` for the platform neutral half, and `TtsUtil.App.Tests`, which builds the
 real `MainWindow` on an STA dispatcher thread and raises Click events on its actual buttons.

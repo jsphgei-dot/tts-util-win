@@ -120,7 +120,7 @@ queue, the script library, aliases, PDFs and OCR, saving to audio, and every set
 
 ## 🛠️ Build from source
 
-Building takes about a minute and needs only the .NET 6 SDK.
+Building takes about a minute and needs only the .NET 10 SDK.
 
 ```powershell
 .\scripts\FetchVoices.ps1 -Default     # about 490 MB, optional

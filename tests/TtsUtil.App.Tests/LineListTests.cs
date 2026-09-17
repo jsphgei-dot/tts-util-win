@@ -129,7 +129,7 @@ public sealed class LineListTests : IDisposable
     }
 
     [Fact]
-    public void ImportedTextRefreshesTheList()
+    public async Task ImportedTextRefreshesTheList()
     {
         var path = Path.Combine(_root, "script.txt");
         File.WriteAllText(path, "Alpha.\nBeta.\nGamma.");
@@ -141,7 +141,7 @@ public sealed class LineListTests : IDisposable
             window.ImportTextButton.RaiseEvent(new RoutedEventArgs(ButtonBase.ClickEvent));
             return window.PendingWork;
         });
-        work.GetAwaiter().GetResult();
+        await work;
 
         _wpf.Invoke(() => Assert.Equal(3, window.LineList.Items.Count));
     }

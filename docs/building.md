@@ -4,7 +4,7 @@
 
 # 🛠️ Build from source
 
-Building takes about a minute and needs only the .NET 6 SDK.
+Building takes about a minute and needs only the .NET 10 SDK.
 
 ```powershell
 # 1. Download voices (about 490 MB for the three permissively licensed defaults).
@@ -29,9 +29,9 @@ installed it per user or per machine.
 
 | What | Path | Size |
 | --- | --- | --- |
-| Portable folder | `dist\TtsUtilWin-<arch>\` | 70 MB, plus voices |
-| Portable executable | `dist\TtsUtilWin-<arch>\TtsUtilWin.exe` | 70 MB |
-| Installer | `dist\TtsUtilWin-<version>-<arch>-setup.exe` | 65 MB |
+| Portable folder | `dist\TtsUtilWin-<arch>\` | 82 MB, plus voices |
+| Portable executable | `dist\TtsUtilWin-<arch>\TtsUtilWin.exe` | 82 MB |
+| Installer | `dist\TtsUtilWin-<version>-<arch>-setup.exe` | 77 MB |
 
 ## The three architectures
 
@@ -47,9 +47,9 @@ Windows machine.
 
 | Runtime | Executable | Installs into | Runs on |
 | --- | --- | --- | --- |
-| `win-x64` | 77 MB | `Program Files` | x64, and ARM64 under emulation |
-| `win-arm64` | 73 MB | `Program Files` | ARM64 only, natively |
-| `win-x86` | 70 MB | `Program Files (x86)` | anything 32 bit or better |
+| `win-x64` | 82 MB | `Program Files` | x64, and ARM64 under emulation |
+| `win-arm64` | 78 MB | `Program Files` | ARM64 only, natively |
+| `win-x86` | 76 MB | `Program Files (x86)` | anything 32 bit or better |
 
 The sherpa-onnx native libraries ship for all three, so the speech engine is native in each
 build rather than emulated. The installer refuses a machine it does not match, which is why the

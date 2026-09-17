@@ -51,18 +51,18 @@ public sealed class QueueTests : IDisposable
     }
 
     [Fact]
-    public void EntriesPlayInOrderAndTheQueueStopsAtTheEnd()
+    public async Task EntriesPlayInOrderAndTheQueueStopsAtTheEnd()
     {
         var entries = Entries("One", "Two", "Three");
         PlayWith(_ => RunOutcome.Finished);
 
-        _wpf.Invoke(() => _window.PlaySequenceAsync(entries, 0)).Wait();
+        await _wpf.Invoke(() => _window.PlaySequenceAsync(entries, 0));
 
         Assert.Equal(new[] { "One", "Two", "Three" }, _played);
     }
 
     [Fact]
-    public void RepeatAllWrapsRoundUntilItIsStopped()
+    public async Task RepeatAllWrapsRoundUntilItIsStopped()
     {
         var entries = Entries("One", "Two");
         SetRepeat(RepeatMode.All);
@@ -70,31 +70,32 @@ public sealed class QueueTests : IDisposable
         // Stopping on the fifth play is what a listener pressing Stop does.
         PlayWith(_ => _played.Count >= 5 ? RunOutcome.Stopped : RunOutcome.Finished);
 
-        _wpf.Invoke(() => _window.PlaySequenceAsync(entries, 0)).Wait();
+        await _wpf.Invoke(() => _window.PlaySequenceAsync(entries, 0));
 
         Assert.Equal(new[] { "One", "Two", "One", "Two", "One" }, _played);
     }
 
     [Fact]
-    public void RepeatOneStaysOnTheEntryItStartedFrom()
+    public async Task RepeatOneStaysOnTheEntryItStartedFrom()
     {
         var entries = Entries("One", "Two", "Three");
         SetRepeat(RepeatMode.One);
         PlayWith(_ => _played.Count >= 3 ? RunOutcome.Stopped : RunOutcome.Finished);
 
-        _wpf.Invoke(() => _window.PlaySequenceAsync(entries, 1)).Wait();
+        await _wpf.Invoke(() => _window.PlaySequenceAsync(entries, 1));
 
         Assert.Equal(new[] { "Two", "Two", "Two" }, _played);
     }
 
     [Fact]
-    public void AQueueOfUnreadableEntriesGivesUpRatherThanSpinning()
+    public async Task AQueueOfUnreadableEntriesGivesUpRatherThanSpinning()
     {
         var entries = Entries("One", "Two");
         SetRepeat(RepeatMode.All);
         PlayWith(_ => RunOutcome.Failed);
 
-        var finished = _wpf.Invoke(() => _window.PlaySequenceAsync(entries, 0)).Wait(TimeSpan.FromSeconds(5));
+        var play = _wpf.Invoke(() => _window.PlaySequenceAsync(entries, 0));
+        var finished = await Task.WhenAny(play, Task.Delay(TimeSpan.FromSeconds(5))) == play;
 
         Assert.True(finished, "repeat all spun on entries that could not be read");
         Assert.Equal(new[] { "One", "Two" }, _played);

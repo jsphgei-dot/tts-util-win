@@ -5,6 +5,9 @@ built but not yet released, and the release step renames it to the version going
 
 ## Unreleased
 
+* **The program now runs on .NET 10.** The runtime it is built on moved from .NET 6, which
+  reached its end of support, to the current long term support release. Nothing changes in
+  what the program does. The download is about 5 MB larger.
 * **Builds for ARM64 and 32 bit Windows.** Alongside the x64 build there are now
   native ARM64 and x86 ones, each with its own installer and its own speech engine rather
   than an emulated one. They are downloads from the release page; the in app update check

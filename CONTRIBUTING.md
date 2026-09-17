@@ -21,7 +21,7 @@ worth a great deal.
 
 ## Getting set up
 
-You need the .NET 6 SDK and Windows 10 version 1809 or newer. Nothing else.
+You need the .NET 10 SDK and Windows 10 version 1809 or newer. Nothing else.
 [docs/building.md](docs/building.md) has the full build section, including the installer and the
 voice download script, and [docs/index.md](docs/index.md) lists everything else that is written
 down.
@@ -43,10 +43,10 @@ with Windows are enough to hear the program work.
 
 | Project | Target | What belongs in it |
 | --- | --- | --- |
-| `TtsUtil.Core` | `net6.0` | Text chunking, filters, silence rules, aliases, wave IO, voice discovery, the sherpa engine, settings, the update manifest. No UI types and no Windows APIs |
-| `TtsUtil.App` | `net6.0-windows10.0.19041.0` | The WPF window, NAudio playback, the Windows speech engine, media transport controls, Windows OCR, file dialogs |
-| `TtsUtil.Core.Tests` | `net6.0` | Tests for the platform neutral half |
-| `TtsUtil.App.Tests` | `net6.0-windows10.0.19041.0` | Tests that drive the real window on an STA dispatcher thread |
+| `TtsUtil.Core` | `net10.0` | Text chunking, filters, silence rules, aliases, wave IO, voice discovery, the sherpa engine, settings, the update manifest. No UI types and no Windows APIs |
+| `TtsUtil.App` | `net10.0-windows10.0.19041.0` | The WPF window, NAudio playback, the Windows speech engine, media transport controls, Windows OCR, file dialogs |
+| `TtsUtil.Core.Tests` | `net10.0` | Tests for the platform neutral half |
+| `TtsUtil.App.Tests` | `net10.0-windows10.0.19041.0` | Tests that drive the real window on an STA dispatcher thread |
 
 The one rule worth stating: **logic goes in Core, and Core stays free of Windows.** It is the
 half that could run somewhere other than Windows one day, and every Windows API that leaks into
