@@ -2,6 +2,22 @@
 
 Newest first. Version codes are monotonic and never reused.
 
+## 0.11.0-beta (version code 18)
+
+* **Close to the notification area.** A setting keeps the program running when the window is
+  closed. It hides among the hidden icons by the clock and carries on reading or writing, and
+  its menu has **Open** and **Quit**.
+* **Star a voice.** Voices can be starred like speakers, which keeps them at the top of the
+  picker, and **Favorites** narrows the picker to the starred ones.
+* **Right click a voice** in the Voices tab for **Install**, **Uninstall**, **Go to web
+  location** and **Go to file location**. Voices dropped into the folder by hand are now listed
+  too, so they can be uninstalled or opened from the same menu.
+* **The settings are grouped.** The tab is laid out under **Reading**, **Pauses**, **What gets
+  read**, **Audio files**, **Voices**, **Performance** and **Window**, with Apply and the resets
+  below every group.
+* **Pressing outside a box drops the caret**, so no cursor is left blinking in a box that has
+  been clicked away from.
+
 ## 0.10.1-beta (version code 17)
 
 * **The title box belongs to the tab in front.** Switching tabs brings that tab's name back, and
