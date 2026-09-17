@@ -5,6 +5,14 @@ built but not yet released, and the release step renames it to the version going
 
 ## Unreleased
 
+* **Synthesis threads now work themselves out from the processor.** The setting starts empty,
+  and an empty setting means half the processors this machine reports, at least one and at most
+  four. A machine with 32 processors or more allows eight, and the 32 bit build doubles whichever
+  of those applies. Typing a number from 1 to 16 still overrides it. The old fixed default of two
+  left most machines slower than they needed to be.
+* **Every setting explains itself on hover.** The controls on the Settings tab carry the same
+  one line descriptions the rest of the window has. The question marks beside them still open
+  the longer explanation.
 * **The program now runs on .NET 10.** The runtime it is built on moved from .NET 6, which
   reached its end of support, to the current long term support release. Nothing changes in
   what the program does. The download is about 5 MB larger.

@@ -588,6 +588,23 @@ public sealed class MainWindowTests : IDisposable
     }
 
     [Fact]
+    public void AnEmptyThreadsBoxMeansAutomatic()
+    {
+        var window = CreateWindow(s => s.NumThreads = 8);
+
+        _wpf.Invoke(() => window.ThreadsBox.Text = string.Empty);
+
+        Click(window.ApplySettingsButton);
+
+        _wpf.Invoke(() =>
+        {
+            Assert.Null(window.Settings.NumThreads);
+            Assert.Equal(string.Empty, window.ThreadsBox.Text);
+            Assert.Equal(ThreadPlan.Resolve(null), window.Settings.ResolvedNumThreads);
+        });
+    }
+
+    [Fact]
     public void ApplyKeepsThePreviousValueWhenABoxHoldsNonsense()
     {
         var window = CreateWindow(s => s.SilenceLineEndingMs = 200);

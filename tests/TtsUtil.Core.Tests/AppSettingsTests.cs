@@ -35,7 +35,7 @@ public sealed class AppSettingsTests : IDisposable
         Assert.Equal(200, settings.SilenceLineEndingMs);
         Assert.Equal(0, settings.SilenceSentenceMs);
         Assert.Equal(1.0f, settings.Speed);
-        Assert.Equal(2, settings.NumThreads);
+        Assert.Null(settings.NumThreads);
         Assert.Equal(2000, settings.MaxChunkLength);
         Assert.False(settings.ScaleSilenceToRate);
         Assert.Equal(_path, settings.SourcePath);

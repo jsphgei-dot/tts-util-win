@@ -41,7 +41,7 @@ public partial class MainWindow
         ShowJobProgress(job, 0);
 
         var loader = EngineLoader;
-        var threads = _settings.NumThreads;
+        var threads = _settings.ResolvedNumThreads;
         var options = _settings.ToChunkerOptions();
         var aliases = ActiveAliases();
         var speakerId = _speakerId;

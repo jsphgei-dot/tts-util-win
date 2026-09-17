@@ -207,7 +207,7 @@ public partial class MainWindow : Window
         AllowedExtraBox.Text = _settings.AllowedExtraCharacters;
         VoicesDirBox.Text = _settings.ResolvedVoicesDirectory;
         OutputDirBox.Text = _settings.ResolvedOutputDirectory;
-        ThreadsBox.Text = _settings.NumThreads.ToString();
+        ThreadsBox.Text = _settings.NumThreads?.ToString() ?? string.Empty;
         ChunkLengthBox.Text = _settings.MaxChunkLength.ToString();
         ReadAsYouTypeBox.IsChecked = _settings.ReadAsYouType;
         PauseWhenUnfocusedBox.IsChecked = _settings.PauseWhenUnfocused;
@@ -238,7 +238,9 @@ public partial class MainWindow : Window
         _settings.OutputFormat = OutputFormatBox.SelectedIndex == 1 ? AudioOutputFormat.Wav : AudioOutputFormat.Mp3;
         _settings.Mp3BitRate = Math.Clamp(ParseInt(Mp3BitRateBox.Text, 128), 32, 320) * 1000;
         _settings.AllowedExtraCharacters = AllowedExtraBox.Text ?? string.Empty;
-        _settings.NumThreads = Math.Clamp(ParseInt(ThreadsBox.Text, _settings.NumThreads), 1, 16);
+        _settings.NumThreads = ParseOptionalInt(ThreadsBox.Text) is int threads
+            ? Math.Clamp(threads, ThreadPlan.Minimum, ThreadPlan.Maximum)
+            : null;
         _settings.MaxChunkLength = Math.Clamp(ParseInt(ChunkLengthBox.Text, _settings.MaxChunkLength), 64, 20000);
         _settings.ReadAsYouType = ReadAsYouTypeBox.IsChecked == true;
         _settings.CheckForUpdates = CheckForUpdatesBox.IsChecked == true;
@@ -364,7 +366,7 @@ public partial class MainWindow : Window
 
         try
         {
-            var threads = _settings.NumThreads;
+            var threads = _settings.ResolvedNumThreads;
             var engine = await Task.Run(() => LoadEngine(voice, threads));
             _engine = engine;
             _loadedVoiceName = voice.Name;
@@ -2231,4 +2233,8 @@ public partial class MainWindow : Window
 
     private static int ParseInt(string text, int fallback) =>
         int.TryParse(text.Trim(), out var value) ? value : fallback;
+
+    /// <summary>An empty or unreadable box means automatic, which the settings carry as null.</summary>
+    private static int? ParseOptionalInt(string text) =>
+        int.TryParse(text.Trim(), out var value) ? value : null;
 }

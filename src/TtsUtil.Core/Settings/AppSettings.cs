@@ -62,7 +62,12 @@ public sealed class AppSettings
 
     public float Speed { get; set; } = 1.0f;
 
-    public int NumThreads { get; set; } = 2;
+    /// <summary>Threads the voice model uses, or null to work it out from the processor count.</summary>
+    public int? NumThreads { get; set; }
+
+    /// <summary>The thread count actually used, with an unset setting resolved for this machine.</summary>
+    [JsonIgnore]
+    public int ResolvedNumThreads => ThreadPlan.Resolve(NumThreads);
 
     public int SilenceLineEndingMs { get; set; } = 200;
 

@@ -673,26 +673,31 @@
                             <TextBlock Grid.Row="0" Grid.Column="0" Text="Reading speed"
                                        Style="{StaticResource SettingLabel}" />
                             <TextBox x:Name="SettingsSpeedBox" Grid.Row="0" Grid.Column="1"
+                                     ToolTip="How fast the voice reads. 1.0 is normal, 0.5 is half speed, 2.0 is double"
                                      Style="{StaticResource SettingBox}" />
 
                             <TextBlock Grid.Row="1" Grid.Column="0" Text="Repeat"
                                        Style="{StaticResource SettingLabel}" />
                             <ComboBox x:Name="SettingsRepeatBox" Grid.Row="1" Grid.Column="1" Width="160"
+                                      ToolTip="Whether a finished reading starts again, either the one script or the whole queue"
                                       HorizontalAlignment="Left" Margin="0,0,0,8"
                                       SelectionChanged="OnSettingsRepeatChanged" />
 
                             <CheckBox x:Name="SettingsUseAliasesBox" Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2"
                                       Content="Use the alias list when reading" Margin="0,4,0,8"
+                                      ToolTip="The Aliases tab replacements are applied before the voice sees the text"
                                       VerticalAlignment="Center" Checked="OnSettingsUseAliasesChanged"
                                       Unchecked="OnSettingsUseAliasesChanged" />
 
                             <CheckBox x:Name="SettingsReadAsYouTypeBox" Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="2"
                                       Content="Read each word as I type it" Margin="0,4,0,8"
+                                      ToolTip="The voice speaks each word as soon as you finish typing it"
                                       VerticalAlignment="Center" Checked="OnSettingsReadAsYouTypeChanged"
                                       Unchecked="OnSettingsReadAsYouTypeChanged" />
 
                             <CheckBox x:Name="SettingsPauseWhenUnfocusedBox" Grid.Row="4" Grid.Column="0" Grid.ColumnSpan="2"
                                       Content="Pause the reading when the window loses focus" Margin="0,4,0,8"
+                                      ToolTip="Hold the reading whenever another window takes over"
                                       VerticalAlignment="Center" Checked="OnSettingsPauseWhenUnfocusedChanged"
                                       Unchecked="OnSettingsPauseWhenUnfocusedChanged" />
                         </Grid>
@@ -718,6 +723,7 @@
                             <TextBlock Grid.Row="0" Grid.Column="0" Text="Silence after line endings (ms)"
                                        Style="{StaticResource SettingLabel}" />
                             <TextBox x:Name="SilenceLineEndingBox" Grid.Row="0" Grid.Column="1"
+                                     ToolTip="Pause after a line ending, in milliseconds. 1000 is one second, 0 is no pause"
                                      Style="{StaticResource SettingBox}" />
                             <Button Grid.Row="0" Grid.Column="3" Tag="silence"
                                     Style="{StaticResource HelpButton}" Click="OnSettingsHelp" />
@@ -725,20 +731,24 @@
                             <TextBlock Grid.Row="1" Grid.Column="0" Text="Silence after sentences (ms)"
                                        Style="{StaticResource SettingLabel}" />
                             <TextBox x:Name="SilenceSentenceBox" Grid.Row="1" Grid.Column="1"
+                                     ToolTip="Pause after a full stop, in milliseconds. Most voices already rest there on their own"
                                      Style="{StaticResource SettingBox}" />
 
                             <TextBlock Grid.Row="2" Grid.Column="0" Text="Silence after questions (ms)"
                                        Style="{StaticResource SettingLabel}" />
                             <TextBox x:Name="SilenceQuestionBox" Grid.Row="2" Grid.Column="1"
+                                     ToolTip="Pause after a question mark, in milliseconds. The mark itself is never spoken"
                                      Style="{StaticResource SettingBox}" />
 
                             <TextBlock Grid.Row="3" Grid.Column="0" Text="Silence after exclamations (ms)"
                                        Style="{StaticResource SettingLabel}" />
                             <TextBox x:Name="SilenceExclamationBox" Grid.Row="3" Grid.Column="1"
+                                     ToolTip="Pause after an exclamation mark, in milliseconds. The mark itself is never spoken"
                                      Style="{StaticResource SettingBox}" />
 
                             <CheckBox x:Name="ScaleSilenceBox" Grid.Row="4" Grid.Column="0" Grid.ColumnSpan="2"
                                       Content="Scale silence to the speech rate" Margin="0,4,0,8"
+                                      ToolTip="Pauses shrink as the voice speeds up and stretch as it slows down"
                                       VerticalAlignment="Center" />
                             <Button Grid.Row="4" Grid.Column="3" Tag="scale-silence"
                                     Style="{StaticResource HelpButton}" Click="OnSettingsHelp" />
@@ -765,6 +775,7 @@
                             <TextBlock Grid.Row="0" Grid.Column="0" Text="Characters read aloud"
                                        Style="{StaticResource SettingLabel}" />
                             <ComboBox x:Name="SpokenCharactersBox" Grid.Row="0" Grid.Column="1"
+                                      ToolTip="Which characters survive to be spoken. Punctuation always becomes a pause"
                                       Margin="0,0,0,8" VerticalAlignment="Center" />
                             <TextBlock Grid.Row="0" Grid.Column="2" Margin="8,0,0,8" Foreground="#555"
                                        VerticalAlignment="Center"
@@ -781,15 +792,18 @@
                                     Style="{StaticResource HelpButton}" Click="OnSettingsHelp" />
 
                             <CheckBox x:Name="FilterHashBox" Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2"
-                                      Content="Omit hash characters (#)" Margin="0,4,0,6" />
+                                      Content="Omit hash characters (#)" Margin="0,4,0,6"
+                                      ToolTip="Takes out every hash, so a heading written as ## Chapter two reads as Chapter two" />
                             <Button Grid.Row="2" Grid.Column="3" Tag="filters"
                                     Style="{StaticResource HelpButton}" Click="OnSettingsHelp" />
 
                             <CheckBox x:Name="FilterWebBox" Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="2"
-                                      Content="Omit web links" Margin="0,0,0,6" />
+                                      Content="Omit web links" Margin="0,0,0,6"
+                                      ToolTip="Takes out any word starting http:// or https://, rather than spelling it out" />
 
                             <CheckBox x:Name="FilterMailBox" Grid.Row="4" Grid.Column="0" Grid.ColumnSpan="2"
-                                      Content="Omit mailto links" Margin="0,0,0,8" />
+                                      Content="Omit mailto links" Margin="0,0,0,8"
+                                      ToolTip="Takes out any word starting mailto:, rather than spelling it out" />
                         </Grid>
 
                         <TextBlock Text="Audio files" Style="{StaticResource SettingGroup}" />
@@ -813,6 +827,7 @@
                             <TextBlock Grid.Row="0" Grid.Column="0" Text="Default output directory"
                                        Style="{StaticResource SettingLabel}" />
                             <TextBox x:Name="OutputDirBox" Tag="Where finished audio is written" Grid.Row="0" Grid.Column="1"
+                                     ToolTip="The folder the Save dialog opens in. Empty means a TTS Util folder under Music"
                                      Style="{StaticResource SettingBox}" />
                             <Button Grid.Row="0" Grid.Column="2" Content="Browse" Margin="8,0,0,8"
                                     Click="OnBrowseOutputDir" />
@@ -822,6 +837,7 @@
                             <TextBlock Grid.Row="1" Grid.Column="0" Text="Saved audio format"
                                        Style="{StaticResource SettingLabel}" />
                             <ComboBox x:Name="OutputFormatBox" Grid.Row="1" Grid.Column="1"
+                                      ToolTip="Which file type the Save dialog offers first. The extension you pick decides the format"
                                       Margin="0,0,0,8" VerticalAlignment="Center" />
                             <Button Grid.Row="1" Grid.Column="3" Tag="output-format"
                                     Style="{StaticResource HelpButton}" Click="OnSettingsHelp" />
@@ -829,12 +845,14 @@
                             <TextBlock Grid.Row="2" Grid.Column="0" Text="MP3 bit rate (kbps)"
                                        Style="{StaticResource SettingLabel}" />
                             <TextBox x:Name="Mp3BitRateBox" Grid.Row="2" Grid.Column="1"
+                                     ToolTip="In kilobits per second, 32 to 320. One speaking voice needs little, so 128 is plenty"
                                      Style="{StaticResource SettingBox}" />
                             <Button Grid.Row="2" Grid.Column="3" Tag="mp3-bit-rate"
                                     Style="{StaticResource HelpButton}" Click="OnSettingsHelp" />
 
                             <CheckBox x:Name="SaveScriptWithAudioBox" Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="2"
                                       Content="Save a script when writing audio" Margin="0,4,0,8"
+                                      ToolTip="Writing audio from the Text tab also saves that text as a script of the same name"
                                       VerticalAlignment="Center" />
                             <Button Grid.Row="3" Grid.Column="3" Tag="save-script-with-audio"
                                     Style="{StaticResource HelpButton}" Click="OnSettingsHelp" />
@@ -842,6 +860,7 @@
                             <TextBlock Grid.Row="4" Grid.Column="0" Text="When a file finishes"
                                        Style="{StaticResource SettingLabel}" />
                             <ComboBox x:Name="SettingsWriteNoticeBox" Grid.Row="4" Grid.Column="1" Width="240"
+                                      ToolTip="How the program says a saved MP3 or WAV has finished, without you watching the status bar"
                                       HorizontalAlignment="Left" Margin="0,0,0,8"
                                       SelectionChanged="OnSettingsWriteNoticeChanged" />
                             <Button Grid.Row="4" Grid.Column="3" Tag="write-finished-notice"
@@ -866,6 +885,7 @@
                             <TextBlock Grid.Row="0" Grid.Column="0" Text="Voices directory"
                                        Style="{StaticResource SettingLabel}" />
                             <TextBox x:Name="VoicesDirBox" Tag="Where voice models are kept" Grid.Row="0" Grid.Column="1"
+                                     ToolTip="Where voice models live, one folder each. Empty means the usual place. Press Rescan after changing it"
                                      Style="{StaticResource SettingBox}" />
                             <Button Grid.Row="0" Grid.Column="2" Content="Browse" Margin="8,0,0,8"
                                     Click="OnBrowseVoicesDir" />
@@ -874,6 +894,7 @@
 
                             <CheckBox x:Name="UseWindowsVoicesBox" Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2"
                                       Content="Also offer the voices Windows already has" Margin="0,4,0,8"
+                                      ToolTip="Lists the speech voices Windows ships with beside the downloaded ones"
                                       VerticalAlignment="Center" Click="OnUseWindowsVoicesChanged" />
                             <Button Grid.Row="1" Grid.Column="3" Tag="use-windows-voices"
                                     Style="{StaticResource HelpButton}" Click="OnSettingsHelp" />
@@ -897,6 +918,7 @@
                             <TextBlock Grid.Row="0" Grid.Column="0" Text="Synthesis threads"
                                        Style="{StaticResource SettingLabel}" />
                             <TextBox x:Name="ThreadsBox" Grid.Row="0" Grid.Column="1"
+                                     ToolTip="How many threads a downloaded voice renders with, and nothing at all to the Windows voices. Empty works it out from the processor count. Most of the speed arrives by four threads"
                                      Style="{StaticResource SettingBox}" />
                             <Button Grid.Row="0" Grid.Column="3" Tag="threads"
                                     Style="{StaticResource HelpButton}" Click="OnSettingsHelp" />
@@ -904,6 +926,7 @@
                             <TextBlock Grid.Row="1" Grid.Column="0" Text="Maximum characters per chunk"
                                        Style="{StaticResource SettingLabel}" />
                             <TextBox x:Name="ChunkLengthBox" Grid.Row="1" Grid.Column="1"
+                                     ToolTip="How much text is handed to the voice at once, 64 to 20000. Smaller starts speaking sooner"
                                      Style="{StaticResource SettingBox}" />
                             <Button Grid.Row="1" Grid.Column="3" Tag="chunk-length"
                                     Style="{StaticResource HelpButton}" Click="OnSettingsHelp" />
@@ -930,11 +953,13 @@
                             <TextBlock Grid.Row="0" Grid.Column="0" Text="Editor text size"
                                        Style="{StaticResource SettingLabel}" />
                             <ComboBox x:Name="SettingsFontSizeBox" Grid.Row="0" Grid.Column="1" Width="80"
+                                      ToolTip="How big the text looks in the editor. Nothing that is saved changes"
                                       HorizontalAlignment="Left" Margin="0,0,0,8"
                                       SelectionChanged="OnSettingsFontSizeChanged" />
 
                             <CheckBox x:Name="WarnOnClosingUnsavedBox" Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2"
                                       Content="Ask before closing a tab with unsaved changes" Margin="0,4,0,8"
+                                      ToolTip="A tab holding changes you have not saved asks first rather than closing straight away"
                                       VerticalAlignment="Center" />
 
                             <CheckBox x:Name="CloseToTrayBox" Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2"
@@ -945,6 +970,7 @@
                             <TextBlock Grid.Row="3" Grid.Column="0" Text="Keep last messages"
                                        Style="{StaticResource SettingLabel}" />
                             <TextBox x:Name="KeepLastMessagesBox" Grid.Row="3" Grid.Column="1"
+                                     ToolTip="How many past status messages the history holds on to, and what Copy all writes out"
                                      Style="{StaticResource SettingBox}" />
                             <Button Grid.Row="3" Grid.Column="3" Tag="keep-last-messages"
                                     Style="{StaticResource HelpButton}" Click="OnSettingsHelp" />
@@ -952,6 +978,7 @@
                             <TextBlock Grid.Row="4" Grid.Column="0" Text="Show last messages"
                                        Style="{StaticResource SettingLabel}" />
                             <TextBox x:Name="ShowLastMessagesBox" Grid.Row="4" Grid.Column="1"
+                                     ToolTip="How many messages one page of the history shows. The rest are kept and are a page away"
                                      Style="{StaticResource SettingBox}" />
                             <Button Grid.Row="4" Grid.Column="3" Tag="show-last-messages"
                                     Style="{StaticResource HelpButton}" Click="OnSettingsHelp" />

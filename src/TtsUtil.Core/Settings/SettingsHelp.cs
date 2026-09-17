@@ -113,9 +113,16 @@ public static class SettingsHelp
         new SettingsHelpTopic(
             Threads,
             "Synthesis threads",
-            "How many processor threads the voice model uses. 1 to 16, and 2 by default.\n\n" +
+            "How many processor threads a downloaded voice renders with. Leave it empty to " +
+            "choose automatically, or set anything from 1 to 16.\n\n" +
+            "Automatic is half the processors this machine reports, never below one and " +
+            "never above four, which leaves the rest of the machine free. A machine with 32 " +
+            "processors or more allows eight, and the 32 bit build doubles whichever of those " +
+            "applies, as it renders less per thread.\n\n" +
             "More threads mean less waiting before playback starts, with little gained past about " +
-            "four. This does not make the voice speak faster. That is the speed slider."),
+            "four. This does not make the voice speak faster. That is the speed slider.\n\n" +
+            "The Windows voices ignore it. Windows renders those itself, far faster than " +
+            "the downloaded ones, whatever this says."),
 
         new SettingsHelpTopic(
             ChunkLength,
