@@ -45,9 +45,12 @@ public partial class MainWindow
     {
         if (string.IsNullOrEmpty(name)) return -1;
 
-        for (var index = 0; index < _voices.Count; index++)
+        for (var index = 0; index < _shownVoices.Count; index++)
         {
-            if (_voices[index].Name == name) return index;
+            if (string.Equals(_shownVoices[index].Name, name, StringComparison.OrdinalIgnoreCase))
+            {
+                return index;
+            }
         }
 
         return -1;

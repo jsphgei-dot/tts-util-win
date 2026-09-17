@@ -3,7 +3,7 @@
 ![version](https://img.shields.io/badge/version-0.10.1--beta-blue)
 ![platform](https://img.shields.io/badge/platform-Windows%2010%20%7C%2011%20x64-0078D6)
 ![built with](https://img.shields.io/badge/.NET-6.0-512BD4)
-![tests](https://img.shields.io/badge/tests-448%20passing-brightgreen)
+![tests](https://img.shields.io/badge/tests-451%20passing-brightgreen)
 ![license](https://img.shields.io/badge/license-Apache%202.0-lightgrey)
 
 > Read anything you can type, paste or open out loud, entirely on your own machine.
@@ -177,6 +177,11 @@ The voices directory is resolved in this order, first hit wins:
 
 Press **Rescan** after adding a model by hand.
 
+**Star** beside the voice picker keeps a voice at the top of the list, the way it works for
+speakers, and the stars are kept in `settings.json`. **Favorites** narrows the picker to the
+starred voices, and shows everything again when pressed a second time. A voice hidden that way
+is still the one a reading uses, and the status bar says so.
+
 #### Other languages
 
 The Voices tab also lists Spanish (Spain and Mexico), French, German, Italian, Portuguese
@@ -219,6 +224,9 @@ press the icon, and the text is written to the script library under that name. *
 does the same, except that it asks for the name first in a small window, filled in with the
 title already in the box. Saving under a name that exists replaces it. The same title shows
 on the Scripts tab, so saving from either place uses one name.
+
+Pressing anywhere that is not a control takes the cursor out of whatever box it was in, so no
+caret is left blinking in a box that has been clicked away from.
 
 The name belongs to the tab it was typed in. Switching tabs brings that tab's name back, and a
 new tab starts with an empty box, so a fresh piece of text is never saved over the script the

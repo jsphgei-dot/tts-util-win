@@ -110,6 +110,67 @@ public sealed class MainWindowTests : IDisposable
         _wpf.Invoke(() => Assert.Equal(1, window.VoiceBox.SelectedIndex));
     }
 
+    /// <summary>A starred voice rises to the top of the picker and is still the one in use.</summary>
+    [Fact]
+    public void StarringAVoiceMovesItToTheTopOfThePicker()
+    {
+        CreateFakeVoice("aaa-first");
+        CreateFakeVoice("zzz-second");
+
+        var window = CreateWindow(s => s.LastVoiceName = "zzz-second");
+
+        _wpf.Invoke(() =>
+        {
+            window.FavouriteVoiceButton.RaiseEvent(new RoutedEventArgs(ButtonBase.ClickEvent));
+
+            Assert.Equal(new[] { "zzz-second", "aaa-first" },
+                window.ShownVoices.Select(voice => voice.Name).ToArray());
+            Assert.Equal(0, window.VoiceBox.SelectedIndex);
+            Assert.True(window.Settings.IsFavouriteVoice("zzz-second"));
+        });
+    }
+
+    /// <summary>The Favorites button narrows the picker to the starred voices and back again.</summary>
+    [Fact]
+    public void ThePickerCanShowOnlyTheStarredVoices()
+    {
+        CreateFakeVoice("aaa-first");
+        CreateFakeVoice("zzz-second");
+
+        var window = CreateWindow(s => s.FavouriteVoices.Add("zzz-second"));
+
+        _wpf.Invoke(() =>
+        {
+            window.ShowFavouriteVoicesButton.RaiseEvent(new RoutedEventArgs(ButtonBase.ClickEvent));
+
+            Assert.Equal(new[] { "zzz-second" }, window.ShownVoices.Select(voice => voice.Name).ToArray());
+            Assert.Equal("Show all", window.ShowFavouriteVoicesButton.Content);
+
+            window.ShowFavouriteVoicesButton.RaiseEvent(new RoutedEventArgs(ButtonBase.ClickEvent));
+
+            Assert.Equal(2, window.ShownVoices.Count);
+        });
+    }
+
+    /// <summary>A press on the window rather than on a control leaves no caret behind.</summary>
+    [Fact]
+    public void ClickingAwayFromATextBoxTakesTheCursorOutOfIt()
+    {
+        var window = CreateWindow();
+
+        _wpf.Invoke(() =>
+        {
+            window.Show();
+            window.InputText.Focus();
+
+            Assert.True(window.InputText.IsKeyboardFocused);
+
+            window.ReleaseTypingFocus(window.StatusText);
+
+            Assert.False(window.InputText.IsKeyboardFocused);
+        });
+    }
+
     [Fact]
     public void AboutTabReportsTheVoiceDirectoryAndCount()
     {

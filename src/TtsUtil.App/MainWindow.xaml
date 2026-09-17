@@ -34,8 +34,15 @@
                 </Grid.ColumnDefinitions>
 
                 <Label Grid.Row="0" Grid.Column="0" Content="Voice" />
-                <ComboBox x:Name="VoiceBox" Grid.Row="0" Grid.Column="1" Margin="4,0,12,0" MinWidth="220"
-                          VerticalAlignment="Center" SelectionChanged="OnVoiceChanged" />
+                <DockPanel Grid.Row="0" Grid.Column="1" Margin="4,0,12,0" VerticalAlignment="Center">
+                    <Button x:Name="ShowFavouriteVoicesButton" DockPanel.Dock="Right" Content="Favorites"
+                            Width="82" Margin="6,0,0,0" ToolTip="Show only starred voices"
+                            Click="OnShowFavouriteVoices" />
+                    <ToggleButton x:Name="FavouriteVoiceButton" DockPanel.Dock="Right" Content="Star"
+                                  Width="56" Margin="6,0,0,0" ToolTip="Keep this voice at the top of the list"
+                                  Click="OnToggleFavouriteVoice" />
+                    <ComboBox x:Name="VoiceBox" MinWidth="220" SelectionChanged="OnVoiceChanged" />
+                </DockPanel>
 
                 <Label Grid.Row="0" Grid.Column="2" Content="Speed" />
                 <Slider x:Name="SpeedSlider" Grid.Row="0" Grid.Column="3" Minimum="0.5" Maximum="2.0" Value="1.0"

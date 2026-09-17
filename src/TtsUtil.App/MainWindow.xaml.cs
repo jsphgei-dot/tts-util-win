@@ -51,6 +51,9 @@ public partial class MainWindow : Window
     private string? _speakerVoiceName;
     private int _speakerId;
     private bool _favouritesOnly;
+    private IReadOnlyList<VoiceDescriptor> _shownVoices = Array.Empty<VoiceDescriptor>();
+    private VoiceDescriptor? _selectedVoice;
+    private bool _favouriteVoicesOnly;
 
     public MainWindow() : this(LoadSettingsWithOverrides())
     {
@@ -177,10 +180,12 @@ public partial class MainWindow : Window
 
     internal IReadOnlyList<VoiceDescriptor> Voices => _voices;
 
-    private VoiceDescriptor? SelectedVoice =>
-        VoiceBox.SelectedIndex >= 0 && VoiceBox.SelectedIndex < _voices.Count
-            ? _voices[VoiceBox.SelectedIndex]
-            : null;
+    /// <summary>The voice a run uses, which stays put when the picker is filtered down to the
+    /// starred voices and this one is not among them.</summary>
+    private VoiceDescriptor? SelectedVoice => _selectedVoice;
+
+    /// <summary>The voices the picker is showing, the starred ones first.</summary>
+    internal IReadOnlyList<VoiceDescriptor> ShownVoices => _shownVoices;
 
     private void LoadSettingsIntoUi()
     {
@@ -270,31 +275,76 @@ public partial class MainWindow : Window
         var windows = _settings.UseWindowsVoices ? WindowsVoiceScanner() : Array.Empty<VoiceDescriptor>();
         _voices = downloaded.Concat(windows).ToList();
 
-        _initialising = true;
-        VoiceBox.Items.Clear();
-        foreach (var voice in _voices) VoiceBox.Items.Add(VoiceLabel(voice));
-        _initialising = false;
-
         AboutVoicesText.Text = $"Voices directory: {directory}\n{downloaded.Count} downloaded, "
             + $"{windows.Count} from Windows.";
 
         if (_voices.Count == 0)
         {
+            _favouriteVoicesOnly = false;
+            ShowFavouriteVoicesButton.Content = "Favorites";
+            ShowVoices(null);
+            _selectedVoice = null;
             SetStatus($"No voices found in {directory}. Install one from the Voices tab.");
             SpeakerBox.Items.Clear();
             LicenseText.Text = string.Empty;
             return;
         }
 
-        var index = 0;
-        if (!string.IsNullOrEmpty(_settings.LastVoiceName))
-        {
-            var found = _voices.ToList().FindIndex(v =>
-                string.Equals(v.Name, _settings.LastVoiceName, StringComparison.OrdinalIgnoreCase));
-            if (found >= 0) index = found;
-        }
+        ShowVoices(_settings.LastVoiceName);
+    }
+
+    /// <summary>Fills the picker with the starred voices first, or with only those, keeping the
+    /// named voice chosen while it is still on show.</summary>
+    private void ShowVoices(string? keep)
+    {
+        var starred = _voices.Where(voice => _settings.IsFavouriteVoice(voice.Name)).ToList();
+        _shownVoices = _favouriteVoicesOnly
+            ? starred
+            : starred.Concat(_voices.Where(voice => !_settings.IsFavouriteVoice(voice.Name))).ToList();
+
+        _initialising = true;
+        VoiceBox.Items.Clear();
+        foreach (var voice in _shownVoices) VoiceBox.Items.Add(VoiceLabel(voice));
+        _initialising = false;
+
+        var index = IndexOfVoice(keep);
+        if (index < 0 && !_favouriteVoicesOnly && _shownVoices.Count > 0) index = 0;
 
         VoiceBox.SelectedIndex = index;
+        FavouriteVoiceButton.IsChecked = _settings.IsFavouriteVoice(_selectedVoice?.Name);
+
+        // The filter can hide the voice that is still the one a run would use.
+        if (index < 0 && _selectedVoice is not null) SetStatus($"Still using {_selectedVoice.Name}.");
+    }
+
+    private void OnToggleFavouriteVoice(object sender, RoutedEventArgs e)
+    {
+        var voice = SelectedVoice;
+        if (voice is null) return;
+
+        _settings.ToggleFavouriteVoice(voice.Name);
+        _settings.Save();
+
+        if (_favouriteVoicesOnly && !_voices.Any(one => _settings.IsFavouriteVoice(one.Name)))
+        {
+            _favouriteVoicesOnly = false;
+            ShowFavouriteVoicesButton.Content = "Favorites";
+        }
+
+        ShowVoices(voice.Name);
+    }
+
+    private void OnShowFavouriteVoices(object sender, RoutedEventArgs e)
+    {
+        if (!_favouriteVoicesOnly && !_voices.Any(one => _settings.IsFavouriteVoice(one.Name)))
+        {
+            SetStatus("No starred voices yet. Pick one and press Star.");
+            return;
+        }
+
+        _favouriteVoicesOnly = !_favouriteVoicesOnly;
+        ShowFavouriteVoicesButton.Content = _favouriteVoicesOnly ? "Show all" : "Favorites";
+        ShowVoices(SelectedVoice?.Name);
     }
 
     private async Task<ITtsEngine?> EnsureEngineAsync()
@@ -1756,9 +1806,13 @@ public partial class MainWindow : Window
     {
         if (_initialising) return;
 
-        var voice = SelectedVoice;
-        if (voice is null) return;
+        var voice = VoiceBox.SelectedIndex >= 0 && VoiceBox.SelectedIndex < _shownVoices.Count
+            ? _shownVoices[VoiceBox.SelectedIndex]
+            : null;
+        if (voice is null || ReferenceEquals(voice, _selectedVoice)) return;
 
+        _selectedVoice = voice;
+        FavouriteVoiceButton.IsChecked = _settings.IsFavouriteVoice(voice.Name);
         _settings.LastVoiceName = voice.Name;
         _settings.Save();
         LicenseText.Text = ReadLicenseSummary(voice);

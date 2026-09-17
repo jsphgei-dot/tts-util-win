@@ -264,6 +264,25 @@ public sealed class AppSettings
         return ids;
     }
 
+    /// <summary>The starred voices, as lower case voice names.</summary>
+    public List<string> FavouriteVoices { get; set; } = new();
+
+    public bool IsFavouriteVoice(string? voiceName)
+    {
+        var key = VoiceKey(voiceName);
+        return key is not null && FavouriteVoices.Contains(key);
+    }
+
+    /// <summary>Stars or unstars a voice, returning whether it is starred afterwards.</summary>
+    public bool ToggleFavouriteVoice(string? voiceName)
+    {
+        var key = VoiceKey(voiceName);
+        if (key is null || FavouriteVoices.Remove(key)) return false;
+
+        FavouriteVoices.Add(key);
+        return true;
+    }
+
     public bool IsFavouriteSpeaker(string? voiceName, int speakerId) =>
         GetFavouriteSpeakers(voiceName).Contains(speakerId);
 

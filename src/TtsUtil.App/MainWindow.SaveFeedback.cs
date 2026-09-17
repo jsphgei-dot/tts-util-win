@@ -73,7 +73,10 @@ public partial class MainWindow
 
     private void OnPreviewButtonPress(object sender, MouseButtonEventArgs e)
     {
-        if (ButtonAbove(e.OriginalSource as DependencyObject) is null) return;
+        var source = e.OriginalSource as DependencyObject;
+        ReleaseTypingFocus(source);
+
+        if (ButtonAbove(source) is null) return;
         if (!ClaimClick()) e.Handled = true;
     }
 
