@@ -9,7 +9,7 @@ using TtsUtil.Core.Text;
 
 namespace TtsUtil.Core.Tts;
 
-/// <summary>Destination for synthesised audio.</summary>
+/// <summary>Destination for synthesized audio.</summary>
 public interface ISampleSink
 {
     void WriteSamples(ReadOnlySpan<float> samples);
@@ -27,7 +27,7 @@ public interface IAudioPlayback : ISampleSink, IDisposable
 {
     bool IsPaused { get; }
 
-    /// <summary>The character the listener is hearing, which trails what has been synthesised.</summary>
+    /// <summary>The character the listener is hearing, which trails what has been synthesized.</summary>
     long PlayedCharacters { get; }
 
     void Pause();
@@ -36,11 +36,11 @@ public interface IAudioPlayback : ISampleSink, IDisposable
 
     void Stop();
 
-    /// <summary>Blocks until queued audio has played out, or the run is cancelled.</summary>
+    /// <summary>Blocks until queued audio has played out, or the run is canceled.</summary>
     void WaitUntilDrained();
 }
 
-/// <summary>Writes synthesised audio to a wave file.</summary>
+/// <summary>Writes synthesized audio to a wave file.</summary>
 public sealed class WaveFileSink : ISampleSink, IDisposable
 {
     private readonly WaveWriter _writer;

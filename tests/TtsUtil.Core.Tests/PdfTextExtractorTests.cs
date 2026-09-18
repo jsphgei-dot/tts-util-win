@@ -66,13 +66,13 @@ public sealed class PdfTextExtractorTests : IDisposable
     public async Task OcrFillsInThePagesThatHaveNoTextLayer()
     {
         var path = WritePdf(("Page one text.", false), (null, true));
-        var ocr = new FakeOcr("recognised words");
+        var ocr = new FakeOcr("recognized words");
 
         var result = await new PdfTextExtractor(ocr).ExtractAsync(path);
 
         Assert.Equal(1, ocr.Calls);
         Assert.Contains("Page one text", result.Text);
-        Assert.Contains("recognised words", result.Text);
+        Assert.Contains("recognized words", result.Text);
         Assert.Empty(result.EmptyPages);
     }
 

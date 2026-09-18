@@ -25,7 +25,7 @@ public sealed class PdfPageImage
     public byte[] Bytes { get; }
 }
 
-/// <summary>Recognises text in a page image. Implemented outside Core, which is not Windows bound.</summary>
+/// <summary>Recognizes text in a page image. Implemented outside Core, which is not Windows bound.</summary>
 public interface IPageImageOcr
 {
     Task<string> RecogniseAsync(PdfPageImage image, CancellationToken cancellationToken = default);
@@ -108,8 +108,8 @@ public sealed class PdfTextExtractor
                 continue;
             }
 
-            var recognised = await RunOcrAsync(page, number, total, progress, cancellationToken);
-            pages.Add(new PdfPageText { Number = number, Text = recognised, IsScanned = true });
+            var recognized = await RunOcrAsync(page, number, total, progress, cancellationToken);
+            pages.Add(new PdfPageText { Number = number, Text = recognized, IsScanned = true });
         }
 
         return new PdfExtractionResult { Pages = pages };

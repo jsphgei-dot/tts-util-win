@@ -962,7 +962,7 @@ public partial class MainWindow : Window
         RebuildLineList();
     }
 
-    /// <summary>Keeps the list on the line being heard, which lags what has been synthesised.</summary>
+    /// <summary>Keeps the list on the line being heard, which lags what has been synthesized.</summary>
     private void StartFollowingPlayback()
     {
         if (_playbackFollow is null)
@@ -1835,7 +1835,7 @@ public partial class MainWindow : Window
         }
 
         _installCancellation?.Cancel();
-        VoiceInstallStatus.Text = "Cancelling...";
+        VoiceInstallStatus.Text = "Canceling...";
     }
 
     private async void OnVoiceChanged(object sender, SelectionChangedEventArgs e)

@@ -9,7 +9,7 @@ using Windows.Media.SpeechSynthesis;
 
 namespace TtsUtil.App;
 
-/// <summary>The speech voices Windows ships with, listed through the WinRT synthesiser, which
+/// <summary>The speech voices Windows ships with, listed through the WinRT synthesizer, which
 /// sees the ones added in Settings as well as the older SAPI set.</summary>
 public static class WindowsVoices
 {

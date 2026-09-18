@@ -8,7 +8,7 @@ using System.Text;
 
 namespace TtsUtil.Core.Text;
 
-/// <summary>One unit of text to synthesise, plus trailing silence.</summary>
+/// <summary>One unit of text to synthesize, plus trailing silence.</summary>
 public readonly record struct Utterance(string Text, int SilenceMs, long InputStartIndex, int CharsRead);
 
 /// <summary>Silence durations inserted for each kind of delimiter.</summary>

@@ -25,7 +25,7 @@ public partial class MainWindow
         }
     }
 
-    /// <summary>Loads a voice of either kind. Tests replace it so nothing is synthesised.</summary>
+    /// <summary>Loads a voice of either kind. Tests replace it so nothing is synthesized.</summary>
     internal Func<VoiceDescriptor, int, ITtsEngine> EngineLoader { get; set; } = (voice, threads) =>
         voice.Source == VoiceSource.Windows
             ? WindowsTtsEngine.Load(voice) ?? throw new InvalidOperationException(

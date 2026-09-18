@@ -1101,7 +1101,7 @@
                         <TextBlock Text="TTS Util Win" FontSize="18" FontWeight="SemiBold" Margin="0,0,0,2" />
                         <TextBlock x:Name="VersionText" Foreground="#555" Margin="0,0,0,10" />
                         <TextBlock TextWrapping="Wrap" Margin="0,0,0,10"
-                                   Text="A Windows port of TTS Util that synthesises speech locally with sherpa-onnx. No network access and no system speech engine are required." />
+                                   Text="A Windows port of TTS Util that synthesizes speech locally with sherpa-onnx. No network access and no system speech engine are required." />
                         <TextBlock x:Name="AboutVoicesText" TextWrapping="Wrap" Margin="0,0,0,10" />
                         <TextBlock TextWrapping="Wrap" Margin="0,0,0,10"
                                    Text="TTS Util Win is a Windows port of TTS Util by Dane Finlay, and is not endorsed by that project. It is licensed under the Apache License 2.0, as are TTS Util and the sherpa-onnx library by the k2-fsa project. The NOTICE and THIRD-PARTY-NOTICES.txt files beside the program name every component it ships. Each voice model carries its own license; see the LICENSE file inside the model folder." />

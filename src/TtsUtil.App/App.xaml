@@ -92,7 +92,7 @@
         </Style>
         <!-- Tab headers stay on one line and scroll sideways, rather than wrapping into rows
              that reshuffle as tabs are closed. -->
-        <!-- Every box shows what it is for in grey until it is typed in. The line is its Tag. -->
+        <!-- Every box shows what it is for in gray until it is typed in. The line is its Tag. -->
     <Style TargetType="TextBox">
         <Setter Property="Background" Value="White" />
         <Setter Property="BorderBrush" Value="#ABADB3" />

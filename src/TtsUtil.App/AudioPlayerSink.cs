@@ -10,7 +10,7 @@ using TtsUtil.Core.Tts;
 
 namespace TtsUtil.App;
 
-/// <summary>Plays synthesised audio through the default output device.</summary>
+/// <summary>Plays synthesized audio through the default output device.</summary>
 public sealed class AudioPlayerSink : IAudioPlayback
 {
     private static readonly TimeSpan MaxQueued = TimeSpan.FromSeconds(4);
@@ -43,7 +43,7 @@ public sealed class AudioPlayerSink : IAudioPlayback
 
     public bool IsPaused => _paused;
 
-    /// <summary>Where the listener has reached, which trails what has been synthesised.</summary>
+    /// <summary>Where the listener has reached, which trails what has been synthesized.</summary>
     public long PlayedCharacters => _marks.CharactersAt(PlayedBytes());
 
     public void Mark(long characterOffset) => _marks.Add(_bytesQueued, characterOffset);
@@ -119,7 +119,7 @@ public sealed class AudioPlayerSink : IAudioPlayback
         }
     }
 
-    /// <summary>Blocks until queued audio has finished playing or the task is cancelled.</summary>
+    /// <summary>Blocks until queued audio has finished playing or the task is canceled.</summary>
     public void WaitUntilDrained()
     {
         // A paused device is not draining, but the audio is still owed to the listener.

@@ -18,7 +18,7 @@ public interface ITtsEngine : IDisposable
 
     int SpeakerCount { get; }
 
-    /// <summary>Synthesises one utterance, delivering samples as they are produced.</summary>
+    /// <summary>Synthesizes one utterance, delivering samples as they are produced.</summary>
     void Synthesize(string text, int speakerId, float speed, SampleCallback onSamples, CancellationToken cancellationToken);
 
     /// <summary>True once the voice has spoken, so its random state no longer matches a fresh load.</summary>
