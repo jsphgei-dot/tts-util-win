@@ -16,7 +16,7 @@
     .\Publish.ps1
 
 .EXAMPLE
-    .\Publish.ps1 -Publish -NotesFile dist\RELEASE_NOTES_v0.3.0-beta.md
+    .\Publish.ps1 -Publish -SkipBuild -NotesFile dist\RELEASE_NOTES_v0.3.0-beta.md
 
 .EXAMPLE
     .\Publish.ps1 -Publish -NotesFile dist\notes.md -CertThumbprint ABC123DEF456
@@ -35,6 +35,8 @@ param(
     [switch]$Publish,
 
     [switch]$SkipTests,
+
+    [switch]$SkipBuild,
 
     [string]$CertThumbprint,
 
@@ -66,21 +68,30 @@ if (-not $CertThumbprint) {
     Write-Host 'No certificate given, so this release is unsigned and SmartScreen will warn.' -ForegroundColor Yellow
 }
 
-# The exe and the setup are both signed inside the build, before either is zipped, so the
-# hashes written below belong to the signed files.
-& (Join-Path $PSScriptRoot 'BuildPortable.ps1') -Runtime $Runtime -Installer -SkipTests:$SkipTests `
-    -CertThumbprint $CertThumbprint -TimestampUrl $TimestampUrl
-if ($LASTEXITCODE -ne 0) { throw 'Build failed.' }
-
 $portableZip = Join-Path $dist "TtsUtilWin-$version-$arch-portable.zip"
 $setupExe = Join-Path $dist "TtsUtilWin-$version-$arch-setup.exe"
 $setupZip = Join-Path $dist "TtsUtilWin-$version-$arch-setup.zip"
 
-if (-not (Test-Path $setupExe)) { throw "No setup program at $setupExe." }
+# The exe and the setup are both signed inside the build, before either is zipped, so the
+# hashes written below belong to the signed files.
+if ($SkipBuild) {
+    # The setup program carries a build time, so a rebuild changes both hashes and the notes
+    # written from the previous run stop matching. This publishes what is already in dist.
+    foreach ($zip in @($portableZip, $setupZip)) {
+        if (-not (Test-Path $zip)) { throw "-SkipBuild needs $zip, which is not there." }
+    }
+}
+else {
+    & (Join-Path $PSScriptRoot 'BuildPortable.ps1') -Runtime $Runtime -Installer -SkipTests:$SkipTests `
+        -CertThumbprint $CertThumbprint -TimestampUrl $TimestampUrl
+    if ($LASTEXITCODE -ne 0) { throw 'Build failed.' }
 
-Remove-Item $portableZip, $setupZip -ErrorAction SilentlyContinue
-Compress-Archive -Path (Join-Path $dist "TtsUtilWin-$arch") -DestinationPath $portableZip
-Compress-Archive -Path $setupExe -DestinationPath $setupZip
+    if (-not (Test-Path $setupExe)) { throw "No setup program at $setupExe." }
+
+    Remove-Item $portableZip, $setupZip -ErrorAction SilentlyContinue
+    Compress-Archive -Path (Join-Path $dist "TtsUtilWin-$arch") -DestinationPath $portableZip
+    Compress-Archive -Path $setupExe -DestinationPath $setupZip
+}
 
 function Get-Sha256([string]$path) { (Get-FileHash -Algorithm SHA256 -Path $path).Hash.ToLowerInvariant() }
 
@@ -120,10 +131,12 @@ if (-not $Publish) {
     return
 }
 
-# The zips are rebuilt every run, so hashes written into the notes by hand go stale.
+# A build the notes were not written from is caught here rather than on the release page.
 $notes = Get-Content $NotesFile -Raw
 foreach ($hash in @($manifest.setup.sha256, $manifest.portable.sha256)) {
-    if ($notes -notlike "*$hash*") { throw "The notes do not carry $hash. Copy the hashes above into $NotesFile." }
+    if ($notes -notlike "*$hash*") {
+        throw "The notes do not carry $hash. Copy the hashes above into $NotesFile, then re-run with -SkipBuild."
+    }
 }
 
 function Send-Assets([string]$repo)
