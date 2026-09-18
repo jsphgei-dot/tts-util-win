@@ -137,6 +137,7 @@ Type: dirifempty; Name: "{app}"
 [Code]
 const
   UninstallKey = 'Software\Microsoft\Windows\CurrentVersion\Uninstall\{#AppIdGuid}_is1';
+  ArchValue = 'InstalledArch';
 
 var
   DownloadPage: TDownloadWizardPage;
@@ -144,11 +145,130 @@ var
   VoiceIds: TArrayOfString;
   PreviousVersion: String;
   InstallAction: String;
+  OtherVersion: String;
+  OtherArch: String;
+  OtherUninstaller: String;
+  OtherRoot: Integer;
 
-function InstalledVersion: String;
+function ArchAt(Root: Integer): String;
+var
+  DisplayName: String;
 begin
-  if not RegQueryStringValue(HKA, UninstallKey, 'DisplayVersion', Result) then
-    Result := '';
+  if RegQueryStringValue(Root, UninstallKey, ArchValue, Result) and (Result <> '') then
+    Exit;
+
+  { A 0.12.0-beta install recorded no architecture, and its display name ends with one. }
+  Result := 'x64';
+  if RegQueryStringValue(Root, UninstallKey, 'DisplayName', DisplayName) then
+  begin
+    if Pos('(arm64)', DisplayName) > 0 then
+      Result := 'arm64'
+    else if Pos('(x86)', DisplayName) > 0 then
+      Result := 'x86';
+  end;
+end;
+
+{ An install of this architecture lands in PreviousVersion and one of another in Other*.
+  HKLM is split by bitness and HKCU is not, so HKCU is read once. }
+procedure ScanForInstalls;
+var
+  Roots: array[0..2] of Integer;
+  Count, I: Integer;
+  Version, Arch: String;
+begin
+  PreviousVersion := '';
+  OtherVersion := '';
+  OtherArch := '';
+  OtherUninstaller := '';
+
+  Count := 0;
+  if IsX64OS or IsArm64 then
+  begin
+    Roots[Count] := HKLM64;
+    Count := Count + 1;
+  end;
+  Roots[Count] := HKLM32;
+  Count := Count + 1;
+  Roots[Count] := HKCU;
+  Count := Count + 1;
+
+  for I := 0 to Count - 1 do
+  begin
+    if RegQueryStringValue(Roots[I], UninstallKey, 'DisplayVersion', Version) then
+    begin
+      Arch := ArchAt(Roots[I]);
+
+      if Arch = '{#TargetArch}' then
+      begin
+        if PreviousVersion = '' then
+          PreviousVersion := Version;
+      end
+      else if OtherVersion = '' then
+      begin
+        OtherVersion := Version;
+        OtherArch := Arch;
+        OtherRoot := Roots[I];
+        RegQueryStringValue(Roots[I], UninstallKey, 'UninstallString', OtherUninstaller);
+      end;
+    end;
+  end;
+end;
+
+{ The uninstaller hands the work to a copy of itself and returns early, so the registry
+  entry going away is what says the removal finished. }
+function RemoveOtherArchitecture: Boolean;
+var
+  Code, Waited: Integer;
+  Version: String;
+begin
+  Result := False;
+  if OtherUninstaller = '' then
+    Exit;
+
+  if not Exec(RemoveQuotes(OtherUninstaller), '/VERYSILENT /SUPPRESSMSGBOXES /NORESTART', '',
+              SW_SHOW, ewWaitUntilTerminated, Code) then
+    Exit;
+
+  Waited := 0;
+  while (Waited < 60000) and
+        RegQueryStringValue(OtherRoot, UninstallKey, 'DisplayVersion', Version) do
+  begin
+    Sleep(500);
+    Waited := Waited + 500;
+  end;
+
+  Result := not RegQueryStringValue(OtherRoot, UninstallKey, 'DisplayVersion', Version);
+end;
+
+{ Every architecture shares one AppId, one program folder and one Start menu entry, so two
+  of them installed at once would fight over all three. }
+function ResolveArchitectureClash: Boolean;
+begin
+  Result := True;
+  if OtherVersion = '' then
+    Exit;
+
+  if SuppressibleMsgBox(
+       '{#AppName} ' + OtherVersion + ' is installed as the ' + OtherArch + ' build, and this ' +
+       'is the {#TargetArch} build.' + #13#10 + #13#10 +
+       'The two share a program folder and a Start menu entry, so they cannot sit side by ' +
+       'side. Setup can remove the ' + OtherArch + ' copy first. Your settings are kept, and ' +
+       'any voice it installed can be ticked again further on.' + #13#10 + #13#10 +
+       'Remove it and carry on? Choosing No ends setup.',
+       mbConfirmation, MB_YESNO, IDNO) = IDNO then
+  begin
+    Result := False;
+    Exit;
+  end;
+
+  if RemoveOtherArchitecture then
+    Exit;
+
+  SuppressibleMsgBox(
+    'The ' + OtherArch + ' copy could not be removed. Remove {#AppName} from Installed apps, ' +
+    'then run this setup again.',
+    mbError, MB_OK, IDOK);
+  Result := False;
 end;
 
 #include "Version.iss"
@@ -157,9 +277,12 @@ function InitializeSetup: Boolean;
 var
   Comparison: Integer;
 begin
-  Result := True;
-  PreviousVersion := InstalledVersion;
   InstallAction := 'install';
+  ScanForInstalls;
+
+  Result := ResolveArchitectureClash;
+  if not Result then
+    Exit;
 
   if PreviousVersion = '' then
     Exit;
@@ -354,5 +477,9 @@ end;
 procedure CurStepChanged(CurStep: TSetupStep);
 begin
   if CurStep = ssPostInstall then
+  begin
+    { Read by the next setup, whichever architecture it is built for. }
+    RegWriteStringValue(HKA, UninstallKey, ArchValue, '{#TargetArch}');
     ExtractVoices;
+  end;
 end;

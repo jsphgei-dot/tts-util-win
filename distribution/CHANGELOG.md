@@ -11,6 +11,11 @@ built but not yet released, and the release step renames it to the version going
   describe. A release with no build for an architecture points that copy at the release page
   instead of offering it anything.
 
+* **Two architectures can no longer land side by side.** Installing the ARM64 or 32 bit build
+  over an existing x64 one used to leave two copies fighting over one program folder, with two
+  Start menu entries and two entries in Installed apps. Setup now finds the other copy wherever
+  it registered itself, offers to remove it first, and ends if you say no.
+
 ## 0.12.0-beta (version code 19)
 
 * **One repository from here on.** The source repository is public, and it is now also where

@@ -55,6 +55,15 @@ The sherpa-onnx native libraries ship for all three, so the speech engine is nat
 build rather than emulated. The installer refuses a machine it does not match, which is why the
 ARM64 build cannot be run on an x64 machine by mistake.
 
+Only one of them can be installed at a time. They share an application id, a program folder and
+a Start menu entry, so a setup that finds another architecture already installed offers to
+remove it first and ends rather than installing beside it. Each install records the
+architecture it was built for under `InstalledArch` in its uninstall key, which is how the next
+setup knows. An ARM64 machine runs all three setups, so that check is the only thing keeping two
+copies apart there. A 32 bit setup is redirected to `WOW6432Node`, so the check reads the 64 bit
+view, the 32 bit view and `HKEY_CURRENT_USER`, covering per machine and per user installs
+alike.
+
 | Switch | Effect |
 | --- | --- |
 | `-Installer` | Compiles `installer\TtsUtilWin.iss` after publishing |
