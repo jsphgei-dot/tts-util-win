@@ -24,8 +24,9 @@ carries a build time, so a rebuild changes both hashes, and the notes written fr
 run would no longer match what is uploaded. Leave it off only on a run that is not publishing.
 
 The manifest is pushed **after** the assets, so nobody is pointed at a download that is not
-there yet. The seed files for the retired distribution repository, its README and the changelog,
-live in `distribution\` here.
+there yet. `distribution\README.md` is the readme laid down in the program folder and packed
+into the portable zip, and `distribution\CHANGELOG.md` is the changelog compiled into the
+program.
 
 ## The other two architectures
 

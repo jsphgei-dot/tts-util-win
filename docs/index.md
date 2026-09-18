@@ -38,6 +38,9 @@ and where to go next.
 ## Elsewhere in the repository
 
 * `voices/README.md` explains what makes a folder a voice, for anybody adding a model by hand.
-* `distribution/` holds the two files published to the retired distribution repository, its README and
-  the changelog. The changelog is also compiled into the program and read by the Updates tab.
+* `distribution/README.md` is the readme that ships inside the program folder and the portable
+  zip, written for people running the program rather than building it, and
+  `distribution/CHANGELOG.md` is the changelog, which is also compiled into the program and read
+  by the Updates tab. `distribution/retired-repo-README.md` is the landing page of the retired
+  distribution repository, which is published nowhere else.
 * `LICENSE`, `NOTICE` and `THIRD-PARTY-NOTICES.txt` travel with every build.

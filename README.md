@@ -1,9 +1,9 @@
 ﻿# TTS Util Win
 
-![version](https://img.shields.io/badge/version-0.11.0--beta-blue)
+![version](https://img.shields.io/badge/version-0.12.0--beta-blue)
 ![platform](https://img.shields.io/badge/platform-Windows%2010%20%7C%2011%20%C2%B7%20x64%20%7C%20ARM64%20%7C%20x86-0078D6)
-![built with](https://img.shields.io/badge/.NET-6.0-512BD4)
-![tests](https://img.shields.io/badge/tests-456%20passing-brightgreen)
+![built with](https://img.shields.io/badge/.NET-10.0-512BD4)
+![tests](https://img.shields.io/badge/tests-478%20passing-brightgreen)
 ![license](https://img.shields.io/badge/license-Apache%202.0-lightgrey)
 
 > Read anything you can type, paste or open out loud, entirely on your own machine.
@@ -64,14 +64,17 @@ This application was coded using AI assistance.
 
 **Download a build.** Builds are published to
 [Releases](https://github.com/jsphgei-dot/tts-util-win/releases/latest), as
-`TtsUtilWin-<version>-setup.zip` and `TtsUtilWin-<version>-portable.zip`, each with its
-SHA256 on the release page. Nothing is committed to this repository: `dist/` is ignored, so the
-executable and the installer are always either downloaded from a release or built locally.
+`TtsUtilWin-<version>-<arch>-setup.zip` and `TtsUtilWin-<version>-<arch>-portable.zip`, each
+with its SHA256 on the release page, where `<arch>` is `x64`, `arm64` or `x86`. The installer
+is also attached on its own, as `TtsUtilWin-<version>-<arch>-setup.exe`, for package managers
+and anything else wanting a URL it can hand straight to Windows. Nothing is committed to this
+repository: `dist/` is ignored, so the executable and the installer are always either
+downloaded from a release or built locally.
 
-**Installer.** `TtsUtilWin-<version>-setup.exe`, inside the setup zip, asks on its first page
-whether to install for all users (needs administrator) or just for you (recommended, no
-prompt), then adds a Start menu entry, an optional desktop shortcut, and an entry in Settings,
-Apps. Settings go to `%APPDATA%\TtsUtilWin`.
+**Installer.** `TtsUtilWin-<version>-<arch>-setup.exe`, inside the setup zip, asks on its
+first page whether to install for all users (needs administrator) or just for you
+(recommended, no prompt), then adds a Start menu entry, an optional desktop shortcut, and an
+entry in Settings, Apps. Settings go to `%APPDATA%\TtsUtilWin`.
 
 **No voice model has to be downloaded.** Windows already carries three Microsoft voices,
 Microsoft David, Microsoft Zira and Microsoft Mark, and the program speaks with them as they
@@ -106,11 +109,12 @@ Saved scripts land in that same `scripts` folder, as plain `.txt` files.
 upgrades in place, keeping the folder, shortcuts, settings and the voices already downloaded.
 The same version offers a repair. An older setup warns that it would downgrade and asks for
 confirmation. A running copy is closed through the Restart Manager rather than failing on a
-locked file. There is no need to uninstall first.
+locked file. There is no need to uninstall first. Only one architecture can be installed at a
+time, so a setup that finds another one already there offers to remove it first.
 
 **Requirements.** Windows 10 or 11, on x64, ARM64 or x86. The published executable is self
-contained and needs no runtime installed. OCR of scanned PDFs uses the Windows OCR engine, which needs a language
-pack, the kind Windows installs with its display languages.
+contained and needs no runtime installed. OCR of scanned PDFs uses the Windows OCR engine,
+which needs a language pack, the kind Windows installs with its display languages.
 
 ## 🎧 Usage
 

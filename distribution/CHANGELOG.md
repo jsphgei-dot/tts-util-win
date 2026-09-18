@@ -16,6 +16,15 @@ built but not yet released, and the release step renames it to the version going
   Start menu entries and two entries in Installed apps. Setup now finds the other copy wherever
   it registered itself, offers to remove it first, and ends if you say no.
 
+* **The title box empties with the tab.** Closing the only open text tab cleared its words but
+  left the name of the script sitting in the Title box, where the next thing typed could be
+  saved over that script by accident.
+
+* **The readme that ships with the program is about the program again.** Every 0.12.0-beta
+  install and portable copy carried a readme whose opening line announced that the repository
+  was retired, which was the old download repository's landing page rather than anything about
+  running the program.
+
 ## 0.12.0-beta (version code 19)
 
 * **One repository from here on.** The source repository is public, and it is now also where

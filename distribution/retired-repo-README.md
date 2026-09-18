@@ -1,36 +1,43 @@
 ﻿# TTS Util Win
 
 [![Version](https://img.shields.io/badge/version-0.12.0--beta-blue.svg)](https://github.com/jsphgei-dot/tts-util-win/releases/latest)
-[![Platform](https://img.shields.io/badge/platform-Windows%2010%2F11%20x64%20%7C%20ARM64%20%7C%20x86-green.svg)](#requirements)
+[![Platform](https://img.shields.io/badge/platform-Windows%2010%2F11%20x64-green.svg)](#requirements)
 [![License](https://img.shields.io/badge/license-Apache%202.0-lightgrey.svg)](LICENSE)
 
 > Reads text aloud on Windows, offline.
 
+## 📦 This repository is retired
+
+It carried the downloads while the source repository was still private, which was always meant
+to be temporary, and it lasted only as long as it took to settle what the source repository
+should look like in public. Both now live in one place:
+
+**[jsphgei-dot/tts-util-win](https://github.com/jsphgei-dot/tts-util-win)**, which has the
+source, the releases, the changelog and the issue tracker.
+
+Nothing new is published here. The releases already on this page stay exactly where they are,
+so a copy built before 0.12.0-beta keeps finding the manifest and the downloads it was told to
+look for, and updates itself one last time into a copy that asks the new address.
+
 The program speaks locally with sherpa-onnx voice models: no account, no key, no text leaving
 the machine.
 
-## Download
+## ⬇️ Download
 
-Take the newest build from
-[Releases](https://github.com/jsphgei-dot/tts-util-win/releases/latest).
+Take the newest build from [Releases](https://github.com/jsphgei-dot/tts-util-win/releases/latest).
 
 | Download | For |
 | --- | --- |
-| `TtsUtilWin-<version>-<arch>-setup.zip` | Unpack and run the installer. Adds Start menu entries, upgrades in place, can fetch voices for you |
-| `TtsUtilWin-<version>-<arch>-portable.zip` | Unpack anywhere and run `TtsUtilWin.exe`. Settings and voices stay in the folder |
-| `TtsUtilWin-<version>-<arch>-setup.exe` | The installer on its own, for anything that wants an installer to hand straight to Windows |
+| `TtsUtilWin-<version>-setup.zip` | Unpack and run the installer. Adds Start menu entries, upgrades in place, can fetch voices for you |
+| `TtsUtilWin-<version>-portable.zip` | Unpack anywhere and run `TtsUtilWin.exe`. Settings and voices stay in the folder |
 
-`<arch>` is `x64`, `arm64` or `x86`. Take the one matching the machine. Every release lists the
-SHA256 of the zips, and `latest.json` carries the same hashes. The program refuses any update
-download whose hash does not match.
-
-Only one architecture can be installed at a time. They share a program folder and a Start menu
-entry, so a setup that finds another one already installed offers to remove it first.
+Every release lists the SHA256 of both files, and `latest.json` carries the same hashes. The
+program refuses any update download whose hash does not match.
 
 ### Requirements
 
-Windows 10 version 1607 or newer, on x64, ARM64 or 32 bit. The executable is self contained, so
-no runtime needs installing.
+Windows 10 version 1607 or newer, x64. The executable is self contained, so no runtime needs
+installing.
 
 | | Minimum | Recommended |
 | --- | --- | --- |
@@ -81,34 +88,36 @@ all. If that happens, open **Windows Security**, go to **App & browser control**
 and turn it back on afterwards. Check the SHA256 against the release page first if you want to
 be sure of what you have.
 
-## Updates
+## 🔄 Updates
 
-The program asks at each start whether a newer release exists, by reading `latest.json`.
-Nothing is sent: no identifier, no text, no telemetry. A newer version waits on the **Updates**
-tab, which wears a red exclamation mark, names the version and lists what changed in it.
-Nothing interrupts what you were doing unless you ask it to, with the box **Update prompt popup
-box on startup**, and while that box is off no update dialog opens anywhere in the program.
-**Install update**, beside **Check now**, takes the version the last check found at any time:
-an installed copy downloads the installer and runs it, after checking the download against its
-published hash, and a portable copy is given the link and left to unpack it where it likes. The
-whole check can be switched off on the same tab, where **Check now** also looks on demand.
+The program asks at each start whether a newer release exists, by reading `latest.json`. A
+copy built before 0.12.0-beta asks this repository, where the answer is frozen at 0.12.0-beta,
+and every copy from 0.12.0-beta onward asks the repository above. Nothing is sent: no identifier, no text, no telemetry. A newer version waits on
+the **Updates** tab, which wears a red exclamation mark, names the version and lists what
+changed in it. Nothing interrupts what you were doing unless you ask it to, with the box
+**Update prompt popup box on startup**, and while that box is off no update dialog opens
+anywhere in the program. **Install update**, beside **Check now**, takes the
+version the last check found at any time: an installed copy downloads the installer and runs
+it, after checking the download against its published hash, and a portable copy is given the
+link and left to unpack it where it likes. The whole check can be switched off on the same tab,
+where **Check now** also looks on demand.
 
-## History
+## 📜 History
 
-[CHANGELOG.md](https://github.com/jsphgei-dot/tts-util-win/blob/master/distribution/CHANGELOG.md)
-covers every release, including the private alphas that came before the first public one. The
-same file is compiled into the program and shown on the Updates tab.
+[CHANGELOG.md](CHANGELOG.md) covers every release, including the private alphas that came
+before this repository existed.
 
-## Issues and suggestions
+## 🐛 Issues and suggestions
 
 Bug reports and voice suggestions belong in
-[Issues](https://github.com/jsphgei-dot/tts-util-win/issues).
+[Issues](https://github.com/jsphgei-dot/tts-util-win/issues), on the repository above. The
+tracker here is closed along with the rest of it.
 
-## How it was made
+## 🤖 How it was made
 
 This application was coded using AI assistance.
 
-## License
+## ⚖️ License
 
 Apache 2.0. Every download carries `LICENSE`, `NOTICE` and `THIRD-PARTY-NOTICES.txt`, which
 name every component that ships inside the program and the work it is derived from: TTS Util
