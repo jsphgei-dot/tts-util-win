@@ -77,8 +77,8 @@ $setupZip = Join-Path $dist "TtsUtilWin-$version-$arch-setup.zip"
 if ($SkipBuild) {
     # The setup program carries a build time, so a rebuild changes both hashes and the notes
     # written from the previous run stop matching. This publishes what is already in dist.
-    foreach ($zip in @($portableZip, $setupZip)) {
-        if (-not (Test-Path $zip)) { throw "-SkipBuild needs $zip, which is not there." }
+    foreach ($asset in @($portableZip, $setupZip, $setupExe)) {
+        if (-not (Test-Path $asset)) { throw "-SkipBuild needs $asset, which is not there." }
     }
 }
 else {
@@ -175,17 +175,21 @@ foreach ($hash in @($thisSetupHash, $thisPortableHash)) {
     }
 }
 
+# The bare setup program goes up beside the zips. Package managers fetch an installer
+# directly, and the in app update reads the zip named in the manifest.
 function Send-Assets([string]$repo)
 {
+    $assets = @($setupZip, $portableZip, $setupExe)
+
     Write-Host "Creating $tag in $repo" -ForegroundColor Cyan
     # A second architecture lands on the release the first one made rather than failing on it.
     gh release view $tag --repo $repo *> $null
     if ($LASTEXITCODE -eq 0) {
-        gh release upload $tag $setupZip $portableZip --repo $repo --clobber
+        gh release upload $tag @assets --repo $repo --clobber
         if ($LASTEXITCODE -ne 0) { throw "Uploading to the existing release in $repo failed." }
     }
     else {
-        gh release create $tag $setupZip $portableZip --repo $repo --title "TTS Util Win $version" `
+        gh release create $tag @assets --repo $repo --title "TTS Util Win $version" `
             --notes-file $NotesFile --prerelease
         if ($LASTEXITCODE -ne 0) { throw "Creating the release in $repo failed." }
     }

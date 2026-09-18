@@ -46,6 +46,11 @@ The manifest carries a download per architecture under `architectures`, keyed `x
 and `x86`, and a copy takes the one matching the process it is running in. A release with no
 build for that architecture is a link to the release page rather than an offer to install.
 
+Each run attaches three files: the setup zip, the portable zip and the setup program itself.
+The zips are what the manifest names and what the in app update downloads. The bare
+`TtsUtilWin-<version>-<arch>-setup.exe` is there for winget and anything else that wants an
+installer URL it can hand straight to Windows.
+
 `setup` and `portable` stay at the top level, naming the x64 pair. That is where a copy built
 before 0.13.0 looks, and it reads nothing else, so those two fields cannot be moved or renamed
 while such copies are still checking.
