@@ -66,13 +66,15 @@ the gains stop paying.
 
 | | Minimum | Recommended |
 | --- | --- | --- |
-| Windows | 10 version 1809 | 11, or 10 22H2 |
+| Windows | 10 version 1607 | 11, or 10 22H2 |
 | Processor | two cores | four cores or more |
 | Memory | 4 GB | 8 GB |
 | Free disk | 250 MB for the program | that, plus 60 to 300 MB for each neural voice |
 
 The minimum column is what runs: the Windows voices, the smaller neural voices, and reading
-along with the text on screen. The recommended column is what keeps the heaviest neural voice
+along with the text on screen. On Windows 10 builds before 1709 the voices Windows already
+has read at their own speed, which is where rate control was added to them. The neural voices
+take their speed from the program and are unaffected. The recommended column is what keeps the heaviest neural voice
 comfortably ahead of playback and makes writing an MP3 of a long script quick rather than
 something to walk away from.
 

@@ -69,7 +69,7 @@ public sealed class WindowsTtsEngine : ITtsEngine
 
         lock (_lock)
         {
-            _synthesizer.Options.SpeakingRate = Math.Clamp(speed, SlowestRate, FastestRate);
+            SetRate(_synthesizer, speed);
             sound = Synthesize(_synthesizer, text);
         }
 
@@ -80,6 +80,15 @@ public sealed class WindowsTtsEngine : ITtsEngine
     }
 
     public void Dispose() => _synthesizer.Dispose();
+
+    /// <summary>Windows before 1709 has no rate control on these voices, which read at their
+    /// own speed there rather than throwing.</summary>
+    private static void SetRate(SpeechSynthesizer synthesizer, float speed)
+    {
+        if (!OperatingSystem.IsWindowsVersionAtLeast(10, 0, 16299)) return;
+
+        synthesizer.Options.SpeakingRate = Math.Clamp(speed, SlowestRate, FastestRate);
+    }
 
     /// <summary>Runs one utterance and turns the wave it hands back into samples.</summary>
     private static Sound? Synthesize(SpeechSynthesizer synthesizer, string text)

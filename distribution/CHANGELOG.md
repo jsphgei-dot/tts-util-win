@@ -5,6 +5,11 @@ built but not yet released, and the release step renames it to the version going
 
 ## Unreleased
 
+* **The program now runs on Windows 10 version 1607.** The floor was 1809, and the installer
+  asked for no more than Windows 10 of any build, so it would install on versions the program
+  then failed on. Both now say 1607, which is as low as the runtime goes. On builds before
+  1709 the voices Windows already has read at their own speed, the only part of the program
+  that old a Windows cannot do.
 * **Synthesis threads now work themselves out from the processor.** The setting starts empty,
   and an empty setting means half the processors this machine reports, at least one and at most
   four. A machine with 32 processors or more allows eight, and the 32 bit build doubles whichever

@@ -24,12 +24,12 @@ program refuses any update download whose hash does not match.
 
 ### Requirements
 
-Windows 10 version 1809 or newer, x64. The executable is self contained, so no runtime needs
+Windows 10 version 1607 or newer, x64. The executable is self contained, so no runtime needs
 installing.
 
 | | Minimum | Recommended |
 | --- | --- | --- |
-| Windows | 10 version 1809 | 11, or 10 22H2 |
+| Windows | 10 version 1607 | 11, or 10 22H2 |
 | Processor | two cores | four cores or more |
 | Memory | 4 GB | 8 GB |
 | Free disk | 250 MB for the program | that, plus 60 to 300 MB for each neural voice |

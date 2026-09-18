@@ -79,7 +79,7 @@ SolidCompression=yes
 WizardStyle=modern
 ArchitecturesAllowed={#ArchAllowed}
 ArchitecturesInstallIn64BitMode={#Arch64Mode}
-MinVersion=10.0
+MinVersion=10.0.14393
 
 [Languages]
 Name: "english"; MessagesFile: "compiler:Default.isl"
