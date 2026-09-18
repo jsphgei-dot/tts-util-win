@@ -62,9 +62,9 @@ This application was coded using AI assistance.
 
 ## ⬇️ Install
 
-**Download a build.** Builds are published to the public distribution repository,
-[jsphgei-dot/tts-util-win-releases](https://github.com/jsphgei-dot/tts-util-win-releases/releases/latest),
-as `TtsUtilWin-<version>-setup.zip` and `TtsUtilWin-<version>-portable.zip`, each with its
+**Download a build.** Builds are published to
+[Releases](https://github.com/jsphgei-dot/tts-util-win/releases/latest), as
+`TtsUtilWin-<version>-setup.zip` and `TtsUtilWin-<version>-portable.zip`, each with its
 SHA256 on the release page. Nothing is committed to this repository: `dist/` is ignored, so the
 executable and the installer are always either downloaded from a release or built locally.
 
@@ -148,10 +148,9 @@ build switches, the output sizes and the signing options are in
 ## 🤝 Contributing and feedback
 
 Bug reports and voice suggestions are welcome through
-[issues on the distribution repository](https://github.com/jsphgei-dot/tts-util-win-releases/issues),
-which is the one anybody can reach. A report that names the voice, the setting and the text that
-misbehaved is worth a great deal, since most of the awkward cases live in the text rather than
-in the code.
+[issues](https://github.com/jsphgei-dot/tts-util-win/issues). A report that names the voice, the
+setting and the text that misbehaved is worth a great deal, since most of the awkward cases live
+in the text rather than in the code.
 
 Code is welcome too. [CONTRIBUTING.md](CONTRIBUTING.md) covers the setup, where a change
 belongs, the commit format and what the git hooks check before they let a commit through. Run

@@ -4,8 +4,13 @@
 
 .DESCRIPTION
     Builds the portable folder and the setup program, zips both, hashes them, and writes
-    latest.json. With -Publish it also creates the GitHub release in the public distribution
-    repository and pushes the manifest there, which is what makes the update notice appear.
+    latest.json. With -Publish it also creates the GitHub release and pushes the manifest, which
+    is what makes the update notice appear.
+
+    The release goes to two repositories while copies built before 0.12.0 are still worth
+    serving. Those ask the retired distribution repository for their manifest, so it gets the
+    same tag, the same assets, and a manifest of its own naming its own copies. Pass an empty
+    -MirrorRepo once that repository is archived, and the mirror step is skipped.
 
 .EXAMPLE
     .\Publish.ps1
@@ -18,7 +23,9 @@
 #>
 [CmdletBinding()]
 param(
-    [string]$DistributionRepo = 'jsphgei-dot/tts-util-win-releases',
+    [string]$Repo = 'jsphgei-dot/tts-util-win',
+
+    [string]$MirrorRepo = 'jsphgei-dot/tts-util-win-releases',
 
     [ValidateSet('win-x64', 'win-arm64', 'win-x86')]
     [string]$Runtime = 'win-x64',
@@ -77,26 +84,30 @@ Compress-Archive -Path $setupExe -DestinationPath $setupZip
 
 function Get-Sha256([string]$path) { (Get-FileHash -Algorithm SHA256 -Path $path).Hash.ToLowerInvariant() }
 
-$releaseUrl = "https://github.com/$DistributionRepo/releases/tag/$tag"
-$downloadBase = "https://github.com/$DistributionRepo/releases/download/$tag"
-
 # The program reads this file, and refuses any download whose hash does not match what is here.
-$manifest = [ordered]@{
-    versionName = $version
-    versionCode = $code
-    releaseUrl  = $releaseUrl
-    setup       = [ordered]@{
-        url    = "$downloadBase/$(Split-Path -Leaf $setupZip)"
-        bytes  = (Get-Item $setupZip).Length
-        sha256 = Get-Sha256 $setupZip
-    }
-    portable    = [ordered]@{
-        url    = "$downloadBase/$(Split-Path -Leaf $portableZip)"
-        bytes  = (Get-Item $portableZip).Length
-        sha256 = Get-Sha256 $portableZip
+# A repository gets a manifest naming its own copies of the assets, never the other one's.
+function New-Manifest([string]$repo)
+{
+    $downloadBase = "https://github.com/$repo/releases/download/$tag"
+
+    return [ordered]@{
+        versionName = $version
+        versionCode = $code
+        releaseUrl  = "https://github.com/$repo/releases/tag/$tag"
+        setup       = [ordered]@{
+            url    = "$downloadBase/$(Split-Path -Leaf $setupZip)"
+            bytes  = (Get-Item $setupZip).Length
+            sha256 = Get-Sha256 $setupZip
+        }
+        portable    = [ordered]@{
+            url    = "$downloadBase/$(Split-Path -Leaf $portableZip)"
+            bytes  = (Get-Item $portableZip).Length
+            sha256 = Get-Sha256 $portableZip
+        }
     }
 }
 
+$manifest = New-Manifest $Repo
 $manifestPath = Join-Path $dist 'latest.json'
 $manifest | ConvertTo-Json -Depth 4 | Set-Content -Path $manifestPath -Encoding utf8
 
@@ -115,18 +126,47 @@ foreach ($hash in @($manifest.setup.sha256, $manifest.portable.sha256)) {
     if ($notes -notlike "*$hash*") { throw "The notes do not carry $hash. Copy the hashes above into $NotesFile." }
 }
 
-Write-Host "Creating $tag in $DistributionRepo" -ForegroundColor Cyan
-# A second architecture lands on the release the first one made rather than failing on it.
-gh release view $tag --repo $DistributionRepo *> $null
-if ($LASTEXITCODE -eq 0) {
-    gh release upload $tag $setupZip $portableZip --repo $DistributionRepo --clobber
-    if ($LASTEXITCODE -ne 0) { throw 'Uploading to the existing release failed.' }
+function Send-Assets([string]$repo)
+{
+    Write-Host "Creating $tag in $repo" -ForegroundColor Cyan
+    # A second architecture lands on the release the first one made rather than failing on it.
+    gh release view $tag --repo $repo *> $null
+    if ($LASTEXITCODE -eq 0) {
+        gh release upload $tag $setupZip $portableZip --repo $repo --clobber
+        if ($LASTEXITCODE -ne 0) { throw "Uploading to the existing release in $repo failed." }
+    }
+    else {
+        gh release create $tag $setupZip $portableZip --repo $repo --title "TTS Util Win $version" `
+            --notes-file $NotesFile --prerelease
+        if ($LASTEXITCODE -ne 0) { throw "Creating the release in $repo failed." }
+    }
 }
-else {
-    gh release create $tag $setupZip $portableZip --repo $DistributionRepo --title "TTS Util Win $version" `
-        --notes-file $NotesFile --prerelease
-    if ($LASTEXITCODE -ne 0) { throw 'Creating the release failed.' }
+
+# The manifest lands after the assets, or a reader could be sent to a download that is not
+# there yet.
+function Send-Manifest([string]$repo, $body)
+{
+    $clone = Join-Path $env:TEMP "ttsutilwin-manifest-$([guid]::NewGuid().ToString('N'))"
+    gh repo clone $repo $clone -- --depth 1
+    if ($LASTEXITCODE -ne 0) { throw "Cloning $repo failed." }
+
+    # A machine with no global identity still has one here, and the clone is told about it.
+    $name = git -C $root config user.name
+    $mail = git -C $root config user.email
+    if ($name) { git -C $clone config user.name $name }
+    if ($mail) { git -C $clone config user.email $mail }
+
+    $body | ConvertTo-Json -Depth 4 | Set-Content -Path (Join-Path $clone 'latest.json') -Encoding utf8
+    git -C $clone add latest.json
+    git -C $clone commit -m "chore(release): point the manifest at $version"
+    if ($LASTEXITCODE -ne 0) { throw "Committing the manifest in $repo failed." }
+    git -C $clone push
+    if ($LASTEXITCODE -ne 0) { throw "Pushing the manifest to $repo failed, so the release is not offered yet." }
+    Remove-Item $clone -Recurse -Force
 }
+
+Send-Assets $Repo
+if ($MirrorRepo) { Send-Assets $MirrorRepo }
 
 # The manifest names one download per release, so only the x64 build writes it. Publishing
 # another architecture would otherwise point every running copy at a build it cannot run.
@@ -135,24 +175,7 @@ if ($arch -ne 'x64') {
     return
 }
 
-# The manifest has to land after the assets, or a reader could be sent to a download that is
-# not there yet.
-$clone = Join-Path $env:TEMP "ttsutilwin-releases-$([guid]::NewGuid().ToString('N'))"
-gh repo clone $DistributionRepo $clone -- --depth 1
-if ($LASTEXITCODE -ne 0) { throw 'Cloning the distribution repository failed.' }
-
-# A machine with no global identity still has one here, and the clone is told about it.
-$name = git -C $root config user.name
-$mail = git -C $root config user.email
-if ($name) { git -C $clone config user.name $name }
-if ($mail) { git -C $clone config user.email $mail }
-
-Copy-Item $manifestPath (Join-Path $clone 'latest.json') -Force
-git -C $clone add latest.json
-git -C $clone commit -m "chore(release): point the manifest at $version"
-if ($LASTEXITCODE -ne 0) { throw 'Committing the manifest failed.' }
-git -C $clone push
-if ($LASTEXITCODE -ne 0) { throw 'Pushing the manifest failed, so the release is not offered yet.' }
-Remove-Item $clone -Recurse -Force
+Send-Manifest $Repo $manifest
+if ($MirrorRepo) { Send-Manifest $MirrorRepo (New-Manifest $MirrorRepo) }
 
 Write-Host "Published $version." -ForegroundColor Green

@@ -3,8 +3,14 @@
 Newest first. Version codes are monotonic and never reused. The top section carries what is
 built but not yet released, and the release step renames it to the version going out.
 
-## Unreleased
+## 0.12.0-beta (version code 19)
 
+* **One repository from here on.** The source repository is public, and it is now also where
+  the downloads, the changelog and the issue tracker live. The separate distribution
+  repository was always a temporary arrangement while the source was still private, and it is
+  archived rather than deleted, so every build published there stays downloadable. This copy
+  looks for its updates at the new address. An older copy is offered this release at the old
+  one, and asks the new address afterward.
 * **The program now runs on Windows 10 version 1607.** The floor was 1809, and the installer
   asked for no more than Windows 10 of any build, so it would install on versions the program
   then failed on. Both now say 1607, which is as low as the runtime goes. On builds before

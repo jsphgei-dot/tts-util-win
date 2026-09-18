@@ -14,14 +14,14 @@ release and publishing the manifest the update check reads. Version numbers come
 # Build, zip, hash, and write dist\latest.json without publishing anything.
 .\scripts\Publish.ps1
 
-# The same, then create the release in the public distribution repository and
-# push the manifest that makes the update notice appear.
+# The same, then create the release and push the manifest that makes the
+# update notice appear.
 .\scripts\Publish.ps1 -Publish -NotesFile dist\RELEASE_NOTES_v0.3.0-beta.md
 ```
 
 The manifest is pushed **after** the assets, so nobody is pointed at a download that is not
-there yet. The seed files for that public repository, its README and the changelog, live in
-`distribution\` here.
+there yet. The seed files for the retired distribution repository, its README and the changelog,
+live in `distribution\` here.
 
 ## The other two architectures
 
@@ -46,10 +46,16 @@ architecture, ARM64 and x86 are downloads from the release page rather than in a
 ## Where a build looks for its update
 
 Every build reads a `latest.json` URL that was compiled into it, so a copy already installed
-keeps asking the address it shipped with, whatever the current one is. Changing that address is
-therefore an overlap rather than a switch: for as long as older copies are worth supporting,
-each version is published to both repositories, with the same tag, the same assets, the same
-hashes, and a manifest in each pointing at its own copy of its own assets.
+keeps asking the address it shipped with, whatever the current one is. 0.12.0-beta moved that
+address from `tts-util-win-releases` to this repository, which makes it an overlap rather than a
+switch: a release goes to both, with the same tag, the same assets, the same hashes, and a
+manifest in each naming its own copies.
+
+`Publish.ps1` does both on its own. `-Repo` is this repository and `-MirrorRepo` is the retired
+one, and passing an empty `-MirrorRepo` skips the mirror, which is what a release after the
+archiving does. An archived repository accepts no pushes, so the last manifest written there is
+the one it keeps: a copy built before 0.12.0-beta is offered 0.12.0-beta, takes it, and asks
+this repository from then on.
 
 ## The changelog
 

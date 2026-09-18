@@ -1,18 +1,30 @@
 ﻿# TTS Util Win
 
-[![Version](https://img.shields.io/badge/version-0.11.0--beta-blue.svg)](https://github.com/jsphgei-dot/tts-util-win-releases/releases/latest)
+[![Version](https://img.shields.io/badge/version-0.12.0--beta-blue.svg)](https://github.com/jsphgei-dot/tts-util-win/releases/latest)
 [![Platform](https://img.shields.io/badge/platform-Windows%2010%2F11%20x64-green.svg)](#requirements)
 [![License](https://img.shields.io/badge/license-Apache%202.0-lightgrey.svg)](LICENSE)
 
-> Reads text aloud on Windows, offline. Downloads for the program live here.
+> Reads text aloud on Windows, offline.
 
-This repository carries the **downloads** for TTS Util Win, the version manifest the program
-reads when it looks for updates, and the change history. The program speaks locally with
-sherpa-onnx voice models: no account, no key, no text leaving the machine.
+## 📦 This repository is retired
+
+It carried the downloads while the source repository was still private, which was always meant
+to be temporary, and it lasted only as long as it took to settle what the source repository
+should look like in public. Both now live in one place:
+
+**[jsphgei-dot/tts-util-win](https://github.com/jsphgei-dot/tts-util-win)**, which has the
+source, the releases, the changelog and the issue tracker.
+
+Nothing new is published here. The releases already on this page stay exactly where they are,
+so a copy built before 0.12.0-beta keeps finding the manifest and the downloads it was told to
+look for, and updates itself one last time into a copy that asks the new address.
+
+The program speaks locally with sherpa-onnx voice models: no account, no key, no text leaving
+the machine.
 
 ## ⬇️ Download
 
-Take the newest build from [Releases](https://github.com/jsphgei-dot/tts-util-win-releases/releases/latest).
+Take the newest build from [Releases](https://github.com/jsphgei-dot/tts-util-win/releases/latest).
 
 | Download | For |
 | --- | --- |
@@ -97,8 +109,8 @@ before this repository existed.
 ## 🐛 Issues and suggestions
 
 Bug reports and voice suggestions belong in
-[Issues](https://github.com/jsphgei-dot/tts-util-win-releases/issues). A report that names the
-voice, the setting and the text that misbehaved is worth a great deal.
+[Issues](https://github.com/jsphgei-dot/tts-util-win/issues), on the repository above. The
+tracker here is closed along with the rest of it.
 
 ## 🤖 How it was made
 

@@ -38,6 +38,6 @@ and where to go next.
 ## Elsewhere in the repository
 
 * `voices/README.md` explains what makes a folder a voice, for anybody adding a model by hand.
-* `distribution/` holds the two files published to the distribution repository, its README and
+* `distribution/` holds the two files published to the retired distribution repository, its README and
   the changelog. The changelog is also compiled into the program and read by the Updates tab.
 * `LICENSE`, `NOTICE` and `THIRD-PARTY-NOTICES.txt` travel with every build.

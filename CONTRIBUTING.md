@@ -15,13 +15,12 @@ strange. Small fixes, typos, a wrong tooltip, a test that asserts nothing, go st
 pull request with no preamble.
 
 Bugs and voice suggestions go to
-[issues](https://github.com/jsphgei-dot/tts-util-win-releases/issues), which is the tracker
-anybody can reach. A report that names the voice, the setting and the text that misbehaved is
-worth a great deal.
+[issues](https://github.com/jsphgei-dot/tts-util-win/issues). A report that names the voice, the
+setting and the text that misbehaved is worth a great deal.
 
 ## Getting set up
 
-You need the .NET 10 SDK and Windows 10 version 1809 or newer. Nothing else.
+You need the .NET 10 SDK and Windows 10 version 1607 or newer. Nothing else.
 [docs/building.md](docs/building.md) has the full build section, including the installer and the
 voice download script, and [docs/index.md](docs/index.md) lists everything else that is written
 down.

@@ -450,7 +450,7 @@ updates many times a second does not crowd out everything else.
 ## Updates
 
 Each time it starts, the program reads one published file,
-`latest.json` in the public distribution repository, and compares its version code with the
+`latest.json` in the release repository, and compares its version code with the
 running build. Nothing is sent with the request: no identifier, no text, no list of voices, and
 no request at all while the setting is off.
 

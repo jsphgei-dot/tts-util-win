@@ -22,11 +22,12 @@ public enum UpdateAction
 /// <summary>Where the published manifest lives, and where a reader is sent to fetch a build.</summary>
 public static class UpdateSource
 {
-    /// <summary>The public distribution repository, which carries the manifest and the downloads.</summary>
+    /// <summary>The one repository, which carries the source, the manifest and the downloads. A
+    /// copy built before 0.12.0 asks the retired distribution repository instead.</summary>
     public const string ManifestUrl =
-        "https://raw.githubusercontent.com/jsphgei-dot/tts-util-win-releases/main/latest.json";
+        "https://raw.githubusercontent.com/jsphgei-dot/tts-util-win/master/latest.json";
 
-    public const string ReleasesUrl = "https://github.com/jsphgei-dot/tts-util-win-releases/releases";
+    public const string ReleasesUrl = "https://github.com/jsphgei-dot/tts-util-win/releases";
 }
 
 /// <summary>Turns a manifest and the state of this copy into one of three outcomes.</summary>
