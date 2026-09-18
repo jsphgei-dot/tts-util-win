@@ -14,10 +14,14 @@ release and publishing the manifest the update check reads. Version numbers come
 # Build, zip, hash, and write dist\latest.json without publishing anything.
 .\scripts\Publish.ps1
 
-# The same, then create the release and push the manifest that makes the
-# update notice appear.
-.\scripts\Publish.ps1 -Publish -NotesFile dist\RELEASE_NOTES_v0.3.0-beta.md
+# Copy the two hashes it printed into the notes, then publish what was just
+# built. The update notice appears once the manifest lands.
+.\scripts\Publish.ps1 -Publish -SkipBuild -NotesFile dist\RELEASE_NOTES_v0.3.0-beta.md
 ```
+
+`-SkipBuild` publishes the zips already in `dist\` instead of making new ones. The setup program
+carries a build time, so a rebuild changes both hashes, and the notes written from the previous
+run would no longer match what is uploaded. Leave it off only on a run that is not publishing.
 
 The manifest is pushed **after** the assets, so nobody is pointed at a download that is not
 there yet. The seed files for the retired distribution repository, its README and the changelog,
