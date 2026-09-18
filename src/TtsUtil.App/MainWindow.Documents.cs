@@ -77,7 +77,7 @@ public partial class MainWindow
         EnsurePlusTab();
         _documents.Add(document);
         DocumentTabs.Items.Insert(DocumentTabs.Items.Count - 1, tab);
-        SizeTabsNow();
+        TabStripSizing.SizeNow(DocumentTabs);
 
         if (DocumentTabs.SelectedItem is null || ReferenceEquals(DocumentTabs.SelectedItem, _plusTab))
         {
@@ -157,7 +157,7 @@ public partial class MainWindow
         // Picking the neighbour first keeps the plus from being selected, and opening a tab.
         DocumentTabs.SelectedItem = _documents[Math.Min(index, _documents.Count - 1)].Tab;
         DocumentTabs.Items.Remove(document.Tab);
-        SizeTabs();
+        TabStripSizing.Size(DocumentTabs);
     }
 
     private void OnNewDocument(object sender, RoutedEventArgs e)
@@ -232,9 +232,8 @@ public partial class MainWindow
     {
         if (_tabStrip is not null) return _tabStrip;
 
-        DocumentTabs.ApplyTemplate();
-        _tabStrip = DocumentTabs.Template?.FindName("HeaderScroller", DocumentTabs) as ScrollViewer;
-        if (_tabStrip is not null) WatchTabStrip(_tabStrip);
+        _tabStrip = TabStripSizing.Strip(DocumentTabs);
+        if (_tabStrip is not null) _tabStrip.PreviewMouseWheel += OnTabStripWheel;
 
         return _tabStrip;
     }
@@ -258,6 +257,7 @@ public partial class MainWindow
             Header = new TextBlock { Text = "+", FontWeight = FontWeights.Bold, Margin = new Thickness(4, 0, 4, 0) },
             ToolTip = "Another text tab, written to audio alongside this one",
         };
+        TabStripSizing.SetShares(_plusTab, false);
 
         DocumentTabs.Items.Add(_plusTab);
     }

@@ -284,6 +284,7 @@
                              stretch that puts the close button at the right edge belongs here. -->
                         <TabControl x:Name="DocumentTabs" Grid.Column="0" Padding="0"
                                     HorizontalContentAlignment="Stretch"
+                                    local:TabStripSizing.Enabled="True"
                                     Style="{StaticResource ScrollingTabs}"
                                     SelectionChanged="OnDocumentTabChanged" />
 

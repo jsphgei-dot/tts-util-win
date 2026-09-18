@@ -151,9 +151,9 @@ public sealed class DocumentTabsTests : IDisposable
     [Fact]
     public void TabsShareTheStripEvenlyBetweenTheTwoLimits()
     {
-        Assert.Equal(MainWindow.WidestTab, MainWindow.TabWidth(600, 1));
-        Assert.Equal(150, MainWindow.TabWidth(300, 2));
-        Assert.Equal(MainWindow.NarrowestTab, MainWindow.TabWidth(600, 20));
+        Assert.Equal(180, TabStripSizing.TabWidth(600, 1, 180, 80));
+        Assert.Equal(150, TabStripSizing.TabWidth(300, 2, 180, 80));
+        Assert.Equal(80, TabStripSizing.TabWidth(600, 20, 180, 80));
     }
 
     /// <summary>A header laid out by the tab, rather than by itself, keeps the name at the left
@@ -165,13 +165,15 @@ public sealed class DocumentTabsTests : IDisposable
 
         _wpf.Invoke(() =>
         {
+            var widest = TabStripSizing.GetWidest(window.DocumentTabs);
+
             window.Show();
-            window.Documents[0].Tab.Width = MainWindow.WidestTab;
+            window.Documents[0].Tab.Width = widest;
             window.UpdateLayout();
 
             var header = (FrameworkElement)window.Documents[0].Tab.Header;
-            Assert.True(header.ActualWidth > MainWindow.WidestTab - 30,
-                $"the header was {header.ActualWidth} wide in a {MainWindow.WidestTab} wide tab");
+            Assert.True(header.ActualWidth > widest - 30,
+                $"the header was {header.ActualWidth} wide in a {widest} wide tab");
 
             window.Close();
         });
@@ -193,7 +195,8 @@ public sealed class DocumentTabsTests : IDisposable
             var second = window.NewDocument();
             Dispatcher.CurrentDispatcher.Invoke(() => { }, DispatcherPriority.ApplicationIdle);
 
-            Assert.InRange(second.Tab.Width, MainWindow.NarrowestTab, MainWindow.WidestTab);
+            Assert.InRange(second.Tab.Width, TabStripSizing.GetNarrowest(window.DocumentTabs),
+                TabStripSizing.GetWidest(window.DocumentTabs));
             Assert.Equal(window.Documents[0].Tab.Width, second.Tab.Width);
 
             window.Close();
