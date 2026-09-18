@@ -1,5 +1,6 @@
 using System.IO;
 using System.Windows;
+using System.Windows.Threading;
 using TtsUtil.Core.Settings;
 using Xunit;
 
@@ -171,6 +172,29 @@ public sealed class DocumentTabsTests : IDisposable
             var header = (FrameworkElement)window.Documents[0].Tab.Header;
             Assert.True(header.ActualWidth > MainWindow.WidestTab - 30,
                 $"the header was {header.ActualWidth} wide in a {MainWindow.WidestTab} wide tab");
+
+            window.Close();
+        });
+    }
+
+    /// <summary>A tab that has just opened is sized with the rest at once, rather than sitting at
+    /// the width of its own name until the pointer leaves the strip.</summary>
+    [Fact]
+    public void ANewTabIsSizedAsSoonAsItOpens()
+    {
+        var window = CreateWindow();
+
+        _wpf.Invoke(() =>
+        {
+            window.Width = 1000;
+            window.Show();
+            window.UpdateLayout();
+
+            var second = window.NewDocument();
+            Dispatcher.CurrentDispatcher.Invoke(() => { }, DispatcherPriority.ApplicationIdle);
+
+            Assert.InRange(second.Tab.Width, MainWindow.NarrowestTab, MainWindow.WidestTab);
+            Assert.Equal(window.Documents[0].Tab.Width, second.Tab.Width);
 
             window.Close();
         });

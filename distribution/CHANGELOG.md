@@ -24,9 +24,10 @@ built but not yet released, and the release step renames it to the version going
   more tabs share the strip evenly down to 80 pixels each, and a name too long for the space
   ends in an ellipsis with the whole name on hover. The name sits at the left of its tab and
   the cross at the right edge, at every width, rather than the pair sitting adrift in the
-  middle of a wide tab. Past that the strip scrolls as before. The
-  widths hold while the pointer is among the tabs, so closing several in a row does not move the
-  next cross out from under it.
+  middle of a wide tab. Past that the strip scrolls as before. A new tab takes its
+  share straight away, and the widths then hold while the pointer is anywhere on the tab row, so
+  closing several in a row does not move the next cross out from under it. They catch up the moment
+  the pointer leaves that row.
 * **The save icon moved to the left** of the row above the text, ahead of the title box, rather
   than sitting at the far right of the window.
 * **The script list says what voice each script uses.** A **Voice** column beside the title

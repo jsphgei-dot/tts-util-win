@@ -5,6 +5,7 @@
  */
 
 using System.Windows.Threading;
+using Mouse = System.Windows.Input.Mouse;
 using MouseEventArgs = System.Windows.Input.MouseEventArgs;
 using ScrollViewer = System.Windows.Controls.ScrollViewer;
 using SizeChangedEventArgs = System.Windows.SizeChangedEventArgs;
@@ -12,7 +13,7 @@ using SizeChangedEventArgs = System.Windows.SizeChangedEventArgs;
 namespace TtsUtil.App;
 
 /// <summary>Text tabs share the strip evenly the way a browser's do, and hold their size while the
-/// pointer is among them.</summary>
+/// pointer is anywhere on the row they sit in.</summary>
 public partial class MainWindow
 {
     /// <summary>How wide one tab is allowed to get with the strip to itself.</summary>
@@ -21,19 +22,42 @@ public partial class MainWindow
     /// <summary>How narrow tabs go before the strip starts scrolling instead.</summary>
     internal const double NarrowestTab = 80;
 
-    private bool _pointerOnTabs;
+    private bool _sizingHeld;
 
     /// <summary>The width every tab takes when the strip has this much room for them.</summary>
     internal static double TabWidth(double room, int count) =>
         Math.Clamp(room / Math.Max(count, 1), NarrowestTab, WidestTab);
 
-    /// <summary>Gives every open tab the same width. A pointer among the tabs holds the sizing, so
+    /// <summary>Gives every open tab the same width. A pointer on the tab row holds the sizing, so
     /// closing several in a row does not move the next close button out from under it.</summary>
-    internal void SizeTabs()
-    {
-        if (_pointerOnTabs || TabStrip() is not ScrollViewer strip) return;
+    internal void SizeTabs() => SizeTabs(holdForPointer: true);
 
-        Dispatcher.BeginInvoke(new Action(() => ApplyTabWidth(strip)), DispatcherPriority.Loaded);
+    /// <summary>Sizes the tabs whatever the pointer is doing, which a tab that has just opened
+    /// needs, as it would otherwise sit at the width of its own name until the pointer left.</summary>
+    internal void SizeTabsNow() => SizeTabs(holdForPointer: false);
+
+    /// <summary>The hold is settled after the layout, so a tab that has gone takes the pointer off
+    /// the tabs at once rather than at the next thing the pointer does.</summary>
+    private void SizeTabs(bool holdForPointer)
+    {
+        if (TabStrip() is not ScrollViewer strip) return;
+
+        Dispatcher.BeginInvoke(new Action(() =>
+        {
+            _sizingHeld = holdForPointer && PointerOnTabRow(strip);
+            if (!_sizingHeld) ApplyTabWidth(strip);
+        }), DispatcherPriority.Loaded);
+    }
+
+    /// <summary>Whether the pointer is in the row the tabs sit in, the whole box from the left of
+    /// the first tab to the far end of the row, not the tabs alone.</summary>
+    private static bool PointerOnTabRow(ScrollViewer strip)
+    {
+        if (!strip.IsVisible) return false;
+
+        var pointer = Mouse.GetPosition(strip);
+        return pointer.X >= 0 && pointer.X <= strip.ActualWidth &&
+               pointer.Y >= 0 && pointer.Y <= strip.ActualHeight;
     }
 
     private void ApplyTabWidth(ScrollViewer strip)
@@ -49,18 +73,17 @@ public partial class MainWindow
     {
         strip.PreviewMouseWheel += OnTabStripWheel;
         strip.SizeChanged += OnTabStripResized;
-        strip.MouseEnter += OnTabStripEntered;
-        strip.MouseLeave += OnTabStripLeft;
+        MouseMove += OnPointerMoved;
+        MouseLeave += OnPointerMoved;
     }
 
     private void OnTabStripResized(object sender, SizeChangedEventArgs e) => SizeTabs();
 
-    private void OnTabStripEntered(object sender, MouseEventArgs e) => _pointerOnTabs = true;
-
-    /// <summary>The pointer leaving is when a held sizing is worked out again.</summary>
-    private void OnTabStripLeft(object sender, MouseEventArgs e)
+    /// <summary>A pointer that has left the row is what works a held sizing out again, wherever in
+    /// the window it went.</summary>
+    private void OnPointerMoved(object sender, MouseEventArgs e)
     {
-        _pointerOnTabs = false;
-        SizeTabs();
+        if (!_sizingHeld || TabStrip() is not ScrollViewer strip) return;
+        if (!PointerOnTabRow(strip)) SizeTabsNow();
     }
 }

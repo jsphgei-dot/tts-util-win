@@ -77,7 +77,7 @@ public partial class MainWindow
         EnsurePlusTab();
         _documents.Add(document);
         DocumentTabs.Items.Insert(DocumentTabs.Items.Count - 1, tab);
-        SizeTabs();
+        SizeTabsNow();
 
         if (DocumentTabs.SelectedItem is null || ReferenceEquals(DocumentTabs.SelectedItem, _plusTab))
         {
