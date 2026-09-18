@@ -179,7 +179,8 @@ public partial class MainWindow
 
         // Asking outright outranks an earlier no to that same version.
         var dismissed = asked ? 0 : _settings.DismissedUpdateCode;
-        var action = UpdateDecision.For(manifest, AppVersion.Code, IsPortableCopy(), dismissed);
+        var action = UpdateDecision.For(manifest, AppVersion.Code, IsPortableCopy(), dismissed,
+            HostArchitecture.Current);
 
         // The mark follows the version itself, so an offer turned down still shows on the tab.
         MarkNewVersion(manifest.VersionCode > AppVersion.Code ? manifest : null);
@@ -222,8 +223,8 @@ public partial class MainWindow
             return;
         }
 
-        if (UpdateDecision.For(manifest, AppVersion.Code, IsPortableCopy(), dismissedVersionCode: 0)
-            == UpdateAction.OfferSetup)
+        if (UpdateDecision.For(manifest, AppVersion.Code, IsPortableCopy(), dismissedVersionCode: 0,
+                HostArchitecture.Current) == UpdateAction.OfferSetup)
         {
             InstallUpdateButton.IsEnabled = false;
 
@@ -265,7 +266,7 @@ public partial class MainWindow
 
     private async Task OfferUpdateAsync(UpdateManifest manifest)
     {
-        var download = manifest.Setup!;
+        var download = manifest.SetupFor(HostArchitecture.Current)!;
         var size = download.Bytes > 0 ? $" The download is about {download.Bytes / (1024 * 1024)} MB." : string.Empty;
 
         var question = $"Version {manifest.VersionName} is available. You are running {AppVersion.Name}.{size}"

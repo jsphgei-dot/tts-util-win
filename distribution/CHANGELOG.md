@@ -3,6 +3,14 @@
 Newest first. Version codes are monotonic and never reused. The top section carries what is
 built but not yet released, and the release step renames it to the version going out.
 
+## Unreleased
+
+* **The update check knows what it is running on.** The manifest now names a download for each
+  of x64, ARM64 and 32 bit, and a copy is offered the one it can actually run. An ARM64 or 32
+  bit copy used to be offered the x64 installer, which was the only download the manifest could
+  describe. A release with no build for an architecture points that copy at the release page
+  instead of offering it anything.
+
 ## 0.12.0-beta (version code 19)
 
 * **One repository from here on.** The source repository is public, and it is now also where

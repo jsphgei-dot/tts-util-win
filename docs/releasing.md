@@ -30,8 +30,8 @@ live in `distribution\` here.
 ## The other two architectures
 
 `-Runtime win-arm64` and `-Runtime win-x86` package those builds and attach them to the release
-the x64 run created, under their own filenames. Run x64 first, since it is the one that creates
-the release page and writes the manifest.
+under their own filenames. Build all three before publishing any of them, so the manifest each
+publishing run writes names every architecture rather than only the ones packaged so far.
 
 ```powershell
 .\scripts\Publish.ps1 -Publish -NotesFile dist
@@ -42,10 +42,16 @@ otes.md -Runtime win-arm64
 otes.md -Runtime win-x86
 ```
 
-A non x64 run stops before the manifest and says so. The manifest names one setup and one
-portable download, with no way to say which processor they are for, so publishing ARM64 through
-it would offer that build to every x64 copy running. Until the manifest carries a download per
-architecture, ARM64 and x86 are downloads from the release page rather than in app updates.
+The manifest carries a download per architecture under `architectures`, keyed `x64`, `arm64`
+and `x86`, and a copy takes the one matching the process it is running in. A release with no
+build for that architecture is a link to the release page rather than an offer to install.
+
+`setup` and `portable` stay at the top level, naming the x64 pair. That is where a copy built
+before 0.13.0 looks, and it reads nothing else, so those two fields cannot be moved or renamed
+while such copies are still checking.
+
+Any run holding the x64 zips in `dist\` writes the manifest, and a run without them uploads its
+assets and leaves the manifest alone. The x64 zips are what the older copies are offered.
 
 ## Where a build looks for its update
 

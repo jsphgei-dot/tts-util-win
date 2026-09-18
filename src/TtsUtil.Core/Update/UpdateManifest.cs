@@ -26,6 +26,14 @@ public sealed class UpdateDownload
         && Sha256.Length == 64;
 }
 
+/// <summary>The pair of downloads published for one architecture.</summary>
+public sealed class UpdateBuild
+{
+    public UpdateDownload? Setup { get; set; }
+
+    public UpdateDownload? Portable { get; set; }
+}
+
 /// <summary>What the published manifest says the newest release is.</summary>
 public sealed class UpdateManifest
 {
@@ -38,9 +46,13 @@ public sealed class UpdateManifest
     /// <summary>The release page, which is where a portable copy sends the reader.</summary>
     public string ReleaseUrl { get; set; } = string.Empty;
 
+    /// <summary>The x64 downloads, which is where a copy built before 0.13.0 looks.</summary>
     public UpdateDownload? Setup { get; set; }
 
     public UpdateDownload? Portable { get; set; }
+
+    /// <summary>Every published architecture, keyed as <see cref="HostArchitecture"/> spells them.</summary>
+    public IReadOnlyDictionary<string, UpdateBuild>? Architectures { get; set; }
 
     /// <summary>What changed in that release, shown on the Updates tab before anything is fetched.</summary>
     public IReadOnlyList<string> Notes { get; set; } = Array.Empty<string>();
@@ -64,12 +76,37 @@ public sealed class UpdateManifest
             manifest.Notes = manifest.Notes?.Where(note => !string.IsNullOrWhiteSpace(note)).ToList()
                 ?? (IReadOnlyList<string>)Array.Empty<string>();
 
+            if (manifest.Architectures is { Count: > 0 } published)
+            {
+                manifest.Architectures = new Dictionary<string, UpdateBuild>(published,
+                    StringComparer.OrdinalIgnoreCase);
+            }
+
             return manifest;
         }
         catch (JsonException)
         {
             return null;
         }
+    }
+
+    /// <summary>The setup program for one architecture, or null when the release has none.</summary>
+    public UpdateDownload? SetupFor(string architecture) => BuildFor(architecture)?.Setup;
+
+    /// <summary>The portable archive for one architecture, on the terms of <see cref="SetupFor"/>.</summary>
+    public UpdateDownload? PortableFor(string architecture) => BuildFor(architecture)?.Portable;
+
+    /// A manifest naming no architectures was written before 0.13.0, and its downloads are x64.
+    private UpdateBuild? BuildFor(string architecture)
+    {
+        if (Architectures is not null)
+        {
+            return Architectures.TryGetValue(architecture, out var build) ? build : null;
+        }
+
+        return architecture == HostArchitecture.X64
+            ? new UpdateBuild { Setup = Setup, Portable = Portable }
+            : null;
     }
 
     /// <summary>True when this release is later than the running build.</summary>

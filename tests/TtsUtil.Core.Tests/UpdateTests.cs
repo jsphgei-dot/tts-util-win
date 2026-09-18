@@ -63,7 +63,42 @@ public sealed class UpdateTests
     {
         var manifest = UpdateManifest.Parse(Json(code: 6, sha: new string('a', 64)));
 
-        Assert.Equal(expected, UpdateDecision.For(manifest, runningCode, portable, dismissed));
+        Assert.Equal(expected, UpdateDecision.For(manifest, runningCode, portable, dismissed,
+            HostArchitecture.X64));
+    }
+
+    /// <summary>Each architecture names its own files, and one that was not published names none.</summary>
+    [Fact]
+    public void AManifestGivesEachArchitectureItsOwnDownload()
+    {
+        var manifest = UpdateManifest.Parse(ThreeArchitectureJson())!;
+
+        Assert.EndsWith("x64-setup.zip", manifest.SetupFor(HostArchitecture.X64)!.Url);
+        Assert.EndsWith("arm64-setup.zip", manifest.SetupFor(HostArchitecture.Arm64)!.Url);
+        Assert.EndsWith("arm64-portable.zip", manifest.PortableFor(HostArchitecture.Arm64)!.Url);
+        Assert.Null(manifest.SetupFor(HostArchitecture.X86));
+    }
+
+    /// <summary>An ARM64 copy is pointed at the page rather than handed a build it cannot run.</summary>
+    [Fact]
+    public void AnArchitectureWithNoBuildIsShownTheLinkInstead()
+    {
+        var manifest = UpdateManifest.Parse(ThreeArchitectureJson());
+
+        Assert.Equal(UpdateAction.OfferSetup,
+            UpdateDecision.For(manifest, 5, portable: false, 0, HostArchitecture.Arm64));
+        Assert.Equal(UpdateAction.ShowLink,
+            UpdateDecision.For(manifest, 5, portable: false, 0, HostArchitecture.X86));
+    }
+
+    /// <summary>Copies out in the world read a manifest with no architectures in it.</summary>
+    [Fact]
+    public void AManifestWithoutArchitecturesIsReadAsX64()
+    {
+        var manifest = UpdateManifest.Parse(Json(code: 9, sha: new string('a', 64)))!;
+
+        Assert.True(manifest.SetupFor(HostArchitecture.X64)!.IsUsable);
+        Assert.Null(manifest.SetupFor(HostArchitecture.Arm64));
     }
 
     [Fact]
@@ -123,6 +158,29 @@ public sealed class UpdateTests
         using var stream = File.OpenRead(path);
         using var sha = SHA256.Create();
         return Convert.ToHexString(sha.ComputeHash(stream)).ToLowerInvariant();
+    }
+
+    /// x64 and ARM64 published, x86 not, with the old fields carrying the x64 pair.
+    private static string ThreeArchitectureJson()
+    {
+        var sha = new string('a', 64);
+        var url = "https://example.invalid/v1";
+
+        return $@"{{
+            QVersionNameQ: Q0.13.0Q,
+            QVersionCodeQ: 6,
+            QSetupQ: {{ QUrlQ: Q{url}/x64-setup.zipQ, QSha256Q: Q{sha}Q }},
+            QArchitecturesQ: {{
+                Qx64Q: {{
+                    QsetupQ: {{ QUrlQ: Q{url}/x64-setup.zipQ, QSha256Q: Q{sha}Q }},
+                    QportableQ: {{ QUrlQ: Q{url}/x64-portable.zipQ, QSha256Q: Q{sha}Q }}
+                }},
+                Qarm64Q: {{
+                    QsetupQ: {{ QUrlQ: Q{url}/arm64-setup.zipQ, QSha256Q: Q{sha}Q }},
+                    QportableQ: {{ QUrlQ: Q{url}/arm64-portable.zipQ, QSha256Q: Q{sha}Q }}
+                }}
+            }}
+        }}".Replace('Q', '"');
     }
 
     private static string Json(int code, string sha) => $@"{{

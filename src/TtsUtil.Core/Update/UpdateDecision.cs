@@ -39,12 +39,14 @@ public static class UpdateDecision
     /// which already knows how to upgrade in place.
     /// </summary>
     public static UpdateAction For(UpdateManifest? manifest, int runningVersionCode, bool portable,
-        int dismissedVersionCode)
+        int dismissedVersionCode, string architecture)
     {
         if (manifest is null || !manifest.IsNewerThan(runningVersionCode)) return UpdateAction.None;
         if (manifest.VersionCode == dismissedVersionCode) return UpdateAction.None;
         if (portable) return UpdateAction.ShowLink;
 
-        return manifest.Setup?.IsUsable == true ? UpdateAction.OfferSetup : UpdateAction.ShowLink;
+        return manifest.SetupFor(architecture)?.IsUsable == true
+            ? UpdateAction.OfferSetup
+            : UpdateAction.ShowLink;
     }
 }

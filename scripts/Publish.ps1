@@ -95,36 +95,72 @@ else {
 
 function Get-Sha256([string]$path) { (Get-FileHash -Algorithm SHA256 -Path $path).Hash.ToLowerInvariant() }
 
+$architectures = @('x64', 'arm64', 'x86')
+
+# The pair for one architecture, or nothing when that build is not in dist.
+function Get-ArchZips([string]$a)
+{
+    $s = Join-Path $dist "TtsUtilWin-$version-$a-setup.zip"
+    $p = Join-Path $dist "TtsUtilWin-$version-$a-portable.zip"
+    if ((Test-Path $s) -and (Test-Path $p)) { return [pscustomobject]@{ Setup = $s; Portable = $p } }
+    return $null
+}
+
+function New-Download([string]$repo, [string]$path)
+{
+    return [ordered]@{
+        url    = "https://github.com/$repo/releases/download/$tag/$(Split-Path -Leaf $path)"
+        bytes  = (Get-Item $path).Length
+        sha256 = Get-Sha256 $path
+    }
+}
+
 # The program reads this file, and refuses any download whose hash does not match what is here.
 # A repository gets a manifest naming its own copies of the assets, never the other one's.
 function New-Manifest([string]$repo)
 {
-    $downloadBase = "https://github.com/$repo/releases/download/$tag"
+    $built = [ordered]@{}
+    foreach ($a in $architectures) {
+        $zips = Get-ArchZips $a
+        if ($zips) {
+            $built[$a] = [ordered]@{
+                setup    = New-Download $repo $zips.Setup
+                portable = New-Download $repo $zips.Portable
+            }
+        }
+    }
 
+    if (-not $built.Contains('x64')) { throw 'The manifest needs the x64 zips, which are not in dist.' }
+
+    # setup and portable are the x64 pair, which is where a copy built before 0.13.0 looks.
     return [ordered]@{
-        versionName = $version
-        versionCode = $code
-        releaseUrl  = "https://github.com/$repo/releases/tag/$tag"
-        setup       = [ordered]@{
-            url    = "$downloadBase/$(Split-Path -Leaf $setupZip)"
-            bytes  = (Get-Item $setupZip).Length
-            sha256 = Get-Sha256 $setupZip
-        }
-        portable    = [ordered]@{
-            url    = "$downloadBase/$(Split-Path -Leaf $portableZip)"
-            bytes  = (Get-Item $portableZip).Length
-            sha256 = Get-Sha256 $portableZip
-        }
+        versionName   = $version
+        versionCode   = $code
+        releaseUrl    = "https://github.com/$repo/releases/tag/$tag"
+        setup         = $built['x64'].setup
+        portable      = $built['x64'].portable
+        architectures = $built
     }
 }
 
-$manifest = New-Manifest $Repo
-$manifestPath = Join-Path $dist 'latest.json'
-$manifest | ConvertTo-Json -Depth 4 | Set-Content -Path $manifestPath -Encoding utf8
+$thisSetupHash = Get-Sha256 $setupZip
+$thisPortableHash = Get-Sha256 $portableZip
 
-Write-Host "Wrote $manifestPath" -ForegroundColor Green
-Write-Host "  setup    $($manifest.setup.sha256)"
-Write-Host "  portable $($manifest.portable.sha256)"
+Write-Host "Packaged $arch" -ForegroundColor Green
+Write-Host "  setup    $thisSetupHash"
+Write-Host "  portable $thisPortableHash"
+
+# Every architecture in dist goes into the manifest, so the x64 run is not the only one that
+# can write it. A run without the x64 zips leaves the file alone.
+$manifestPath = Join-Path $dist 'latest.json'
+if (Get-ArchZips 'x64') {
+    $manifest = New-Manifest $Repo
+    $manifest | ConvertTo-Json -Depth 6 | Set-Content -Path $manifestPath -Encoding utf8
+    Write-Host "Wrote $manifestPath naming $($manifest.architectures.Keys -join ', ')" -ForegroundColor Green
+}
+else {
+    Write-Host 'No x64 zips in dist, so no manifest was written.' -ForegroundColor Yellow
+}
 
 if (-not $Publish) {
     Write-Host 'Nothing published. Re-run with -Publish when the notes are ready.' -ForegroundColor Yellow
@@ -133,7 +169,7 @@ if (-not $Publish) {
 
 # A build the notes were not written from is caught here rather than on the release page.
 $notes = Get-Content $NotesFile -Raw
-foreach ($hash in @($manifest.setup.sha256, $manifest.portable.sha256)) {
+foreach ($hash in @($thisSetupHash, $thisPortableHash)) {
     if ($notes -notlike "*$hash*") {
         throw "The notes do not carry $hash. Copy the hashes above into $NotesFile, then re-run with -SkipBuild."
     }
@@ -181,14 +217,14 @@ function Send-Manifest([string]$repo, $body)
 Send-Assets $Repo
 if ($MirrorRepo) { Send-Assets $MirrorRepo }
 
-# The manifest names one download per release, so only the x64 build writes it. Publishing
-# another architecture would otherwise point every running copy at a build it cannot run.
-if ($arch -ne 'x64') {
-    Write-Host "Assets uploaded. The manifest still points at x64, which is what $arch cannot change yet." -ForegroundColor Yellow
+# The manifest names the architectures whose zips are in dist, so the run that publishes last
+# is the one that offers them all. Without the x64 zips there is nothing to write.
+if (-not (Get-ArchZips 'x64')) {
+    Write-Host 'Assets uploaded. The manifest was left alone, which needs an x64 build.' -ForegroundColor Yellow
     return
 }
 
-Send-Manifest $Repo $manifest
+Send-Manifest $Repo (New-Manifest $Repo)
 if ($MirrorRepo) { Send-Manifest $MirrorRepo (New-Manifest $MirrorRepo) }
 
 Write-Host "Published $version." -ForegroundColor Green
