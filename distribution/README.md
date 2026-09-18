@@ -90,8 +90,9 @@ be sure of what you have.
 
 ## 🔄 Updates
 
-The program asks this repository at each start whether a newer release exists, by reading
-`latest.json`. Nothing is sent: no identifier, no text, no telemetry. A newer version waits on
+The program asks at each start whether a newer release exists, by reading `latest.json`. A
+copy built before 0.12.0-beta asks this repository, where the answer is frozen at 0.12.0-beta,
+and every copy from 0.12.0-beta onward asks the repository above. Nothing is sent: no identifier, no text, no telemetry. A newer version waits on
 the **Updates** tab, which wears a red exclamation mark, names the version and lists what
 changed in it. Nothing interrupts what you were doing unless you ask it to, with the box
 **Update prompt popup box on startup**, and while that box is off no update dialog opens
