@@ -146,6 +146,8 @@ public partial class MainWindow
         {
             document.Box.Clear();
             document.ScriptTitle = null;
+            document.TitleInBox = string.Empty;
+            ShowTitleOfActiveTab();
             Rename(document, "Text 1");
             MarkDocumentSaved(document);
             return;

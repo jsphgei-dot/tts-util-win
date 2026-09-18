@@ -116,11 +116,13 @@ public sealed class DocumentTabsTests : IDisposable
             window.UnsavedCloseAsker = _ => (Close: true, StopAsking: false);
             window.InputText.Text = "Something to be rid of.";
             window.TextScriptTitle = "Act One";
+            window.TextTitleBox.Text = "Act One";
             window.CloseDocument(window.ActiveDocument!);
 
             Assert.Single(window.Documents);
             Assert.Equal(string.Empty, window.InputText.Text);
             Assert.Null(window.TextScriptTitle);
+            Assert.Equal(string.Empty, window.TextTitleBox.Text);
 
             window.Close();
         });
